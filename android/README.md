@@ -17,8 +17,9 @@ The game is the same code as the desktop build:
 * Touch: on-screen controls while playing (`src/touch_controls.cpp`, on by default
   on Android), menus by direct touch (fingers -> logical game coordinates).
   The Android back button is the Escape key.
-* Scaling on Android defaults to `scale_mode = fit` (the picture fills the screen
-  keeping its aspect ratio).
+* The same renderer as on the desktop (`docs/RENDERER.md`): the scene is
+  rendered at the screen's resolution, the 4:3 composition is centered on a
+  wide screen, touch controls use the free space beside it.
 
 ## Build
 
@@ -35,5 +36,5 @@ cd android
 * Not tested on a device or emulator at all.
 * Text input (profile names) needs `SDL_StartTextInput` / `SDL_EVENT_TEXT_INPUT`.
 * No app icon of its own (SDL's default), no audio (the game has none).
-* The double-size question at first start is asked by touch; on small screens
-  the high resolution mode is probably the better default.
+* The renderer's GLES2 path (render targets, PIXELART filter) is unverified
+  on a device.

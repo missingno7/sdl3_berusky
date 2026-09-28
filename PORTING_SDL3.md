@@ -51,18 +51,16 @@ game / core code (unchanged game logic, animation, levels, menus, sprite store)
                   texture)        logical coords)     root, dialogs)
 ```
 
-* **Rendering** – all sprites are `SDL_Surface`s in one pixel format
-  (`XRGB8888`, replaces `SDL_DisplayFormat`), the old blitter / fill / color
-  key / per-pixel code is untouched. The screen is a normal software
-  framebuffer surface owned by `graph_2d`. `graph_2d::flip()` uploads the
-  dirty rectangles (the old `SDL_UpdateRects` semantics) to a streaming
-  texture and presents it through `SDL_Renderer` (`video.cpp` – the only file
-  that knows about window/renderer/texture).
-* **Logical resolution** – the framebuffer is 640x480 (or 1280x900 in
-  double-size mode). `SDL_SetRenderLogicalPresentation` scales it into any
-  window (integer scaling by default, `scale_mode = fit|smooth` in the config),
-  handles HiDPI and letterboxing, and converts mouse / touch coordinates back
-  to logical coordinates (`video_backend::event_to_logical`).
+* **Rendering** – replaced by a resolution-independent renderer, see
+  **`docs/RENDERER.md`**. The game draws in logical units (a 640x480 unit
+  composition, 20 unit cells) into canvases that record a display list;
+  `SDL_Renderer` composites the sprites (each asset at its native pixel
+  density) into a render target at the output's resolution, which is placed in
+  the window keeping the aspect ratio. The fixed 640x480 / 1280x900
+  framebuffer and the double-size mode are gone.
+* **Coordinates** – `RENDER_LAYOUT` (`render_layout.h`) converts window
+  coordinates (HiDPI, letterboxing) to logical ones for mouse and touch
+  (`video_backend::event_to_logical`).
 * **Input** – `input_sdl.cpp` is the only place that reads SDL events. It
   produces *neutral key codes* (`K_xxx` in `input.h`, ASCII for printable
   keys) and pointer events in logical coordinates. `input::key_input()` keeps
@@ -143,15 +141,17 @@ the SDL3 keycode translation table (`input_sdl.cpp`).
   be verified on a device (the desktop path is what was tested).
 * Lifecycle events (`SDL_EVENT_WILL_ENTER_BACKGROUND`, `TERMINATING`) are not
   handled specially; the game just keeps running its loop.
-* The first-start "double size" question and the layout for small / portrait
-  screens have not been looked at.
+* Small / portrait screens get the composition letterboxed (unit tested in
+  `tests/layout_test.cpp`, not seen on a device).
 
 ## 7. Known behavior differences from the original
 
-* Window scaling: integer scaling by default (configurable).
+* The scene is rendered at the window's resolution (fit, pixelart filter by
+  default; integer scaling and other filters are settings, see
+  `docs/RENDERER.md`). There is no double-size mode and no start-up question.
 * Fullscreen is borderless desktop fullscreen instead of a video mode switch.
-* The whole dirty rectangle set is presented; parts that were not marked dirty
-  keep their previous content (same as `SDL_UpdateRects`).
+* Everything drawn is presented on the next flip (the old code only showed the
+  rectangles marked dirty).
 * `menu_dialog_error` (was an empty stub after the GTK removal) now shows an
   SDL message box.
 * One-shot keys (`KEY_CLEAR_AFTER_PRESS`) keep a pending press until the tick
@@ -174,15 +174,16 @@ the SDL3 keycode translation table (`input_sdl.cpp`).
 
 `python tests/run_tests.py` replays scripted sessions (`tests/scripts/*.txt`,
 see `src/test_script.h`) in an isolated user directory
-(`BERUSKY_USER_DIR`), saves framebuffer / window screenshots and compares them
+(`BERUSKY_USER_DIR`), saves scene / window screenshots and layout dumps and compares them
 with `tests/expected/*.sha256`. Real input devices are ignored while a script
 runs and the level clock is tick based, so the pictures are reproducible.
 
-Covered: startup + resolution question, menus + hover, level select, level
-start, movement (keyboard), switching players, pause menu, settings (fullscreen
-toggle by menu), help, level completion + profile file, profile creation,
-double-size mode, window presentation (scaling, letterbox, resize, fullscreen
-toggle), command-line user level (`-u`), the editor, touch input and controls.
+Covered: startup, menus + hover, level select, level start, movement
+(keyboard), switching players, pause menu, settings, help, level completion +
+profile file, profile creation, window presentation, command-line user level
+(`-u`), the editor, touch input and controls, and the renderer scenarios listed
+in `docs/RENDERER.md` (resolutions, widescreen, filters, pixel densities, HD
+packs, resizing). Tests use SDL's software renderer (`--renderer` overrides).
 
 `python tests/run_tests.py --exe build-gcc/berusky.exe` checks another
 compiler; MSVC and MinGW GCC currently give identical pixels for all scenarios.
