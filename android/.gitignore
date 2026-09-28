@@ -1,0 +1,5 @@
+app/src/main/assets/
+app/.cxx/
+build/
+.gradle/
+local.properties

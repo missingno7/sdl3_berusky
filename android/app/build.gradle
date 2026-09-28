@@ -1,0 +1,62 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace = "cz.anakreon.berusky"
+    compileSdkVersion 35
+    ndkVersion = "28.2.13676358"
+
+    defaultConfig {
+        applicationId "cz.anakreon.berusky"
+        minSdkVersion 21
+        targetSdkVersion 35
+        versionCode 10702
+        versionName "1.7.2"
+        externalNativeBuild {
+            cmake {
+                // The same top-level CMake project as the desktop build. It builds
+                // SDL3 + SDL3_image (downloaded by CMake) as shared libraries and
+                // libmain.so = main.cpp + berusky_core. No editor on the phone.
+                arguments "-DANDROID_PLATFORM=android-21",
+                          "-DANDROID_STL=c++_static",
+                          "-DBERUSKY_ENABLE_EDITOR=OFF",
+                          "-DBERUSKY_STATIC_SDL=OFF"
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path '../../CMakeLists.txt'
+        }
+    }
+
+    lint {
+        abortOnError = false
+    }
+}
+
+// The game data (Graphics, GameData, Levels + the config template) is
+// packaged as APK assets. The game reads it with SDL_IOFromFile()
+// (see src/platform.cpp - the asset root is empty on Android).
+tasks.register('copyGameData', Copy) {
+    from('../../data') {
+        include 'Graphics/**', 'GameData/**', 'Levels/**', 'berusky.ini'
+    }
+    into 'src/main/assets'
+}
+preBuild.dependsOn copyGameData
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}

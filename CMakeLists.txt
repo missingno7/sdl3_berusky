@@ -107,16 +107,24 @@ endif()
 # ---------------------------------------------------------------------------
 # Desktop executable
 # ---------------------------------------------------------------------------
-add_executable(berusky src/main.cpp)
-target_link_libraries(berusky PRIVATE berusky_core)
+if(ANDROID)
+  # SDLActivity loads libmain.so and calls SDL_main() in it
+  add_library(main SHARED src/main.cpp)
+  target_link_libraries(main PRIVATE berusky_core)
+else()
+  add_executable(berusky src/main.cpp)
+  target_link_libraries(berusky PRIVATE berusky_core)
+endif()
 
 # ---------------------------------------------------------------------------
 # Install: the executable + the game data (Graphics, GameData, Levels, ...)
 # ---------------------------------------------------------------------------
-include(GNUInstallDirs)
-install(TARGETS berusky RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATADIR}/berusky
-        PATTERN "Makefile*" EXCLUDE
-        PATTERN "Windows" EXCLUDE
-        PATTERN "Man" EXCLUDE
-        PATTERN "spec" EXCLUDE)
+if(NOT ANDROID)
+  include(GNUInstallDirs)
+  install(TARGETS berusky RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATADIR}/berusky
+          PATTERN "Makefile*" EXCLUDE
+          PATTERN "Windows" EXCLUDE
+          PATTERN "Man" EXCLUDE
+          PATTERN "spec" EXCLUDE)
+endif()
