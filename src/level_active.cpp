@@ -130,7 +130,7 @@ bool level_store::levelset_load(DIR_LIST *p_dir_, char *p_script)
       p_list[i].levelname[0] = '\0';
     }
   
-    strncat(p_list[i].levelname,p_start,sizeof(p_list[i].levelname));
+    strncat(p_list[i].levelname,p_start,sizeof(p_list[i].levelname)-strlen(p_list[i].levelname)-1);
     fgets_correction(p_list[i].levelname);
   
     while((file_gets(tmp,sizeof(tmp),f)) && !(p_start = is_valid_line(tmp)));
@@ -138,7 +138,8 @@ bool level_store::levelset_load(DIR_LIST *p_dir_, char *p_script)
       file_close(f);
       return(false);
     }
-    strncpy(p_list[i].password,p_start,sizeof(p_list[i].password));
+    strncpy(p_list[i].password,p_start,sizeof(p_list[i].password)-1);
+    p_list[i].password[sizeof(p_list[i].password)-1] = '\0';
     fgets_correction(p_list[i].password);
   }
 

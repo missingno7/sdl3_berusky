@@ -733,12 +733,12 @@ public:
     success = FALSE;  
     keys = 0;
     steps = 0;
-    tm_start = time(NULL);    
+    tm_start = game_clock();
   }
 
   void game_stop(void)
   {
-    tm_elapsed = time(NULL) - tm_start;
+    tm_elapsed = game_clock() - tm_start;
   }
 
   char * time_get(char *p_string, int num)

@@ -29,7 +29,7 @@ ROOT = os.path.dirname(HERE)
 
 def find_exe(explicit):
     if explicit:
-        return explicit
+        return os.path.abspath(explicit)
     for cand in ("build/berusky.exe", "build/berusky", "build/Release/berusky.exe"):
         p = os.path.join(ROOT, cand)
         if os.path.exists(p):

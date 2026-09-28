@@ -48,6 +48,7 @@
 #include "berusky_gui.h"
 #include "main.h"
 #include "editor.h"
+#include "test_script.h"
 
 
 FHANDLE log_file;
@@ -88,6 +89,13 @@ void log_open_ini(const char *p_ini_file)
 void log_flush(void)
 {
   file_flush(log_file);
+}
+
+time_t game_clock(void)
+{
+  if(test_script_active())
+    return((time_t)(test_script_ticks() / 30));
+  return(time(NULL));
 }
 
 // A fatal error. Show it to the user (SDL message box / stderr) and quit.

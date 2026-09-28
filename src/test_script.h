@@ -43,6 +43,9 @@ class input;
 // True when a script is running (the game uses it to be deterministic)
 bool test_script_active(void);
 
+// Game ticks (input polls) since the script started
+long test_script_ticks(void);
+
 // Called once per game tick by the input backend. Returns true to quit.
 bool test_script_poll(class input *p_input);
 

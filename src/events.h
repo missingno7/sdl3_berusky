@@ -29,6 +29,7 @@
 #define __EVENTS_H__
 
 #include "portability.h"
+#include "types.h"
 
 // uncomment for event debugging
 // #define EVENTS_DEBUG 1
@@ -453,6 +454,14 @@ public:
   {
     assert(index < PARAMS);
     return((int)(intptr_t)(params[index]));
+  }
+
+  // Pointer-sized parameter: a pointer, or an integer that is passed on as size_ptr.
+  // (param_int_get() would cut a pointer to 32 bits.)
+  size_ptr param_size_get(int index)
+  {
+    assert(index < PARAMS);
+    return((size_ptr)(intptr_t)(params[index]));
   }
 
   void * param_point_get(int index)

@@ -261,6 +261,7 @@ surface::surface(void)
 }
 
 surface::surface(char *p_file)
+: used(0), p_surf(NULL)
 {
   load(p_file);
 }
@@ -272,11 +273,13 @@ surface::surface(SDL_Surface *p_surf_, int used_)
 }
 
 surface::surface(class surface *p_src)
+: used(0), p_surf(NULL)
 {
   copy(p_src);
 }
 
 surface::surface(class surface &src)
+: used(0), p_surf(NULL)
 {
   copy(&src);
 }
@@ -442,7 +445,8 @@ void surface::scale(class surface *p_src, tpos src_x, tpos src_y,
   // Copy & interpolate original pixels
   for(y = 0; y < height; y++) {
     for(x = 0; x < width; x++) {
-      RGB   color[4];
+      // (color[1..3] were read uninitialized when a neighbour pixel is transparent)
+      RGB   color[4] = {RGB(0,0,0), RGB(0,0,0), RGB(0,0,0), RGB(0,0,0)};
       int   hits[4];
     
       /* Pixel positions:

@@ -1966,10 +1966,11 @@ editor_console::editor_console(INPUT *p_input_, tpos sx, tpos sy, tpos dx, int l
   ix_title = ix_input = sx;
   iy_title = iy_input = sy + height_diff * lines + CONSOLE_INPUT_LINE_SHIFT;
 
+  // (output_clear() may redraw the console)
+  output_draw = TRUE;
+
   output_clear();
   input_clear();
-
-  output_draw = TRUE;
 }
 
 void editor_console::input_start(INPUT_TYPE type, char *p_text)

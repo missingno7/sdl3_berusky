@@ -211,7 +211,18 @@ bool input_backend_poll(class input *p_input_, bool wait)
     ret = SDL_PollEvent(&event);
   }
 
+  // A test script is the only source of input - real devices are ignored,
+  // so the result doesn't depend on what the user does with the machine
+  const bool scripted = test_script_active();
+
   while(ret) {
+    if(scripted && ((event.type >= SDL_EVENT_KEY_DOWN && event.type <= SDL_EVENT_KEY_UP) ||
+                    (event.type >= SDL_EVENT_MOUSE_MOTION && event.type <= SDL_EVENT_MOUSE_WHEEL) ||
+                    (event.type >= SDL_EVENT_GAMEPAD_AXIS_MOTION && event.type <= SDL_EVENT_GAMEPAD_TOUCHPAD_UP))) {
+      ret = SDL_PollEvent(&event);
+      continue;
+    }
+
     switch (event.type) {
       case SDL_EVENT_KEY_DOWN:
       case SDL_EVENT_KEY_UP:

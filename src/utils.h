@@ -38,6 +38,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
+#include <time.h>
 
 #include "portability.h"
 
@@ -402,6 +403,10 @@ typedef struct _DIRECTORY_ENTRY {
 int file_list_get(const char *p_dir, const char *p_mask, DIRECTORY_ENTRY **p_list);
 
 void  user_directory_create(void);
+
+// Wall clock in seconds (level time). A test script replaces it by the game
+// ticks, so the pictures don't depend on how fast the machine is.
+time_t game_clock(void);
 
 // The configuration file (in the user data directory)
 const char *config_file(bool configure = FALSE);

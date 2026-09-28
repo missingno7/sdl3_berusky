@@ -1,0 +1,1136 @@
+﻿cmd : 'vswhere.exe' is not recognized as an internal or external command,
+At line:1 char:435
++ ... 30c44d\scratchpad\build_gcc.bat"; $out = cmd /c "`"$s`"" 2>&1; $out | ...
++                                              ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ('vswhere.exe' i...ternal command,:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+operable program or batch file.
+-- The C compiler identification is GNU 16.1.0
+-- The CXX compiler identification is GNU 16.1.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/msys64/mingw64/bin/gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/msys64/mingw64/bin/g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- SDL3 / SDL3_image not installed - downloading release-3.4.16 / release-3.4.6
+-- Found PkgConfig: C:/msys64/mingw64/bin/pkg-config.exe (found version "2.5.1") 
+-- Detecting Target CPU Architecture
+-- Detecting Target CPU Architecture - X64
+-- Performing Test HAVE_GDWARF_4
+-- Performing Test HAVE_GDWARF_4 - Success
+-- Performing Test HAVE_GCC_WALL
+-- Performing Test HAVE_GCC_WALL - Success
+-- Performing Test HAVE_GCC_WUNDEF
+-- Performing Test HAVE_GCC_WUNDEF - Success
+-- Performing Test HAVE_GCC_WFLOAT_CONVERSION
+-- Performing Test HAVE_GCC_WFLOAT_CONVERSION - Success
+-- Performing Test HAVE_GCC_NO_STRICT_ALIASING
+-- Performing Test HAVE_GCC_NO_STRICT_ALIASING - Success
+-- Performing Test HAVE_GCC_WDOCUMENTATION
+-- Performing Test HAVE_GCC_WDOCUMENTATION - Failed
+-- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND
+-- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND - Failed
+-- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS
+-- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS - Failed
+-- Performing Test HAVE_CLANG_COMMENT_BLOCK_COMMANDS
+-- Performing Test HAVE_CLANG_COMMENT_BLOCK_COMMANDS - Failed
+-- Performing Test HAVE_GCC_WSHADOW
+-- Performing Test HAVE_GCC_WSHADOW - Success
+-- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS
+-- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS - Success
+-- Performing Test HAVE_GCC_WIMPLICIT_FALLTHROUGH
+-- Performing Test HAVE_GCC_WIMPLICIT_FALLTHROUGH - Success
+-- Performing Test COMPILER_SUPPORTS_FDIAGNOSTICS_COLOR_ALWAYS
+-- Performing Test COMPILER_SUPPORTS_FDIAGNOSTICS_COLOR_ALWAYS - Success
+-- Looking for __GLIBC__
+-- Looking for __GLIBC__ - not found
+-- Linker identification: GNUlike
+-- Performing Test HAVE_WL_VERSION_SCRIPT
+-- Performing Test HAVE_WL_VERSION_SCRIPT - Success
+-- Performing Test COMPILER_SUPPORTS_GCC_ATOMICS
+-- Performing Test COMPILER_SUPPORTS_GCC_ATOMICS - Success
+-- Performing Test HAVE_GCC_FVISIBILITY
+-- Performing Test HAVE_GCC_FVISIBILITY - Failed
+-- Performing Test LINKER_SUPPORTS_WL_NO_UNDEFINED
+-- Performing Test LINKER_SUPPORTS_WL_NO_UNDEFINED - Success
+-- Performing Test COMPILER_SUPPORTS_MMX
+-- Performing Test COMPILER_SUPPORTS_MMX - Success
+-- Performing Test COMPILER_SUPPORTS_SSE
+-- Performing Test COMPILER_SUPPORTS_SSE - Success
+-- Performing Test COMPILER_SUPPORTS_SSE2
+-- Performing Test COMPILER_SUPPORTS_SSE2 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE3
+-- Performing Test COMPILER_SUPPORTS_SSE3 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE4_1
+-- Performing Test COMPILER_SUPPORTS_SSE4_1 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE4_2
+-- Performing Test COMPILER_SUPPORTS_SSE4_2 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX
+-- Performing Test COMPILER_SUPPORTS_AVX - Success
+-- Performing Test COMPILER_SUPPORTS_AVX2
+-- Performing Test COMPILER_SUPPORTS_AVX2 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX512F
+-- Performing Test COMPILER_SUPPORTS_AVX512F - Success
+-- Looking for alloca.h
+-- Looking for alloca.h - not found
+-- Looking for float.h
+-- Looking for float.h - found
+-- Looking for iconv.h
+-- Looking for iconv.h - found
+-- Looking for inttypes.h
+-- Looking for inttypes.h - found
+-- Looking for limits.h
+-- Looking for limits.h - found
+-- Looking for malloc.h
+-- Looking for malloc.h - found
+-- Looking for math.h
+-- Looking for math.h - found
+-- Looking for memory.h
+-- Looking for memory.h - found
+-- Looking for signal.h
+-- Looking for signal.h - found
+-- Looking for stdarg.h
+-- Looking for stdarg.h - found
+-- Looking for stdbool.h
+-- Looking for stdbool.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stdio.h
+-- Looking for stdio.h - found
+-- Looking for stdlib.h
+-- Looking for stdlib.h - found
+-- Looking for string.h
+-- Looking for string.h - found
+-- Looking for strings.h
+-- Looking for strings.h - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for time.h
+-- Looking for time.h - found
+-- Looking for wchar.h
+-- Looking for wchar.h - found
+-- Looking for pow in m
+-- Looking for pow in m - found
+-- Looking for abs
+-- Looking for abs - found
+-- Looking for acos
+-- Looking for acos - found
+-- Looking for acosf
+-- Looking for acosf - found
+-- Looking for asin
+-- Looking for asin - found
+-- Looking for asinf
+-- Looking for asinf - found
+-- Looking for atan
+-- Looking for atan - found
+-- Looking for atan2
+-- Looking for atan2 - found
+-- Looking for atan2f
+-- Looking for atan2f - found
+-- Looking for atanf
+-- Looking for atanf - found
+-- Looking for atof
+-- Looking for atof - found
+-- Looking for atoi
+-- Looking for atoi - found
+-- Looking for bcopy
+-- Looking for bcopy - not found
+-- Looking for ceil
+-- Looking for ceil - found
+-- Looking for ceilf
+-- Looking for ceilf - found
+-- Looking for copysign
+-- Looking for copysign - found
+-- Looking for copysignf
+-- Looking for copysignf - found
+-- Looking for cos
+-- Looking for cos - found
+-- Looking for cosf
+-- Looking for cosf - found
+-- Looking for _Exit
+-- Looking for _Exit - found
+-- Looking for exp
+-- Looking for exp - found
+-- Looking for expf
+-- Looking for expf - found
+-- Looking for fabs
+-- Looking for fabs - found
+-- Looking for fabsf
+-- Looking for fabsf - found
+-- Looking for floor
+-- Looking for floor - found
+-- Looking for floorf
+-- Looking for floorf - found
+-- Looking for fmod
+-- Looking for fmod - found
+-- Looking for fmodf
+-- Looking for fmodf - found
+-- Looking for fopen64
+-- Looking for fopen64 - found
+-- Looking for fseeko
+-- Looking for fseeko - found
+-- Looking for fseeko64
+-- Looking for fseeko64 - found
+-- Looking for getenv
+-- Looking for getenv - found
+-- Looking for _i64toa
+-- Looking for _i64toa - found
+-- Looking for index
+-- Looking for index - not found
+-- Looking for itoa
+-- Looking for itoa - found
+-- Looking for log
+-- Looking for log - found
+-- Looking for log10
+-- Looking for log10 - found
+-- Looking for log10f
+-- Looking for log10f - found
+-- Looking for logf
+-- Looking for logf - found
+-- Looking for lround
+-- Looking for lround - found
+-- Looking for lroundf
+-- Looking for lroundf - found
+-- Looking for _ltoa
+-- Looking for _ltoa - found
+-- Looking for malloc
+-- Looking for malloc - found
+-- Looking for memcmp
+-- Looking for memcmp - found
+-- Looking for memcpy
+-- Looking for memcpy - found
+-- Looking for memmove
+-- Looking for memmove - found
+-- Looking for memset
+-- Looking for memset - found
+-- Looking for modf
+-- Looking for modf - found
+-- Looking for modff
+-- Looking for modff - found
+-- Looking for pow
+-- Looking for pow - found
+-- Looking for powf
+-- Looking for powf - found
+-- Looking for putenv
+-- Looking for putenv - found
+-- Looking for rindex
+-- Looking for rindex - not found
+-- Looking for round
+-- Looking for round - found
+-- Looking for roundf
+-- Looking for roundf - found
+-- Looking for scalbn
+-- Looking for scalbn - found
+-- Looking for scalbnf
+-- Looking for scalbnf - found
+-- Looking for setenv
+-- Looking for setenv - not found
+-- Looking for sin
+-- Looking for sin - found
+-- Looking for sinf
+-- Looking for sinf - found
+-- Looking for sqr
+-- Looking for sqr - not found
+-- Looking for sqrt
+-- Looking for sqrt - found
+-- Looking for sqrtf
+-- Looking for sqrtf - found
+-- Looking for sscanf
+-- Looking for sscanf - found
+-- Looking for strchr
+-- Looking for strchr - found
+-- Looking for strcmp
+-- Looking for strcmp - found
+-- Looking for strlcat
+-- Looking for strlcat - not found
+-- Looking for strlcpy
+-- Looking for strlcpy - not found
+-- Looking for strlen
+-- Looking for strlen - found
+-- Looking for strncmp
+-- Looking for strncmp - found
+-- Looking for strnlen
+-- Looking for strnlen - found
+-- Looking for strpbrk
+-- Looking for strpbrk - found
+-- Looking for strrchr
+-- Looking for strrchr - found
+-- Looking for strstr
+-- Looking for strstr - found
+-- Looking for strnstr
+-- Looking for strnstr - not found
+-- Looking for strtod
+-- Looking for strtod - found
+-- Looking for strtok_r
+-- Looking for strtok_r - found
+-- Looking for strtol
+-- Looking for strtol - found
+-- Looking for strtoll
+-- Looking for strtoll - found
+-- Looking for strtoul
+-- Looking for strtoul - found
+-- Looking for strtoull
+-- Looking for strtoull - found
+-- Looking for tan
+-- Looking for tan - found
+-- Looking for tanf
+-- Looking for tanf - found
+-- Looking for trunc
+-- Looking for trunc - found
+-- Looking for truncf
+-- Looking for truncf - found
+-- Looking for unsetenv
+-- Looking for unsetenv - not found
+-- Looking for vsnprintf
+-- Looking for vsnprintf - found
+-- Looking for vsscanf
+-- Looking for vsscanf - found
+-- Looking for wcsnlen
+-- Looking for wcsnlen - found
+-- Looking for wcscmp
+-- Looking for wcscmp - found
+-- Looking for wcsdup
+-- Looking for wcsdup - found
+-- Looking for wcslcat
+-- Looking for wcslcat - not found
+-- Looking for wcslcpy
+-- Looking for wcslcpy - not found
+-- Looking for wcslen
+-- Looking for wcslen - found
+-- Looking for wcsncmp
+-- Looking for wcsncmp - found
+-- Looking for wcsstr
+-- Looking for wcsstr - found
+-- Looking for wcstol
+-- Looking for wcstol - found
+-- Looking for _copysign
+-- Looking for _copysign - found
+-- Looking for _fseeki64
+-- Looking for _fseeki64 - found
+-- Looking for _strrev
+-- Looking for _strrev - found
+-- Looking for _ui64toa
+-- Looking for _ui64toa - found
+-- Looking for _ultoa
+-- Looking for _ultoa - found
+-- Looking for _wcsdup
+-- Looking for _wcsdup - found
+-- Performing Test LIBC_HAS_ISINF
+-- Performing Test LIBC_HAS_ISINF - Success
+-- Performing Test LIBC_ISINF_HANDLES_FLOAT
+-- Performing Test LIBC_ISINF_HANDLES_FLOAT - Success
+-- Performing Test LIBC_HAS_ISINFF
+-- Performing Test LIBC_HAS_ISINFF - Failed
+-- Performing Test LIBC_HAS_ISNAN
+-- Performing Test LIBC_HAS_ISNAN - Success
+-- Performing Test LIBC_ISNAN_HANDLES_FLOAT
+-- Performing Test LIBC_ISNAN_HANDLES_FLOAT - Success
+-- Performing Test LIBC_HAS_ISNANF
+-- Performing Test LIBC_HAS_ISNANF - Failed
+-- Performing Test HAVE_WIN32_CC
+-- Performing Test HAVE_WIN32_CC - Success
+-- Performing Test HAVE_D3D9_H
+-- Performing Test HAVE_D3D9_H - Success
+-- Performing Test HAVE_D3D11_H
+-- Performing Test HAVE_D3D11_H - Success
+-- Performing Test HAVE_DDRAW_H
+-- Performing Test HAVE_DDRAW_H - Success
+-- Performing Test HAVE_DSOUND_H
+-- Performing Test HAVE_DSOUND_H - Success
+-- Performing Test HAVE_DINPUT_H
+-- Performing Test HAVE_DINPUT_H - Success
+-- Looking for dxgi.h
+-- Looking for dxgi.h - found
+-- Performing Test HAVE_XINPUT_H
+-- Performing Test HAVE_XINPUT_H - Success
+-- Performing Test HAVE_WINDOWS_GAMING_INPUT_H
+-- Performing Test HAVE_WINDOWS_GAMING_INPUT_H - Success
+-- Performing Test HAVE_GAMEINPUT_H
+-- Performing Test HAVE_GAMEINPUT_H - Failed
+-- Looking for dxgi1_5.h
+-- Looking for dxgi1_5.h - found
+-- Looking for dxgi1_6.h
+-- Looking for dxgi1_6.h - found
+-- Looking for tpcshrd.h
+-- Looking for tpcshrd.h - found
+-- Looking for roapi.h
+-- Looking for roapi.h - found
+-- Looking for mmdeviceapi.h
+-- Looking for mmdeviceapi.h - found
+-- Looking for audioclient.h
+-- Looking for audioclient.h - found
+-- Looking for sensorsapi.h
+-- Looking for sensorsapi.h - found
+-- Looking for shellscalingapi.h
+-- Looking for shellscalingapi.h - found
+-- Performing Test HAVE_MFAPI_H
+-- Performing Test HAVE_MFAPI_H - Success
+-- Checking for module 'libusb-1.0>=1.0.16'
+--   Package 'libusb-1.0' not found
+-- Could NOT find LibUSB (missing: LibUSB_LIBRARY LibUSB_INCLUDE_PATH) (found version "LibUSB_VERSION-NOTFOUND")
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: Windows-10.0.26200
+-- 64-bit:   TRUE
+-- Compiler: C:/msys64/mingw64/bin/gcc.exe
+-- Revision: SDL-3.4.16-release-3.4.16
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    ON
+--   Video:    ON
+--   GPU:      ON
+--   Render:   ON
+--   Camera:   ON
+--   Joystick: ON
+--   Haptic:   ON
+--   Hidapi:   ON
+--   Power:    ON
+--   Sensor:   ON
+--   Dialog:   ON
+--   Tray:     ON
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: OFF): OFF
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: ON): ON
+--   SDL_AVX2                    (Wanted: ON): ON
+--   SDL_AVX512F                 (Wanted: ON): ON
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: OFF): OFF
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: ON): ON
+--   SDL_DISKAUDIO               (Wanted: ON): ON
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: ON): ON
+--   SDL_DUMMYCAMERA             (Wanted: ON): ON
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: ON): ON
+--   SDL_HIDAPI_JOYSTICK         (Wanted: ON): ON
+--   SDL_HIDAPI_LIBUSB           (Wanted: ON): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: ON): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: OFF): OFF
+--   SDL_MMX                     (Wanted: ON): ON
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: ON): ON
+--   SDL_OPENGLES                (Wanted: ON): ON
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: OFF): OFF
+--   SDL_PTHREADS_SEM            (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: ON): ON
+--   SDL_RENDER_D3D11            (Wanted: ON): ON
+--   SDL_RENDER_D3D12            (Wanted: ON): ON
+--   SDL_RENDER_GPU              (Wanted: ON): ON
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: ON): ON
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: OFF): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: ON): ON
+--   SDL_SSE2                    (Wanted: ON): ON
+--   SDL_SSE3                    (Wanted: ON): ON
+--   SDL_SSE4_1                  (Wanted: ON): ON
+--   SDL_SSE4_2                  (Wanted: ON): ON
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: ON): ON
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: ON): ON
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: ON): ON
+-- 
+--  Build Shared Library: OFF
+--  Build Static Library: ON
+-- 
+-- Enabled backends:
+--   Video drivers: dummy offscreen windows
+--   Render drivers: d3d d3d11 d3d12 gpu ogl ogl_es2 vulkan
+--   GPU drivers: d3d12 vulkan
+--   Audio drivers: disk dsound dummy wasapi
+--   Joystick drivers: dinput hidapi rawinput virtual wgi xinput
+--   Camera drivers: dummy mediafoundation
+-- 
+-- Configuring SDL3_image 3.4.6
+-- Performing Test LINKER_SUPPORTS_VERSION_SCRIPT
+-- Performing Test LINKER_SUPPORTS_VERSION_SCRIPT - Success
+-- Found ZLIB: C:/msys64/mingw64/lib/libz.dll.a (found version "1.3.2")  
+-- Could NOT find PNG (missing: PNG_LIBRARY PNG_PNG_INCLUDE_DIR) 
+libpng NOT found
+-- SDL3_image backends:
+-- - enabled:  stb ani bmp gif jpg lbm pcx png pnm qoi svg tga xcf xpm xv
+-- - disabled: imageio wic avif jxl apng tif webp
+-- Configuring done (191.8s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/sdl3_berusky/build-gcc
+[0/2] Re-checking globbed directories...
+[1/321] Building CXX object CMakeFiles/berusky_core.dir/src/data_parser.cpp.obj
+[2/321] Building CXX object CMakeFiles/berusky_core.dir/src/ini.cpp.obj
+[3/321] Building CXX object CMakeFiles/berusky_core.dir/src/data_parser_tables.cpp.obj
+[4/321] Building CXX object CMakeFiles/berusky_core.dir/src/platform.cpp.obj
+[5/321] Building CXX object CMakeFiles/berusky_core.dir/src/video.cpp.obj
+[6/321] Building CXX object CMakeFiles/berusky_core.dir/src/profile.cpp.obj
+[7/321] Building CXX object CMakeFiles/berusky_core.dir/src/input_sdl.cpp.obj
+[8/321] Building CXX object CMakeFiles/berusky_core.dir/src/level_changer.cpp.obj
+D:/sdl3_berusky/src/level_changer.cpp: In member function 'void level_changer::events_process(LEVEL_EVENT_QUEUE*)':
+D:/sdl3_berusky/src/level_changer.cpp:85:32: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   85 |             p_level->cell_clear(ev.param_int_get(PARAM_0),ev.param_int_get(PARAM_1),
+      |             ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   86 |                                 ev.param_int_get(PARAM_2),ev.param_int_get(PARAM_3));
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/level_changer.cpp:92:9: note: here
+   92 |         case AN_STOP_AND_CLEAR:
+      |         ^~~~
+[9/321] Building CXX object CMakeFiles/berusky_core.dir/src/level.cpp.obj
+[10/321] Building CXX object CMakeFiles/berusky_core.dir/src/events.cpp.obj
+[11/321] Building CXX object CMakeFiles/berusky_core.dir/src/test_script.cpp.obj
+[12/321] Building CXX object CMakeFiles/berusky_core.dir/src/level_active.cpp.obj
+D:/sdl3_berusky/src/level_active.cpp: In member function 'bool level_store::level_load(DIR_LIST*, char*)':
+D:/sdl3_berusky/src/level_active.cpp:62:10: warning: 'char* strncpy(char*, const char*, size_t)' specified bound 1024 equals destination size [-Wstringop-truncation]
+   62 |   strncpy(p_list[0].levelname, p_level, sizeof(p_list[0].levelname));
+      |   ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/level_active.cpp: In member function 'bool level_store::levelset_load(DIR_LIST*, char*)':
+D:/sdl3_berusky/src/level_active.cpp:141:12: warning: 'char* strncpy(char*, const char*, size_t)' output may be truncated copying 50 bytes from a string of length 1023 [-Wstringop-truncation]
+  141 |     strncpy(p_list[i].password,p_start,sizeof(p_list[i].password));
+      |     ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/level_active.cpp:133:12: warning: 'char* strncat(char*, const char*, size_t)' specified bound 1024 equals destination size [-Wstringop-overflow=]
+  133 |     strncat(p_list[i].levelname,p_start,sizeof(p_list[i].levelname));
+      |     ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[13/321] Building CXX object CMakeFiles/berusky.dir/src/main.cpp.obj
+In file included from D:/sdl3_berusky/src/berusky_gui.h:31,
+                 from D:/sdl3_berusky/src/main.cpp:35:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+In file included from D:/sdl3_berusky/src/main.cpp:37:
+D:/sdl3_berusky/src/editor.h: In constructor 'editor_panel::editor_panel(int, DIRECTION, tpos, tpos, int)':
+D:/sdl3_berusky/src/editor.h:335:11: warning: 'void* memset(void*, int, size_t)' clearing an object of type 'class editor_panel' with no trivial copy-assignment; use assignment instead [-Wclass-memaccess]
+  335 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.h:102:15: note: 'class editor_panel' declared here
+  102 | typedef class editor_panel {
+      |               ^~~~~~~~~~~~
+[14/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_WIC.c.obj
+[15/321] Building CXX object CMakeFiles/berusky_core.dir/src/berusky.cpp.obj
+In file included from D:/sdl3_berusky/src/berusky_gui.h:31,
+                 from D:/sdl3_berusky/src/berusky.cpp:34:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+[16/321] Building CXX object CMakeFiles/berusky_core.dir/src/graphics.cpp.obj
+[17/321] Building CXX object CMakeFiles/berusky_core.dir/src/game_logic.cpp.obj
+[18/321] Building CXX object CMakeFiles/berusky_core.dir/src/animation.cpp.obj
+D:/sdl3_berusky/src/animation.cpp: In constructor 'animation::animation()':
+D:/sdl3_berusky/src/animation.cpp:282:9: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'class animation'; use assignment or value-initialization instead [-Wclass-memaccess]
+  282 |   memset(this,0,sizeof(*this));
+      |   ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+In file included from D:/sdl3_berusky/src/berusky.h:117,
+                 from D:/sdl3_berusky/src/animation.cpp:28:
+D:/sdl3_berusky/src/animation.h:164:15: note: 'class animation' declared here
+  164 | typedef class animation {
+      |               ^~~~~~~~~
+D:/sdl3_berusky/src/animation.cpp: In member function 'void animation::init(anim_template_handle, tpos, tpos, tpos, int)':
+D:/sdl3_berusky/src/animation.cpp:291:9: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'class animation'; use assignment or value-initialization instead [-Wclass-memaccess]
+  291 |   memset(this,0,sizeof(*this));
+      |   ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/animation.h:164:15: note: 'class animation' declared here
+  164 | typedef class animation {
+      |               ^~~~~~~~~
+[19/321] Building CXX object CMakeFiles/berusky_core.dir/src/utils.cpp.obj
+In file included from D:/sdl3_berusky/src/berusky_gui.h:31,
+                 from D:/sdl3_berusky/src/utils.cpp:48:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+In file included from D:/sdl3_berusky/src/utils.cpp:50:
+D:/sdl3_berusky/src/editor.h: In constructor 'editor_panel::editor_panel(int, DIRECTION, tpos, tpos, int)':
+D:/sdl3_berusky/src/editor.h:335:11: warning: 'void* memset(void*, int, size_t)' clearing an object of type 'class editor_panel' with no trivial copy-assignment; use assignment instead [-Wclass-memaccess]
+  335 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.h:102:15: note: 'class editor_panel' declared here
+  102 | typedef class editor_panel {
+      |               ^~~~~~~~~~~~
+D:/sdl3_berusky/src/utils.cpp: In function 'void dir_config_read(const char*, const char*, char*, int, const char*)':
+D:/sdl3_berusky/src/utils.cpp:151:12: warning: 'char* strncpy(char*, const char*, size_t)' output may be truncated copying 1023 bytes from a string of length 1023 [-Wstringop-truncation]
+  151 |     strncpy(p_dir, tmp, max-1);
+      |     ~~~~~~~^~~~~~~~~~~~~~~~~~~
+[20/321] Building CXX object CMakeFiles/berusky_core.dir/src/gui.cpp.obj
+In file included from D:/sdl3_berusky/src/gui.cpp:29:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+[21/321] Building CXX object CMakeFiles/berusky_core.dir/src/input.cpp.obj
+In file included from D:/sdl3_berusky/src/berusky_gui.h:31,
+                 from D:/sdl3_berusky/src/input.cpp:31:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+In file included from D:/sdl3_berusky/src/input.cpp:32:
+D:/sdl3_berusky/src/editor.h: In constructor 'editor_panel::editor_panel(int, DIRECTION, tpos, tpos, int)':
+D:/sdl3_berusky/src/editor.h:335:11: warning: 'void* memset(void*, int, size_t)' clearing an object of type 'class editor_panel' with no trivial copy-assignment; use assignment instead [-Wclass-memaccess]
+  335 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.h:102:15: note: 'class editor_panel' declared here
+  102 | typedef class editor_panel {
+      |               ^~~~~~~~~~~~
+D:/sdl3_berusky/src/input.cpp: At global scope:
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+   72 | };
+      | ^
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:72:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:85:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+   85 | };
+      | ^
+D:/sdl3_berusky/src/input.cpp:85:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:85:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:85:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:85:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:98:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+   98 | };
+      | ^
+D:/sdl3_berusky/src/input.cpp:98:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:98:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:98:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:98:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+  140 | };
+      | ^
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+D:/sdl3_berusky/src/input.cpp:140:1: warning: missing initializer for member 'event_key::group' [-Wmissing-field-initializers]
+[22/321] Building CXX object CMakeFiles/berusky_core.dir/src/2d_graph.cpp.obj
+D:/sdl3_berusky/src/2d_graph.cpp: In member function 'spr_handle sprite_store::sprite_insert(surf_handle, tflag, RECT*, spr_handle)':
+D:/sdl3_berusky/src/2d_graph.cpp:820:9: warning: 'void* memcpy(void*, const void*, size_t)' writing to an object of non-trivially copyable type 'SPRITE' {aka 'class sprite'}; use copy-assignment or copy-initialization instead [-Wclass-memaccess]
+  820 |   memcpy(p_sprites+shandle,&tmp, sizeof(tmp));
+      |   ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from D:/sdl3_berusky/src/berusky.h:102,
+                 from D:/sdl3_berusky/src/2d_graph.cpp:36:
+D:/sdl3_berusky/src/2d_graph.h:266:15: note: 'SPRITE' {aka 'class sprite'} declared here
+  266 | typedef class sprite
+      |               ^~~~~~
+D:/sdl3_berusky/src/2d_graph.cpp: In member function 'spr_handle sprite_store::sprite_insert(SURFACE*, tflag, RECT*, spr_handle)':
+D:/sdl3_berusky/src/2d_graph.cpp:838:9: warning: 'void* memcpy(void*, const void*, size_t)' writing to an object of non-trivially copyable type 'SPRITE' {aka 'class sprite'}; use copy-assignment or copy-initialization instead [-Wclass-memaccess]
+  838 |   memcpy(p_sprites+shandle,&tmp, sizeof(tmp));
+      |   ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/2d_graph.h:266:15: note: 'SPRITE' {aka 'class sprite'} declared here
+  266 | typedef class sprite
+      |               ^~~~~~
+D:/sdl3_berusky/src/2d_graph.cpp: In member function 'spr_handle sprite_store::sprite_insert(SPRITE*, int, spr_handle)':
+D:/sdl3_berusky/src/2d_graph.cpp:849:9: warning: 'void* memcpy(void*, const void*, size_t)' writing to an object of non-trivially copyable type 'SPRITE' {aka 'class sprite'}; use copy-assignment or copy-initialization instead [-Wclass-memaccess]
+  849 |   memcpy(p_sprites+start,p_spr,sizeof(p_spr[0])*num);
+      |   ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/2d_graph.h:266:15: note: 'SPRITE' {aka 'class sprite'} declared here
+  266 | typedef class sprite
+      |               ^~~~~~
+D:/sdl3_berusky/src/2d_graph.cpp: In member function 'spr_handle sprite_store::sprite_copy(spr_handle, spr_handle, bool)':
+D:/sdl3_berusky/src/2d_graph.cpp:865:30: warning: implicitly-declared 'constexpr sprite& sprite::operator=(const sprite&)' is deprecated [-Wdeprecated-copy]
+  865 |     p_sprites[dst_handle] = *p_src;
+      |                              ^~~~~
+D:/sdl3_berusky/src/2d_graph.cpp:549:1: note: because 'sprite' has user-provided 'sprite::sprite(sprite&)'
+  549 | sprite::sprite(class sprite &src)
+      | ^~~~~~
+D:/sdl3_berusky/src/2d_graph.cpp: In constructor 'font::font(GRAPH_2D*)':
+D:/sdl3_berusky/src/2d_graph.cpp:1057:9: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'class font'; use assignment instead [-Wclass-memaccess]
+ 1057 |   memset(this,0,sizeof(*this));
+      |   ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/2d_graph.h:910:15: note: 'class font' declared here
+  910 | typedef class font {
+      |               ^~~~
+In member function 'void surface::copy(surface*, RECT*)',
+    inlined from 'surface::surface(surface*)' at D:/sdl3_berusky/src/2d_graph.cpp:276:7:
+D:/sdl3_berusky/src/2d_graph.cpp:228:6: warning: '*this.surface::p_surf' may be used uninitialized [-Wmaybe-uninitialized]
+  228 |   if(p_surf) {
+      |      ^~~~~~
+In member function 'void surface::copy(surface*, RECT*)',
+    inlined from 'surface::surface(surface&)' at D:/sdl3_berusky/src/2d_graph.cpp:281:7:
+D:/sdl3_berusky/src/2d_graph.cpp:228:6: warning: '*this.surface::p_surf' may be used uninitialized [-Wmaybe-uninitialized]
+  228 |   if(p_surf) {
+      |      ^~~~~~
+D:/sdl3_berusky/src/2d_graph.cpp: In member function 'spr_handle sprite_store::sprite_insert(const char*, spr_handle, spr_handle*)':
+D:/sdl3_berusky/src/2d_graph.cpp:736:10: warning: 'char* strncpy(char*, const char*, size_t)' specified bound 200 equals destination size [-Wstringop-truncation]
+  736 |   strncpy(filename, p_file, 200);
+      |   ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[23/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG.c.obj
+[24/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_anim_encoder.c.obj
+[25/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_avif.c.obj
+[26/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_gpu.c.obj
+[27/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_anim_decoder.c.obj
+[28/321] Building CXX object CMakeFiles/berusky_core.dir/src/level_game.cpp.obj
+[29/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_ani.c.obj
+[30/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_jxl.c.obj
+[31/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_pcx.c.obj
+[32/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_bmp.c.obj
+[33/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_lbm.c.obj
+[34/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/cmake_pch.h.gch
+[35/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_jpg.c.obj
+[36/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_png.c.obj
+[37/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_pnm.c.obj
+[38/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_error.c.obj
+[39/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_guid.c.obj
+[40/321] Building CXX object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/cmake_pch.hxx.gch
+[41/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_gif.c.obj
+[42/321] Building CXX object CMakeFiles/berusky_core.dir/src/editor.cpp.obj
+In file included from D:/sdl3_berusky/src/berusky_gui.h:31,
+                 from D:/sdl3_berusky/src/editor.cpp:39:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+In file included from D:/sdl3_berusky/src/editor.cpp:41:
+D:/sdl3_berusky/src/editor.h: In constructor 'editor_panel::editor_panel(int, DIRECTION, tpos, tpos, int)':
+D:/sdl3_berusky/src/editor.h:335:11: warning: 'void* memset(void*, int, size_t)' clearing an object of type 'class editor_panel' with no trivial copy-assignment; use assignment instead [-Wclass-memaccess]
+  335 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.h:102:15: note: 'class editor_panel' declared here
+  102 | typedef class editor_panel {
+      |               ^~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.h: In constructor 'editor_gui::editor_gui(ITEM_REPOSITORY*, DIR_LIST*)':
+D:/sdl3_berusky/src/editor.h:605:16: warning: 'editor_gui::p_side_event_first' will be initialized after [-Wreorder]
+  605 |   LLIST_ITEM * p_side_event_first;
+      |                ^~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.h:571:19: warning:   'ITEM_PANEL editor_gui::panel_items' [-Wreorder]
+  571 |   ITEM_PANEL      panel_items;
+      |                   ^~~~~~~~~~~
+D:/sdl3_berusky/src/editor.cpp:457:1: warning:   when initialized here [-Wreorder]
+  457 | editor_gui::editor_gui(ITEM_REPOSITORY *p_repo_, DIR_LIST *p_dir_):
+      | ^~~~~~~~~~
+D:/sdl3_berusky/src/editor.cpp: In member function 'bool editor_gui::event_handler()':
+D:/sdl3_berusky/src/editor.cpp:1785:11: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1785 |           if(editor_quit(ev.param_int_get(PARAM_0))) {
+      |           ^~
+D:/sdl3_berusky/src/editor.cpp:1789:9: note: here
+ 1789 |         case GI_MENU_BACK_POP:
+      |         ^~~~
+D:/sdl3_berusky/src/editor.cpp: In member function 'void editor_gui::level_name_set(char*)':
+D:/sdl3_berusky/src/editor.cpp:1022:10: warning: 'char* strncpy(char*, const char*, size_t)' specified bound 1024 equals destination size [-Wstringop-truncation]
+ 1022 |   strncpy(level_name,p_name,MAX_FILENAME);
+      |   ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function 'void editor_console::output_redraw(bool)',
+    inlined from 'void editor_console::output_clear(bool)' at D:/sdl3_berusky/src/editor.cpp:2125:18,
+    inlined from 'editor_console::editor_console(INPUT*, tpos, tpos, tpos, int)' at D:/sdl3_berusky/src/editor.cpp:1969:15:
+D:/sdl3_berusky/src/editor.cpp:2130:6: warning: '*this.editor_console::output_draw' is used uninitialized [-Wuninitialized]
+ 2130 |   if(output_draw) {
+      |      ^~~~~~~~~~~
+D:/sdl3_berusky/src/editor.cpp: In member function 'void editor_gui::level_load(char*, int)':
+D:/sdl3_berusky/src/editor.cpp:1033:14: warning: 'char* strncpy(char*, const char*, size_t)' specified bound 1024 equals destination size [-Wstringop-truncation]
+ 1033 |       strncpy(file,p_file,MAX_FILENAME);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/editor.cpp: In member function 'void editor_gui::level_save_as(char*, int)':
+D:/sdl3_berusky/src/editor.cpp:1103:14: warning: 'char* strncpy(char*, const char*, size_t)' specified bound 1024 equals destination size [-Wstringop-truncation]
+ 1103 |       strncpy(file, p_file, MAX_FILENAME);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[43/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_tif.c.obj
+[44/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_hashtable.c.obj
+[45/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_qoi.c.obj
+[46/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_webp.c.obj
+[47/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_hints.c.obj
+[48/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_xv.c.obj
+[49/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_libpng.c.obj
+[50/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_tga.c.obj
+[51/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_assert.c.obj
+[52/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_list.c.obj
+[53/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/atomic/SDL_atomic.c.obj
+[54/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiodev.c.obj
+[55/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_xpm.c.obj
+[56/321] Building CXX object CMakeFiles/berusky_core.dir/src/berusky_gui.cpp.obj
+In file included from D:/sdl3_berusky/src/berusky_gui.h:31,
+                 from D:/sdl3_berusky/src/berusky_gui.cpp:35:
+D:/sdl3_berusky/src/gui.h: In constructor 'checkbox_config::checkbox_config()':
+D:/sdl3_berusky/src/gui.h:159:11: warning: 'void* memset(void*, int, size_t)' clearing an object of non-trivial type 'struct checkbox_config'; use assignment or value-initialization instead [-Wclass-memaccess]
+  159 |     memset(this,0,sizeof(*this));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+D:/sdl3_berusky/src/gui.h:106:16: note: 'struct checkbox_config' declared here
+  106 | typedef struct checkbox_config {
+      |                ^~~~~~~~~~~~~~~
+[57/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_properties.c.obj
+[58/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_xcf.c.obj
+[59/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/xmlman.c.obj
+[60/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_utils.c.obj
+[61/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_mixer.c.obj
+[62/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/atomic/SDL_spinlock.c.obj
+[63/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL.c.obj
+[64/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/SDL_core_unsupported.c.obj
+[65/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/SDL_log.c.obj
+[66/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioqueue.c.obj
+[67/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_clipboardevents.c.obj
+[68/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioresample.c.obj
+[69/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_keycode.c.obj
+[70/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_displayevents.c.obj
+[71/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_scancode.c.obj
+[72/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_dropevents.c.obj
+[73/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_eventwatch.c.obj
+[74/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_categories.c.obj
+[75/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiotypecvt.c.obj
+[76/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_quit.c.obj
+[77/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_scancode_tables.c.obj
+[78/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_keyboard.c.obj
+[79/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/cpuinfo/SDL_cpuinfo.c.obj
+[80/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/imKStoUCS.c.obj
+[81/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_keymap.c.obj
+[82/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_windowevents.c.obj
+[83/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_pen.c.obj
+[84/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_wave.c.obj
+[85/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/filesystem/SDL_filesystem.c.obj
+[86/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/camera/SDL_camera.c.obj
+[87/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_touch.c.obj
+[88/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/io/SDL_asyncio.c.obj
+[89/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/io/generic/SDL_asyncio_generic.c.obj
+[90/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/controller_type.c.obj
+[91/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/locale/SDL_locale.c.obj
+[92/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/main/SDL_runapp.c.obj
+[93/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/haptic/SDL_haptic.c.obj
+[94/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_audio.c.obj
+[95/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/misc/SDL_libusb.c.obj
+[96/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/main/SDL_main_callbacks.c.obj
+[97/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/misc/SDL_url.c.obj
+[98/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/SDL_render_unsupported.c.obj
+[99/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiocvt.c.obj
+[100/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/power/SDL_power.c.obj
+[101/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_events.c.obj
+[102/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/SDL_steam_virtual_gamepad.c.obj
+[103/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/events/SDL_mouse.c.obj
+[104/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/ngage/SDL_render_ngage.c.obj
+[105/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/SDL_yuv_sw.c.obj
+[106/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_pipeline_gpu.c.obj
+[107/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/io/SDL_iostream.c.obj
+[108/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_shaders_gpu.c.obj
+[109/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_shaders_d3d.c.obj
+[110/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_shaders_gles2.c.obj
+[111/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/ps2/SDL_render_ps2.c.obj
+[112/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/psp/SDL_render_psp.c.obj
+[113/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_shaders_gl.c.obj
+[114/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/gpu/SDL_gpu.c.obj
+[115/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_stb.c.obj
+[116/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_render_gpu.c.obj
+[117/321] Building C object _deps/sdl3_image-build/CMakeFiles/SDL3_image-static.dir/src/IMG_svg.c.obj
+[118/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_shaders_d3d11.c.obj
+[119/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_shaders_d3d12.c.obj
+[120/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawpoint.c.obj
+[121/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm.c.obj
+[122/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_memory.c.obj
+[123/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_tools.c.obj
+[124/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawline.c.obj
+[125/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/SDL_gamepad.c.obj
+[126/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/hidapi/SDL_hidapi.c.obj
+[127/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_render_gl.c.obj
+[128/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc16.c.obj
+[129/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc32.c.obj
+[130/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_render_d3d.c.obj
+[131/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendpoint.c.obj
+[132/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/SDL_joystick.c.obj
+[133/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_shaders_vulkan.c.obj
+[134/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_render_gles2.c.obj
+[135/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/sensor/SDL_sensor.c.obj
+[136/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_render_sw.c.obj
+[137/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memcpy.c.obj
+[138/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_mslibc.c.obj
+[139/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memset.c.obj
+[140/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memmove.c.obj
+[141/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_malloc.c.obj
+[142/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_iconv.c.obj
+[143/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_murmur3.c.obj
+[144/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_render_d3d11.c.obj
+[145/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_strtokr.c.obj
+[146/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_getenv.c.obj
+[147/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_random.c.obj
+[148/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/time/SDL_time.c.obj
+[149/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_render_d3d12.c.obj
+[150/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit.c.obj
+[151/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_stdlib.c.obj
+[152/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_qsort.c.obj
+[153/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/storage/SDL_storage.c.obj
+[154/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_copy.c.obj
+[155/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_triangle.c.obj
+[156/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_string.c.obj
+[157/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/SDL_thread.c.obj
+[158/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/timer/SDL_timer.c.obj
+[159/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_clipboard.c.obj
+[160/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_fillrect.c.obj
+[161/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_bmp.c.obj
+[162/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_rotate.c.obj
+[163/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendfillrect.c.obj
+[164/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_rect.c.obj
+[165/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_slow.c.obj
+[166/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_video_unsupported.c.obj
+[167/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_egl.c.obj
+[168/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/SDL_render.c.obj
+[169/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_stretch.c.obj
+[170/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.c.obj
+[171/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_pixels.c.obj
+[172/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_atan2.c.obj
+[173/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_1.c.obj
+[174/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_RLEaccel.c.obj
+[175/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_exp.c.obj
+[176/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_vulkan_utils.c.obj
+[177/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_log.c.obj
+[178/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_log10.c.obj
+[179/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_fmod.c.obj
+[180/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_render_vulkan.c.obj
+[181/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_rem_pio2.c.obj
+[182/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/k_cos.c.obj
+[183/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_pow.c.obj
+[184/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/e_sqrt.c.obj
+[185/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/k_sin.c.obj
+[186/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/k_tan.c.obj
+[187/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_0.c.obj
+[188/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_copysign.c.obj
+[189/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_atan.c.obj
+[190/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_cos.c.obj
+[191/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_isinf.c.obj
+[192/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_fabs.c.obj
+[193/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.obj
+[194/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/k_rem_pio2.c.obj
+[195/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.obj
+[196/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.obj
+[197/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.obj
+[198/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.obj
+[199/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_N.c.obj
+[200/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.obj
+[201/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.obj
+[202/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.obj
+[203/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.obj
+[204/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.obj
+[205/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.obj
+[206/321] Building CXX object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/SDL_gameinput.cpp.obj
+[207/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.obj
+[208/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.obj
+[209/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/disk/SDL_diskaudio.c.obj
+[210/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/pch.c.obj
+[211/321] Building CXX object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/pch_cpp.cpp.obj
+[212/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_surface.c.obj
+[213/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/io/windows/SDL_asyncio_windows_ioring.c.obj
+[214/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/SDL_hid.c.obj
+[215/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/virtual/SDL_virtualjoystick.c.obj
+[216/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/SDL_xinput.c.obj
+[217/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/main/windows/SDL_sysmain_runapp.c.obj
+[218/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_A.c.obj
+[219/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/misc/windows/SDL_sysurl.c.obj
+[220/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_yuv.c.obj
+[221/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/SDL_immdevice.c.obj
+[222/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/core/windows/SDL_windows.c.obj
+[223/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendline.c.obj
+[224/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/directsound/SDL_directsound.c.obj
+[225/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsframebuffer.c.obj
+[226/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_std.c.obj
+[227/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsclipboard.c.obj
+[228/321] Building CXX object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsgameinput.cpp.obj
+[229/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/audio/wasapi/SDL_wasapi.c.obj
+[230/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/generic/SDL_syscond.c.obj
+[231/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsrawinput.c.obj
+[232/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/generic/SDL_sysrwlock.c.obj
+[233/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsmessagebox.c.obj
+[234/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsopengles.c.obj
+[235/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowskeyboard.c.obj
+[236/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsmodes.c.obj
+[237/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsshape.c.obj
+[238/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsvulkan.c.obj
+[239/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsopengl.c.obj
+[240/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/windows/SDL_syscond_cv.c.obj
+[241/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_video.c.obj
+[242/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsmouse.c.obj
+[243/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/windows/SDL_sysrwlock_srw.c.obj
+[244/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/windows/SDL_sysmutex.c.obj
+[245/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/power/windows/SDL_syspower.c.obj
+[246/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/windows/SDL_systhread.c.obj
+[247/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/windows/SDL_systls.c.obj
+[248/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/thread/windows/SDL_syssem.c.obj
+[249/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/locale/windows/SDL_syslocale.c.obj
+[250/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.obj
+[251/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsvideo.c.obj
+[252/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/storage/steam/SDL_steamstorage.c.obj
+[253/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/timer/windows/SDL_systimer.c.obj
+[254/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/filesystem/windows/SDL_sysfsops.c.obj
+[255/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/time/windows/SDL_systime.c.obj
+[256/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_sse.c.obj
+[257/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_stb.c.obj
+[258/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/loadso/windows/SDL_sysloadso.c.obj
+[259/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_combined.c.obj
+[260/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_8bitdo.c.obj
+[261/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowsevents.c.obj
+[262/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_luna.c.obj
+[263/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_gamecube.c.obj
+[264/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/sensor/windows/SDL_windowssensor.c.obj
+[265/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/tray/windows/SDL_tray.c.obj
+[266/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_flydigi.c.obj
+[267/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_stadia.c.obj
+[268/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_lg4ff.c.obj
+[269/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_shield.c.obj
+[270/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_rumble.c.obj
+[271/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_steam_hori.c.obj
+[272/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/filesystem/windows/SDL_sysfilesystem.c.obj
+[273/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_switch2.c.obj
+[274/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_ps4.c.obj
+[275/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_sinput.c.obj
+[276/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_ps3.c.obj
+[277/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_steamdeck.c.obj
+[278/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/windows/SDL_windowswindow.c.obj
+[279/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_steam_triton.c.obj
+[280/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_ps5.c.obj
+[281/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_xbox360.c.obj
+[282/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_xbox360w.c.obj
+[283/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_steam.c.obj
+[284/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_report_descriptor.c.obj
+[285/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_gip.c.obj
+[286/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/haptic/hidapi/SDL_hidapihaptic.c.obj
+[287/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_zuiki.c.obj
+[288/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_wii.c.obj
+[289/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.obj
+[290/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_xboxone.c.obj
+[291/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog_utils.c.obj
+[292/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.obj
+[293/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/haptic/hidapi/SDL_hidapihaptic_lg4ff.c.obj
+[294/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.obj
+[295/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.obj
+[296/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/windows/SDL_xinputjoystick.c.obj
+[297/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/windows/SDL_windowsjoystick.c.obj
+[298/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/dynapi/SDL_dynapi.c.obj
+[299/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapijoystick.c.obj
+[300/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/haptic/windows/SDL_windowshaptic.c.obj
+[301/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/hidapi/SDL_hidapi_switch.c.obj
+[302/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.obj
+[303/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/windows/SDL_dinputjoystick.c.obj
+[304/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.obj
+[305/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.obj
+[306/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/main/generic/SDL_sysmain_callbacks.c.obj
+[307/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/process/windows/SDL_windowsprocess.c.obj
+[308/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.obj
+[309/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/camera/mediafoundation/SDL_camera_mediafoundation.c.obj
+[310/321] Linking C static library _deps\sdl3_image-build\libSDL3_image.a
+[311/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/haptic/windows/SDL_dinputhaptic.c.obj
+[312/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.obj
+[313/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/windows/SDL_windows_gaming_input.c.obj
+[314/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/dialog/windows/SDL_windowsdialog.c.obj
+[315/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/joystick/windows/SDL_rawinputjoystick.c.obj
+[316/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_auto.c.obj
+[317/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/gpu/d3d12/SDL_gpu_d3d12.c.obj
+[318/321] Building C object _deps/sdl3-build/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.obj
+[319/321] Linking CXX static library _deps\sdl3-build\libSDL3.a
+[320/321] Linking CXX static library libberusky_core.a
+[321/321] Linking CXX executable berusky.exe

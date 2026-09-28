@@ -1,0 +1,16 @@
+# Profiles: type a new profile name, create it, list profiles
+wait 60
+click 295 250
+wait 40
+click 320 240
+wait 10
+shot profile_menu.bmp
+key a
+key b
+key c
+wait 5
+shot profile_typed.bmp
+click 300 105
+wait 15
+shot profile_created.bmp
+quit

@@ -2717,10 +2717,10 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
         menu_profiles(MENU_ENTER);
         break;
       case GC_MENU_PROFILE_CREATE:
-        menu_profile_create(ev.param_int_get(PARAM_0));
+        menu_profile_create(ev.param_size_get(PARAM_0));
         break;
       case GC_MENU_PROFILE_SELECT:        
-        menu_profile_select(ev.param_int_get(PARAM_0), ev.param_int_get(PARAM_1));
+        menu_profile_select(ev.param_size_get(PARAM_0), ev.param_size_get(PARAM_1));
         break;
       case GC_MENU_SETTINGS:
         menu_settings(MENU_ENTER, ev.param_int_get(PARAM_0));

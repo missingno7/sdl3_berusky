@@ -21,6 +21,7 @@ static bool    script_loaded = false;
 static bool    script_enabled = false;
 
 static int     wait_ticks = 0;
+static long    tick_count = 0;
 
 // Delayed release of pressed keys / mouse button
 static KEYTYPE release_key = K_NONE;
@@ -147,10 +148,17 @@ static bool line_next(char *p_line, size_t max)
   return(false);
 }
 
+long test_script_ticks(void)
+{
+  return(tick_count);
+}
+
 bool test_script_poll(class input *p_input_)
 {
   if(!test_script_active())
     return(false);
+
+  tick_count++;
 
   INPUT *p_input = (INPUT *)p_input_;
 
