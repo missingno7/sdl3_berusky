@@ -27,7 +27,9 @@
  *   click <x> <y>          move the pointer and click the left button
  *   shot <file.bmp>        save the framebuffer (the file goes to BERUSKY_TEST_OUT
  *                          when it's set)
- *   windowshot <file.bmp>  save what is in the window (scaled, letterboxed)
+ *   touch <down|move|up> <id> <x> <y>   a finger at a logical game position
+ *   touchw <down|move|up> <id> <x> <y>   a finger at a window position (0..1000 of the window)
+ *   windowshot <file.bmp>  save what is in the window (scaled, letterboxed, controls)
  *   window <w> <h>         resize the window
  *   fullscreen <0|1>       switch fullscreen
  *   quit                   quit the game
@@ -39,6 +41,9 @@
 #define __TEST_SCRIPT_H__
 
 class input;
+
+// Fingers pushed by the script have this touch device id
+#define TEST_TOUCH_ID  0x7e57
 
 // True when a script is running (the game uses it to be deterministic)
 bool test_script_active(void);

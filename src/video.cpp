@@ -22,6 +22,7 @@
 video_backend::video_backend(void)
 : p_window(NULL), p_renderer(NULL), p_texture(NULL),
   logical_width(0), logical_height(0),
+  overlay(NULL), overlay_data(NULL),
   fullscreen(false), texture_lost(false), repaint(false)
 {
 }
@@ -172,15 +173,31 @@ void video_backend::upload(SDL_Surface *p_framebuffer, const SDL_Rect *p_rects, 
   repaint = true;
 }
 
+// Draw everything into the back buffer
+void video_backend::render(void)
+{
+  // The letterbox bars must be cleared, too - the back buffer is undefined
+  SDL_SetRenderDrawColor(p_renderer, 0, 0, 0, 255);
+  SDL_RenderClear(p_renderer);
+  SDL_RenderTexture(p_renderer, p_texture, NULL, NULL);
+
+  if(overlay) {
+    // Overlays are laid out in window pixels
+    int w, h;
+    SDL_RendererLogicalPresentation mode;
+    SDL_GetRenderLogicalPresentation(p_renderer, &w, &h, &mode);
+    SDL_SetRenderLogicalPresentation(p_renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+    overlay(p_renderer, overlay_data);
+    SDL_SetRenderLogicalPresentation(p_renderer, w, h, mode);
+  }
+}
+
 void video_backend::present(void)
 {
   if(!p_renderer || !p_texture)
     return;
 
-  // The letterbox bars must be cleared, too - the back buffer is undefined
-  SDL_SetRenderDrawColor(p_renderer, 0, 0, 0, 255);
-  SDL_RenderClear(p_renderer);
-  SDL_RenderTexture(p_renderer, p_texture, NULL, NULL);
+  render();
   SDL_RenderPresent(p_renderer);
   repaint = false;
 }
@@ -190,10 +207,15 @@ SDL_Surface * video_backend::capture(void)
   if(!p_renderer || !p_texture)
     return(NULL);
 
-  SDL_SetRenderDrawColor(p_renderer, 0, 0, 0, 255);
-  SDL_RenderClear(p_renderer);
-  SDL_RenderTexture(p_renderer, p_texture, NULL, NULL);
+  render();
+
+  // The whole window (not just the logical viewport)
+  int w, h;
+  SDL_RendererLogicalPresentation mode;
+  SDL_GetRenderLogicalPresentation(p_renderer, &w, &h, &mode);
+  SDL_SetRenderLogicalPresentation(p_renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
   SDL_Surface *p_surface = SDL_RenderReadPixels(p_renderer, NULL);
+  SDL_SetRenderLogicalPresentation(p_renderer, w, h, mode);
   return(p_surface);
 }
 
@@ -225,6 +247,30 @@ void video_backend::event_to_logical(SDL_Event *p_event)
     SDL_ConvertEventToRenderCoordinates(p_renderer, p_event);
 }
 
+bool video_backend::logical_to_window(float logical_x, float logical_y, float *p_window_x, float *p_window_y)
+{
+  if(!p_renderer)
+    return(false);
+  return(SDL_RenderCoordinatesToWindow(p_renderer, logical_x, logical_y, p_window_x, p_window_y));
+}
+
+void video_backend::window_size(int *p_width, int *p_height)
+{
+  *p_width = *p_height = 0;
+  if(p_window)
+    SDL_GetWindowSize(p_window, p_width, p_height);
+}
+
+float video_backend::pixel_density(void)
+{
+  int ww = 0, wh = 0, ow = 0, oh = 0;
+  if(!p_window || !p_renderer)
+    return(1.0f);
+  SDL_GetWindowSize(p_window, &ww, &wh);
+  SDL_GetRenderOutputSize(p_renderer, &ow, &oh);
+  return(ww > 0 ? (float)ow / (float)ww : 1.0f);
+}
+
 bool video_backend::window_to_logical(float window_x, float window_y, float *p_logical_x, float *p_logical_y)
 {
   if(!p_renderer)
@@ -246,8 +292,14 @@ VIDEO_SETTINGS video_settings_load(const char *p_ini_file)
   settings.window_scale = ini_read_int_file(p_ini_file, "window_scale", 1);
   settings.vsync = ini_read_bool_file(p_ini_file, "vsync", TRUE) != 0;
 
+  // Desktop: integer scaling (crisp pixels). Phones: fill the screen.
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
+  const char *p_default_mode = "fit";
+#else
+  const char *p_default_mode = "integer";
+#endif
   char mode[100];
-  ini_read_string_file(p_ini_file, "scale_mode", mode, sizeof(mode), "integer");
+  ini_read_string_file(p_ini_file, "scale_mode", mode, sizeof(mode), p_default_mode);
   if(is_token(mode, "fit"))
     settings.scale_mode = SCALE_FIT_NEAREST;
   else if(is_token(mode, "smooth"))

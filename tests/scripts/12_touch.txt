@@ -1,0 +1,38 @@
+# env: BERUSKY_TOUCH_CONTROLS=1
+# Touch: menus by finger (logical coordinates), on-screen controls in a level
+wait 60
+touch down 1 295 250
+wait 2
+touch up 1 295 250
+wait 40
+touch down 1 320 205
+wait 2
+touch up 1 320 205
+wait 10
+touch down 1 330 225
+wait 2
+touch up 1 330 225
+wait 15
+touch down 1 355 355
+wait 2
+touch up 1 355 355
+wait 60
+window 1000 600
+wait 10
+windowshot touch_level.bmp
+touchw down 1 258 730
+wait 3
+windowshot touch_right_pressed.bmp
+touchw up 1 258 730
+wait 30
+touchw down 2 162 890
+wait 3
+touchw up 2 162 890
+wait 30
+shot touch_moved.bmp
+touchw down 1 934 110
+wait 2
+touchw up 1 934 110
+wait 10
+windowshot touch_menu.bmp
+quit

@@ -13,6 +13,7 @@
 #include "berusky.h"
 #include "input_backend.h"
 #include "test_script.h"
+#include "touch_controls.h"
 
 // -------------------------------------------------------
 //   Keyboard: SDL keycode -> neutral key
@@ -68,6 +69,8 @@ static KEYTYPE key_translate(SDL_Keycode key, SDL_Scancode scancode)
     case SDLK_COMMA:        return(K_COMMA);
     case SDLK_PERIOD:       return(K_PERIOD);
     case SDLK_SLASH:        return(K_SLASH);
+
+    case SDLK_AC_BACK:      return(K_ESC);      // Android back button
 
     case SDLK_KP_0:         return(KP_0);
     case SDLK_KP_1:         return(KP_1);
@@ -132,12 +135,111 @@ static KEYTYPE gamepad_button_translate(Uint8 button)
   }
 }
 
-static void gamepads_init(void)
+// -------------------------------------------------------
+//   Touch: fingers -> touch controls (keys) or pointer (logical coordinates)
+// -------------------------------------------------------
+
+static TOUCH_CONTROLS touch;
+
+static inline tpos pointer_coord(float value);
+
+static void touch_overlay(SDL_Renderer *p_renderer, void *p_data)
+{
+  ((TOUCH_CONTROLS *)p_data)->draw(p_renderer);
+}
+
+// touch_controls = yes | no | auto (auto: on for phones and tablets)
+static bool touch_controls_wanted(void)
+{
+  const char *p_env = SDL_getenv("BERUSKY_TOUCH_CONTROLS");
+  if(p_env && p_env[0])
+    return(p_env[0] != '0');
+
+  char value[100];
+  ini_read_string_file(INI_FILE, "touch_controls", value, sizeof(value), "auto");
+  if(is_token(value, "yes") || is_token(value, "on") || is_token(value, "1"))
+    return(true);
+  if(is_token(value, "no") || is_token(value, "off") || is_token(value, "0"))
+    return(false);
+
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
+  return(true);
+#else
+  return(false);
+#endif
+}
+
+// The finger that is used as the mouse pointer (menus)
+static bool          pointer_finger_active = false;
+static SDL_FingerID  pointer_finger = 0;
+
+static void finger_event(INPUT *p_input, SDL_Event *p_event)
+{
+  if(!p_grf)
+    return;
+
+  VIDEO_BACKEND *p_video = p_grf->video_get();
+
+  // Finger coordinates are 0..1 of the window
+  int ww, wh;
+  p_video->window_size(&ww, &wh);
+  const float wx = p_event->tfinger.x * ww;
+  const float wy = p_event->tfinger.y * wh;
+  const float density = p_video->pixel_density();
+
+  // A finger on a control (window pixels)
+  if(touch.finger_event(p_input, p_event, wx * density, wy * density)) {
+    p_video->repaint_request();
+    return;
+  }
+
+  // Any other finger works as the mouse in logical game coordinates
+  float lx, ly;
+  if(!p_video->window_to_logical(wx, wy, &lx, &ly))
+    return;
+  const tpos x = pointer_coord(lx), y = pointer_coord(ly);
+  const SDL_FingerID id = p_event->tfinger.fingerID;
+
+  switch(p_event->type) {
+    case SDL_EVENT_FINGER_DOWN:
+      if(!pointer_finger_active) {
+        pointer_finger_active = true;
+        pointer_finger = id;
+        p_input->mouse_input(x, y, BUTTON_NONE, 0);
+        p_input->mouse_input(x, y, BUTTON_DOWN, BUTTON_LEFT);
+      }
+      break;
+    case SDL_EVENT_FINGER_MOTION:
+      if(pointer_finger_active && pointer_finger == id)
+        p_input->mouse_input(x, y, BUTTON_DOWN, BUTTON_LEFT);
+      break;
+    case SDL_EVENT_FINGER_UP:
+    case SDL_EVENT_FINGER_CANCELED:
+      if(pointer_finger_active && pointer_finger == id) {
+        pointer_finger_active = false;
+        p_input->mouse_input(x, y, BUTTON_UP, BUTTON_LEFT);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+static void backend_init(void)
 {
   static bool initialized = false;
   if(initialized)
     return;
   initialized = true;
+
+  // Fingers are handled here (touch controls + logical coordinates), not
+  // turned into mouse events by SDL
+  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+
+  touch.init(touch_controls_wanted());
+  if(touch.enabled_get() && p_grf)
+    p_grf->video_get()->overlay_set(touch_overlay, &touch);
 
   if(!SDL_InitSubSystem(SDL_INIT_GAMEPAD)) {
     bprintf("Gamepads are not available: %s", SDL_GetError());
@@ -196,7 +298,15 @@ bool input_backend_poll(class input *p_input_, bool wait)
   SDL_Event event;
   bool ret;
 
-  gamepads_init();
+  backend_init();
+
+  // Touch controls are shown while a level is played
+  {
+    bool was_visible = touch.visible();
+    touch.update(p_input);
+    if(was_visible != touch.visible() && p_grf)
+      p_grf->video_get()->repaint_request();
+  }
 
   // Scripted input (regression tests), does nothing normally
   if(test_script_poll(p_input_))
@@ -218,7 +328,9 @@ bool input_backend_poll(class input *p_input_, bool wait)
   while(ret) {
     if(scripted && ((event.type >= SDL_EVENT_KEY_DOWN && event.type <= SDL_EVENT_KEY_UP) ||
                     (event.type >= SDL_EVENT_MOUSE_MOTION && event.type <= SDL_EVENT_MOUSE_WHEEL) ||
-                    (event.type >= SDL_EVENT_GAMEPAD_AXIS_MOTION && event.type <= SDL_EVENT_GAMEPAD_TOUCHPAD_UP))) {
+                    (event.type >= SDL_EVENT_GAMEPAD_AXIS_MOTION && event.type <= SDL_EVENT_GAMEPAD_TOUCHPAD_UP) ||
+                    ((event.type >= SDL_EVENT_FINGER_DOWN && event.type <= SDL_EVENT_FINGER_CANCELED) &&
+                     event.tfinger.touchID != TEST_TOUCH_ID))) {
       ret = SDL_PollEvent(&event);
       continue;
     }
@@ -287,9 +399,12 @@ bool input_backend_poll(class input *p_input_, bool wait)
         }
         break;
 
-      // Touch: SDL turns fingers into mouse events (SDL_HINT_TOUCH_MOUSE_EVENTS),
-      // so the menus work by touch through the mouse path above. Their coordinates
-      // are converted to game coordinates by event_to_logical() the same way.
+      case SDL_EVENT_FINGER_DOWN:
+      case SDL_EVENT_FINGER_UP:
+      case SDL_EVENT_FINGER_MOTION:
+      case SDL_EVENT_FINGER_CANCELED:
+        finger_event(p_input, &event);
+        break;
 
       case SDL_EVENT_GAMEPAD_ADDED:
         SDL_OpenGamepad(event.gdevice.which);

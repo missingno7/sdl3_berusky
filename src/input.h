@@ -405,6 +405,10 @@ public:
   
   // Keyboard interface
   void keyset_set(EVENT_KEY_SET *p_keyset);
+  EVENT_KEY_SET * keyset_get(void)
+  {
+    return(p_set);
+  }
   // A neutral key (K_xxx) was pressed / released by any device.
   // modification is a bit mask of K_xxx_MASK modifiers that are held.
   void key_input(KEYTYPE key, KEYMOD modification, bool pressed);

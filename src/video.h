@@ -47,6 +47,10 @@ typedef struct video_settings {
 
 } VIDEO_SETTINGS;
 
+// Something drawn over the game picture in window pixels (touch controls).
+// The renderer has no logical presentation while it's called.
+typedef void (*VIDEO_OVERLAY)(SDL_Renderer *p_renderer, void *p_data);
+
 typedef class video_backend {
 
   SDL_Window   *p_window;
@@ -58,6 +62,9 @@ typedef class video_backend {
 
   VIDEO_SETTINGS settings;
 
+  VIDEO_OVERLAY overlay;
+  void         *overlay_data;
+
   bool          fullscreen;
   bool          texture_lost;       // texture content must be uploaded again
   bool          repaint;            // window needs to be presented again
@@ -66,6 +73,7 @@ private:
 
   bool texture_create(void);
   void presentation_set(void);
+  void render(void);
 
 public:
 
@@ -97,6 +105,12 @@ public:
   // Render the texture to the window
   void present(void);
 
+  void overlay_set(VIDEO_OVERLAY overlay_, void *p_data)
+  {
+    overlay = overlay_;
+    overlay_data = p_data;
+  }
+
   // What is in the window right now (window pixels, letterbox included).
   // The returned surface has to be destroyed by the caller. Used by tests.
   SDL_Surface * capture(void);
@@ -120,6 +134,11 @@ public:
   // Works for mouse and touch events, HiDPI and letterboxing included.
   void event_to_logical(SDL_Event *p_event);
   bool window_to_logical(float window_x, float window_y, float *p_logical_x, float *p_logical_y);
+  bool logical_to_window(float logical_x, float logical_y, float *p_window_x, float *p_window_y);
+
+  // Window pixels (renderer output) per one window coordinate (HiDPI)
+  float pixel_density(void);
+  void  window_size(int *p_width, int *p_height);
 
   SDL_Window   * window_get(void)
   {

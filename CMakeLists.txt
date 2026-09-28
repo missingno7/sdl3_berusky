@@ -64,6 +64,7 @@ set(BERUSKY_CORE_SOURCES
   src/platform.cpp
   src/video.cpp
   src/input_sdl.cpp
+  src/touch_controls.cpp
   src/test_script.cpp
 )
 

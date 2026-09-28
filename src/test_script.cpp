@@ -98,6 +98,44 @@ static void screenshot(const char *p_file)
     bprintf("Test script: saved %s", path);
 }
 
+// A finger event as a touch screen would send it. Position is logical game
+// coordinates, or 0..1000 of the window when window_units is set.
+static void finger_push(bool window_units, const char *p_action, int id, float x, float y)
+{
+  if(!p_grf)
+    return;
+
+  VIDEO_BACKEND *p_video = p_grf->video_get();
+  int   ww, wh;
+  float wx, wy;
+
+  p_video->window_size(&ww, &wh);
+  if(window_units) {
+    wx = x / 1000.0f * ww;
+    wy = y / 1000.0f * wh;
+  } else if(!p_video->logical_to_window(x, y, &wx, &wy)) {
+    return;
+  }
+
+  SDL_Event event;
+  SDL_zero(event);
+  if(!SDL_strcasecmp(p_action, "down"))
+    event.type = SDL_EVENT_FINGER_DOWN;
+  else if(!SDL_strcasecmp(p_action, "up"))
+    event.type = SDL_EVENT_FINGER_UP;
+  else
+    event.type = SDL_EVENT_FINGER_MOTION;
+
+  event.tfinger.touchID = TEST_TOUCH_ID;
+  event.tfinger.fingerID = id;
+  event.tfinger.x = wx / ww;
+  event.tfinger.y = wy / wh;
+  event.tfinger.pressure = 1.0f;
+  event.tfinger.timestamp = SDL_GetTicksNS();
+  event.tfinger.windowID = SDL_GetWindowID(p_video->window_get());
+  SDL_PushEvent(&event);
+}
+
 // What is really in the window: the presentation (scaling, letterbox)
 static void window_screenshot(const char *p_file)
 {
@@ -232,6 +270,13 @@ bool test_script_poll(class input *p_input_)
     }
     else if(!SDL_strcasecmp(cmd, "shot")) {
       screenshot(arg1);
+    }
+    else if(!SDL_strcasecmp(cmd, "touch") || !SDL_strcasecmp(cmd, "touchw")) {
+      char  action[32] = "";
+      int   id = 0;
+      float x = 0, y = 0;
+      sscanf(line, "%*s %31s %d %f %f", action, &id, &x, &y);
+      finger_push(!SDL_strcasecmp(cmd, "touchw"), action, id, x, y);
     }
     else if(!SDL_strcasecmp(cmd, "windowshot")) {
       window_screenshot(arg1);

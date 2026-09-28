@@ -203,6 +203,7 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
   exit(0);
 }
 
+#ifdef BERUSKY_ENABLE_EDITOR
 /*
  * Let's begin - run editor
  */
@@ -252,6 +253,13 @@ void run_editor(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
   /* Game over */
   exit(0);
 }
+#else
+void run_editor(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
+{
+  // The editor is a desktop tool, it's not in this build (BERUSKY_ENABLE_EDITOR=OFF)
+  berror(_("This build doesn't contain the level editor."));
+}
+#endif
 
 /*
  * Manage a configuration file

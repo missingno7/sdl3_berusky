@@ -47,13 +47,23 @@ def pixel_hash(path):
     return hashlib.sha256(data[offset:]).hexdigest()
 
 
-def script_args(script):
-    """A script may start with '# args: -e level.lv3' - command line for the game."""
+def script_header(script):
+    """Leading comment lines may contain:
+         # args: -e level.lv3       command line for the game
+         # env: NAME=VALUE          environment variable
+    """
+    args, env = [], {}
     with open(script) as f:
-        first = f.readline().strip()
-    if first.startswith("# args:"):
-        return first[len("# args:"):].split()
-    return []
+        for line in f:
+            line = line.strip()
+            if not line.startswith("#"):
+                break
+            if line.startswith("# args:"):
+                args = line[len("# args:"):].split()
+            elif line.startswith("# env:"):
+                name, _, value = line[len("# env:"):].strip().partition("=")
+                env[name.strip()] = value.strip()
+    return args, env
 
 
 def run_script(exe, script, out_dir):
@@ -70,9 +80,11 @@ def run_script(exe, script, out_dir):
     env["BERUSKY_USER_DIR"] = os.path.join(out_dir, "user")
     env["BERUSKY_TEST_SCRIPT"] = script
     env["BERUSKY_TEST_OUT"] = out_dir
+    args, extra_env = script_header(script)
+    env.update(extra_env)
     with open(os.path.join(out_dir, "log.txt"), "w") as log:
         try:
-            r = subprocess.run([exe] + script_args(script), env=env, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=120)
+            r = subprocess.run([exe] + args, env=env, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=120)
             return r.returncode
         except subprocess.TimeoutExpired:
             return "timeout"

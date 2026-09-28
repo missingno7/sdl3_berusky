@@ -262,9 +262,12 @@ void game_gui::menu_main(MENU_STATE state, size_ptr data, size_ptr data1)
         menu_item_draw(profiles, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_PROFILES));
         menu_item_draw(settings, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_SETTINGS));
         menu_item_draw(help, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_HELP,FALSE));
-        // The editor is a separate program run from here - only where the platform can do it
+        // The editor is a separate program run from here - only where it's
+        // built and the platform can start a process
+#ifdef BERUSKY_ENABLE_EDITOR
         if(platform_can_run_processes())
-          menu_item_draw(editor, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_RUN_EDITOR));      
+          menu_item_draw(editor, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_RUN_EDITOR));
+#endif
         menu_item_draw(quit, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_QUIT));
       
         p_font->alignment_set(MENU_CENTER);
