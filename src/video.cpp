@@ -32,6 +32,7 @@ video_backend::video_backend(void)
   logical_width(0), logical_height(0), max_texture(0),
   overlay(NULL), overlay_data(NULL),
   fullscreen(false), repaint(false), scene_changed(false), replay_pending(false), textures_lost(false),
+  repaint_frames(0),
   rate_start(0), rate_frames(0), rate(0)
 {
 }
@@ -65,6 +66,14 @@ bool video_backend::create(int width, int height, bool fullscreen_, const RENDER
     window_scale = test_script_active() ? 1 : window_scale_auto(width, height);
 
   if(!p_window) {
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
+    // A landscape game: without the hint SDL lets a resizable window rotate
+    // to portrait (it overrides the manifest's sensorLandscape). And the
+    // whole screen, no system bars.
+    if(!SDL_GetHint(SDL_HINT_ORIENTATIONS))
+      SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    fullscreen_ = true;
+#endif
     SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     // A test script sets the window size itself; nothing else (window
     // snapping, a maximize) may change it under a running test
@@ -285,6 +294,10 @@ bool video_backend::present_if_needed(void)
   SDL_GetRenderOutputSize(p_renderer, &ow, &oh);
   if(ow != layout.output_w || oh != layout.output_h || textures_lost || replay_pending)
     repaint = true;
+  if(repaint_frames > 0) {
+    repaint_frames--;
+    repaint = true;
+  }
 
   if(repaint) {
     present();

@@ -48,6 +48,8 @@ typedef class touch_controls {
     const char   *label;
     SDL_FingerID  finger;      // finger holding it (0 = none)
     bool          pressed;
+    int           held_ticks;  // game ticks since it was pressed
+    bool          release_pending; // released before the game saw it held
   } TOUCH_BUTTON;
 
   bool          enabled;

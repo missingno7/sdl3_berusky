@@ -41,6 +41,9 @@
 #include <time.h>
 
 #include "portability.h"
+#ifdef __ANDROID__
+#include <SDL3/SDL_log.h>
+#endif
 
 #define  LOG_ENABLED 1
 
@@ -247,7 +250,12 @@ inline void bprintf(const char *p_text,...)
   vsnprintf(text,2000,p_text,arguments);
   va_end(arguments);
 
+#ifdef __ANDROID__
+  // stderr goes nowhere on Android - logcat
+  SDL_Log("%s", text);
+#else
   fprintf(stderr,"%s\n",text);
+#endif
 
   if(log_file) {
     file_printf(log_file,"%s\n",text);

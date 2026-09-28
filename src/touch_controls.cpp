@@ -13,6 +13,9 @@
 #include "berusky.h"
 #include "touch_controls.h"
 
+// A tap holds its key at least this many game ticks
+#define TOUCH_MIN_TICKS  2
+
 // indexes into button[]
 enum {
   TB_UP, TB_DOWN, TB_LEFT, TB_RIGHT,
@@ -61,6 +64,20 @@ void touch_controls::update(class input *p_input)
   if(visible_now && !now)
     release_all(p_input);
 
+  // A quick tap still holds the key for a game tick (movement keys are
+  // read as held, a press + release between two ticks would be lost)
+  for(int i = 0; i < TOUCH_BUTTONS; i++) {
+    TOUCH_BUTTON *p_b = button + i;
+    if(!p_b->pressed)
+      continue;
+    p_b->held_ticks++;
+    if(p_b->release_pending && p_b->held_ticks >= TOUCH_MIN_TICKS) {
+      ((INPUT *)p_input)->key_input(p_b->key, 0, false);
+      p_b->pressed = false;
+      p_b->release_pending = false;
+    }
+  }
+
   visible_now = now;
 }
 
@@ -71,6 +88,7 @@ void touch_controls::release_all(class input *p_input)
       ((INPUT *)p_input)->key_input(button[i].key, 0, false);
       button[i].pressed = false;
       button[i].finger = 0;
+      button[i].release_pending = false;
     }
   }
 }
@@ -132,6 +150,8 @@ bool touch_controls::finger_event(class input *p_input, const SDL_Event *p_event
           return(false);
         p_button->pressed = true;
         p_button->finger = id;
+        p_button->held_ticks = 0;
+        p_button->release_pending = false;
         p_in->key_input(p_button->key, p_button->mods, true);
         return(true);
       }
@@ -145,10 +165,14 @@ bool touch_controls::finger_event(class input *p_input, const SDL_Event *p_event
     case SDL_EVENT_FINGER_UP:
     case SDL_EVENT_FINGER_CANCELED:
       for(int i = 0; i < TOUCH_BUTTONS; i++) {
-        if(button[i].pressed && button[i].finger == id) {
-          button[i].pressed = false;
+        if(button[i].pressed && button[i].finger == id && !button[i].release_pending) {
           button[i].finger = 0;
-          p_in->key_input(button[i].key, 0, false);
+          if(button[i].held_ticks < TOUCH_MIN_TICKS) {
+            button[i].release_pending = true;     // update() releases it
+          } else {
+            button[i].pressed = false;
+            p_in->key_input(button[i].key, 0, false);
+          }
           return(true);
         }
       }

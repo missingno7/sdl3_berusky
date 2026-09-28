@@ -282,12 +282,14 @@ resolutions. Visual regression: hashes per render configuration.
 
 ## 5. Remaining blockers
 
-* **Android** is not built: no Android SDK / NDK / Gradle on the build machine.
-  The renderer only uses what SDL's GLES2 backend supports (ARGB8888 textures,
-  FBO render targets, premultiplied blending, the PIXELART shader) and the
-  layout math for phone densities is unit tested, but a device run is still
-  needed: landscape aspect, HiDPI output, touch controls, packaged assets
-  (including the `@Nx` probe through the asset manager).
+* **Android** builds and runs on the emulator (Android 15, 2400x1080, density
+  2.625, GLES2): the scene is rendered at 1440x1080, assets come from the APK,
+  touch controls and Home -> return work. Found and fixed there: SDL rotated
+  the resizable window to portrait (landscape hint + fullscreen on mobile), the
+  one present after resuming came before the new surface was ready (a short
+  repaint burst), taps shorter than a tick were lost (minimum hold). Not yet
+  run on a physical device; the touch controls overlap the picture a little on
+  20:9 screens.
 * **xBRZ** is not built in (license and size); the slot exists.
 * Only SDL's software renderer is pixel-tested. GPU backends were checked
   visually (Direct3D 11: nearest / linear / pixelart / scale2x) and benchmarked.

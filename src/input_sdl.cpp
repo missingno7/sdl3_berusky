@@ -271,17 +271,24 @@ static void window_event(SDL_Event *p_event)
 
   switch(p_event->type) {
     case SDL_EVENT_RENDER_DEVICE_RESET:
+      bprintf("Render device reset");
       p_video->device_reset();
       break;
     case SDL_EVENT_RENDER_TARGETS_RESET:
+      bprintf("Render targets reset");
       p_video->targets_reset();
+      break;
+    case SDL_EVENT_DID_ENTER_FOREGROUND:
+    case SDL_EVENT_WINDOW_SHOWN:
+      // Mobile: the window's surface is new and ready some time later
+      p_video->repaint_burst();
       break;
     case SDL_EVENT_WINDOW_MINIMIZED:
       bprintf("App iconified\n");
       break;
     case SDL_EVENT_WINDOW_RESTORED:
       bprintf("App activated\n");
-      p_video->repaint_request();
+      p_video->repaint_burst();
       break;
     default:
       // exposed, resized, pixel density / fullscreen changed...
@@ -478,7 +485,8 @@ bool input_backend_poll(class input *p_input_, bool wait)
       default:
         if((event.type >= SDL_EVENT_WINDOW_FIRST && event.type <= SDL_EVENT_WINDOW_LAST) ||
            event.type == SDL_EVENT_RENDER_TARGETS_RESET ||
-           event.type == SDL_EVENT_RENDER_DEVICE_RESET) {
+           event.type == SDL_EVENT_RENDER_DEVICE_RESET ||
+           event.type == SDL_EVENT_DID_ENTER_FOREGROUND) {
           window_event(&event);
         }
         break;

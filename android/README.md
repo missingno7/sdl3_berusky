@@ -1,8 +1,8 @@
-# Berusky for Android (skeleton)
+# Berusky for Android
 
-Status: **written but not built or run** - the machine this was prepared on has
-no Android SDK / NDK, so nothing here has been compiled. Treat it as a
-starting point that follows the SDL3 `android-project` template.
+Status: **builds (arm64-v8a + x86_64) and runs on the Android 15 emulator**
+(Pixel 7 profile: 2400x1080 landscape, 420 dpi). Not tried on a physical
+device yet.
 
 The game is the same code as the desktop build:
 
@@ -33,8 +33,13 @@ cd android
 
 ## Known open points
 
-* Not tested on a device or emulator at all.
+* Checked on the emulator: start-up from packaged assets, the renderer at the
+  screen's resolution (GLES2, 1440x1080 viewport = scale 2.25, pixelart
+  filter), landscape lock + immersive fullscreen, menus by touch, the on-screen
+  controls (also very short taps), Home -> return (the scene is presented
+  again). Not tested on a physical device.
+* The on-screen controls overlap the picture slightly on 20:9 phones (the
+  free space beside the 4:3 composition is narrower than the D-pad); their
+  layout wasn't redesigned for the side areas yet.
 * Text input (profile names) needs `SDL_StartTextInput` / `SDL_EVENT_TEXT_INPUT`.
 * No app icon of its own (SDL's default), no audio (the game has none).
-* The renderer's GLES2 path (render targets, PIXELART filter) is unverified
-  on a device.

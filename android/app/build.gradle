@@ -22,8 +22,8 @@ android {
                           "-DANDROID_STL=c++_static",
                           "-DBERUSKY_ENABLE_EDITOR=OFF",
                           "-DBERUSKY_STATIC_SDL=OFF"
-                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-                abiFilters 'arm64-v8a'
+                // phones: arm64-v8a; emulators and x86 Chromebooks: x86_64
+                abiFilters 'arm64-v8a', 'x86_64'
             }
         }
     }

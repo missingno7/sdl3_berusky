@@ -57,6 +57,7 @@ typedef class video_backend : public canvas_listener {
   bool            scene_changed;      // something was drawn since the last present
   bool            replay_pending;     // the render target must be drawn again
   bool            textures_lost;      // the render device was reset
+  int             repaint_frames;     // keep presenting for this many polls
 
   // present rate for the diagnostics overlay
   Uint64          rate_start;
@@ -143,6 +144,14 @@ public:
   void repaint_request(void)
   {
     repaint = true;
+  }
+  // The window came back (restored, app in the foreground): on mobile its
+  // surface becomes usable some time later, so present for a few frames
+  void repaint_burst(int frames = 15)
+  {
+    repaint = true;
+    if(repaint_frames < frames)
+      repaint_frames = frames;
   }
 
   // SDL_EVENT_RENDER_DEVICE_RESET: every texture is gone
