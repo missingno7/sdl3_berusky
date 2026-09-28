@@ -28,13 +28,18 @@
 /*
   2D Graphics library
 
-  TODO:
+  Everything here works in LOGICAL units (see render_layout.h): positions and
+  sizes of sprites, fills and the screen are the same on every display. What a
+  logical unit is in pixels is decided by the renderer (scene.h, video.h).
 
-  - surface list
-  - sprite list
-  - graf2d class
-  - sprite class -> reference to surface list
-  
+  surface   either a picture (image_asset: a loaded / copied / generated image
+            with its native pixel density) or a canvas (something the game
+            draws into: the screen, the level background). A picture turns into
+            a canvas when the game draws into it for the first time.
+  sprite    a rectangle of a surface, logical units
+  sprite_store
+            all surfaces and sprites; loads .spr sheets with their density
+  graph_2d  the screen + the video backend
 */
 
 #ifndef  __2D_GRAPH_H__
@@ -53,6 +58,8 @@
 
 #include "ini.h"
 #include "utils.h"
+#include "image_asset.h"
+#include "scene.h"
 #include "video.h"
 
 #ifndef INSERT_APPEND
@@ -77,13 +84,10 @@
 #define  TPOS_MIN       (-INT_MAX)
 #define  TPOS_MAX       INT_MAX
 
-#define  SCALE_FACTOR   2
-#define  SPRITE_SCREEN  0
-
 #define  BITMAP_FORMAT  ".png"
 
 typedef int             tpos;
-typedef unsigned int    tcolor;
+typedef unsigned int    tcolor;         // 0xRRGGBB
 typedef int             tcount;
 typedef unsigned char   trgbcomp;
 typedef unsigned int    tflag;
@@ -105,14 +109,14 @@ public:
     if(r < 0) r = 0;
     if(g < 0) g = 0;
     if(b < 0) b = 0;
-  
+
     if(r > 255) r = 255;
     if(g > 255) g = 255;
     if(b > 255) b = 255;
   }
 
   rgb(void) {};
-  
+
   rgb(int r_, int g_, int b_)
   {
     r = r_;
@@ -136,6 +140,12 @@ typedef enum {
 
 } BLEND_OP;
 
+// Colors are plain 0xRRGGBB values
+inline tcolor color_pack(Uint8 r, Uint8 g, Uint8 b)
+{
+  return(((tcolor)r << 16) | ((tcolor)g << 8) | (tcolor)b);
+}
+
 typedef class surface
 {
   static char graphics_dir[MAX_FILENAME];
@@ -154,48 +164,62 @@ public:
 
 private:
 
+  // NOTE: surfaces live in raw (zeroed) memory of the sprite store,
+  // members must be plain data
   tcount       used;    // number of sprites what use this surface
-  SDL_Surface *p_surf;
+  image_asset *p_image;
+  canvas      *p_canvas;
+
+  // The canvas to draw into (a picture becomes one on the first draw)
+  canvas * canvas_get(void);
 
 public:
-  
+
   surface(void);
-  surface(char *p_file);  
-  surface(SDL_Surface *p_surf_, int used_ = 0);
-  surface(class surface *p_src);
-  surface(class surface &src);
-  surface(tpos width, tpos height, bool display_format = true);
-  surface(class surface *p_src, int scale = 1, bool display_format = true);
+  surface(tpos width, tpos height);
+  // A copy of a part of another surface (logical units)
   surface(class surface *p_src, tpos sx, tpos sy, tpos width, tpos height);
   ~surface(void);
 
-  void create(tpos width, tpos height, bool display_format = true);
-  void load(char *p_file);
+  // p_file from the graphics directory with the given native density
+  // (pixels per logical unit) and cell zoom (see image_asset.h)
+  bool load(const char *p_file, float density = 1.0f, float zoom = 1.0f);
+  // An empty (black) canvas
+  void create(tpos width, tpos height);
+  // A copy of p_src (or of its logical rectangle)
   void copy(class surface *p_src, RECT *p_src_rect = NULL);
   void free(void);
 
   void ckey_set(trgbcomp r, trgbcomp g, trgbcomp b);
-  void ckey_set(tcolor color);
+  void alpha_mod_set(Uint8 alpha);
+
   void fill(tcolor color);
   void fill(tpos x, tpos y, tpos dx, tpos dy, tcolor color);
   void blit(class surface *p_dst, tpos tx, tpos ty);
   void blit(tpos sx, tpos sy, tpos dx, tpos dy, class surface *p_dst, tpos tx, tpos ty);
+  // Draws the part src of this surface; region is the sprite rectangle the
+  // texture is made of (logical units)
+  void draw_part(const RECT &region, const RECT &src, class surface *p_dst, tpos tx, tpos ty);
+
+  // Pixel operation on a picture, the rectangle is in pixels of its base
+  // image (see pixel_width_get)
   void blend(tpos sx, tpos sy, tpos dx, tpos dy, tcolor color, BLEND_OP operation);
 
   tcolor color_map(Uint8 r, Uint8 g, Uint8 b)
-  {    
-    return(SDL_MapSurfaceRGB(p_surf, r, g, b));
+  {
+    return(color_pack(r, g, b));
   }
 
   void color_unmap(tcolor color, Uint8 *r, Uint8 *g, Uint8 *b)
-  {    
-    SDL_GetRGB(color, SDL_GetPixelFormatDetails(p_surf->format),
-               SDL_GetSurfacePalette(p_surf), r, g, b);    
+  {
+    *r = (color >> 16) & 0xff;
+    *g = (color >> 8) & 0xff;
+    *b = color & 0xff;
   }
-  
+
   bool is_loaded(void)
   {
-    return(p_surf != NULL);
+    return(p_image != NULL || p_canvas != NULL);
   }
 
   void inc_ref(void)
@@ -210,49 +234,44 @@ public:
     assert(used >= 0);
   }
 
+  // Logical size
   void size_get(tpos *p_dx, tpos *p_dy)
   {
-    assert(p_surf);
-    *p_dx = p_surf->w;
-    *p_dy = p_surf->h;
+    *p_dx = width_get();
+    *p_dy = height_get();
   }
 
-  SDL_Surface * surf_get(void)
-  {
-    return(p_surf);
-  }
+  tpos width_get(void);
+  tpos height_get(void);
 
-  tpos width_get(void)
-  {
-    assert(p_surf);
-    return(p_surf->w);
-  }
-
-  tpos height_get(void)
-  {
-    assert(p_surf);
-    return(p_surf->h);
-  }
+  // Size of the base image in pixels (pictures only)
+  tpos pixel_width_get(void);
+  tpos pixel_height_get(void);
 
   tcount used_get(void)
-  {      
+  {
     return(used);
   }
 
   RECT rect_get(void)
   {
-    assert(p_surf);
-    RECT r = {0,0,p_surf->w,p_surf->h};
+    RECT r = {0,0,width_get(),height_get()};
     return(r);
   }
 
-  // Double-size from the source surface
-  void scale(class surface *p_src, tpos src_x, tpos src_y,
-             tpos width, tpos height, tpos dst_x, tpos dst_y);
+  image_asset * image_get(void)
+  {
+    return(p_image);
+  }
 
-  // Swithches content of this and given surface
-  void content_switch(class surface *p_new);
-  
+  canvas * canvas_peek(void)
+  {
+    return(p_canvas);
+  }
+
+  // Logical rectangle -> base image pixels
+  SDL_Rect pixel_rect(const RECT &r);
+
 } SURFACE;
 
 // -------------------------------------------------------
@@ -266,7 +285,7 @@ public:
 typedef class sprite
 {
   tflag         flag;                   // Sprite flags
-  RECT          rec;                    // Rectangle in destination surface
+  RECT          rec;                    // Rectangle in the surface (logical units)
   SURFACE      *p_surf;                 // Surface for this sprite
   static RGB    key;                    // Color key
 
@@ -282,15 +301,15 @@ public:
 
   void fill(tcolor color);
   void fill(tpos x, tpos y, tpos dx, tpos dy, tcolor color);
-  
+
   void blit(class sprite *p_dst, tpos tx, tpos ty);
   void blit(tpos sx, tpos sy, tpos dx, tpos dy, class sprite *p_dst, tpos tx, tpos ty);
 
   tcolor color_map(Uint8 r, Uint8 g, Uint8 b)
   {
-    return(p_surf->color_map(r,g,b));
+    return(color_pack(r,g,b));
   }
-  
+
   static void color_key_set(RGB key_)
   {
     key = key_;
@@ -326,7 +345,7 @@ public:
   {
     return(flag);
   }
-  
+
   tpos get_width(void)
   {
     return((tpos)rec.w);
@@ -341,7 +360,7 @@ public:
   {
     return(p_surf);
   }
-  
+
   RECT * rect_get(void)
   {
     return(&rec);
@@ -375,10 +394,23 @@ typedef class sprite_store
   spr_handle   sprite_last;
   SPRITE      *p_sprites;
 
+  // Logical units per native unit of level cell art (see image_asset.h)
+  float        cell_zoom;
+
 public:
 
   sprite_store(surf_handle surf_num, spr_handle spr_num);
   ~sprite_store(void);
+
+  void cell_zoom_set(float zoom)
+  {
+    cell_zoom = zoom;
+  }
+
+  float cell_zoom_get(void)
+  {
+    return(cell_zoom);
+  }
 
   /********************************************************
     Surface interface
@@ -393,10 +425,10 @@ public:
     return(surface_last);
   }
 
-  surf_handle surface_insert(char *p_file)
+  surf_handle surface_insert(const char *p_file, float density = 1.0f, float zoom = 1.0f)
   {
     assert(surface_last < surface_num);
-    p_surfaces[surface_last].load(p_file);
+    p_surfaces[surface_last].load(p_file, density, zoom);
     return(surface_last++);
   }
 
@@ -414,13 +446,6 @@ public:
 
   SURFACE * surface_get(surf_handle handle)
   {
-    return(p_surfaces+handle);
-  }
-
-  // Switch content of the given surface with the new one
-  SURFACE * surface_switch(surf_handle handle, SURFACE *p_new)
-  {
-    p_surfaces[handle].content_switch(p_new);
     return(p_surfaces+handle);
   }
 
@@ -472,7 +497,7 @@ public:
   {
     return(sprite_last);
   }
-    
+
 } SPRITE_STORE;
 
 // -------------------------------------------------------
@@ -481,35 +506,29 @@ public:
 
 #define SURFACES 1000
 #define SPRITES  100000
-#define RECT_NUM      (2*800)
-#define RECT_NUM_ALERT 800
 
 typedef class graph_2d
 {
-  int          redraw;
-
-  // The software framebuffer. The game draws only into this surface,
-  // video (video.h) presents it in the window.
+  // The screen: a canvas of the composition's logical size. The video
+  // backend renders it at the output resolution.
   SURFACE     *p_screen_surface;
   SPRITE      *p_screen;
 
-  VIDEO_BACKEND  video;
-  VIDEO_SETTINGS video_settings;
+  VIDEO_BACKEND   video;
+  RENDER_SETTINGS render_settings;
 
   // Array of surfaces
   SPRITE_STORE store;
 
-  // Update rectangles (max number is X_cells * Y_cells)
-  RECT         rects[RECT_NUM];
-  int          rect_last;
-  bool         rect_whole;
+  // Something was marked for redraw since the last flip
+  bool         redraw;
 
   tpos         graphics_width;
   tpos         graphics_height;
   bool         graphics_fullscreen;
 
 public:
-  
+
   void graphics_dir_set(char *p_dir)
   {
     surface::graphics_dir_set(p_dir);
@@ -528,12 +547,12 @@ public:
   }
 
   SPRITE * sprite_get(spr_handle spr = 0)
-  {    
+  {
     return(spr ? store.sprite_get(spr) : p_screen);
   }
 
   tpos sprite_get_width(spr_handle spr = 0)
-  {    
+  {
     return(spr ? store.sprite_get_width(spr) : p_screen->get_width());
   }
 
@@ -544,13 +563,13 @@ public:
 
   tpos sprite_get_width_center(spr_handle spr)
   {
-    assert(spr);    
+    assert(spr);
     return((p_screen->get_width() - store.sprite_get_width(spr)) / 2);
   }
 
   tpos sprite_get_height_center(spr_handle spr)
   {
-    assert(spr);    
+    assert(spr);
     return((p_screen->get_height() - store.sprite_get_height(spr)) / 2);
   }
 
@@ -575,14 +594,14 @@ public:
   }
 
   void fill(tcolor color, spr_handle dst = 0)
-  {      
+  {
     SPRITE *p_dst = dst ? store.sprite_get(dst) : p_screen;
     if(p_dst)
        p_dst->fill(color);
   }
 
   void fill(tpos x, tpos y, tpos dx, tpos dy, tcolor color, spr_handle dst = 0)
-  {        
+  {
     SPRITE *p_dst = dst ? store.sprite_get(dst) : p_screen;
     if(p_dst)
        p_dst->fill(x,y,dx,dy,color);
@@ -607,13 +626,12 @@ public:
 
   tcolor color_map(Uint8 r, Uint8 g, Uint8 b, spr_handle dst = 0)
   {
-    SPRITE *p_dst = dst ? store.sprite_get(dst) : p_screen;
-    return(p_dst->color_map(r,g,b));
+    return(color_pack(r,g,b));
   }
 
   // Draw surface to screen or another surface
   void draw(surface *p_src, tpos tx, tpos ty, surface *p_dst = NULL)
-  {    
+  {
     SURFACE *p_dest = p_dst ? p_dst : p_screen_surface;
     assert(p_src && p_dest);
     p_src->blit(p_dest, tx, ty);
@@ -623,16 +641,16 @@ public:
   {
     SPRITE *p_spr = store.sprite_get(spr);
     SPRITE *p_dst = dst ? store.sprite_get(dst) : p_screen;
-    if(p_spr && p_dst)
+    if(p_spr && p_dst && p_spr->surf_get())
        p_spr->blit(p_dst,tx,ty);
   }
 
-  void draw(spr_handle spr, tpos sx, tpos sy, tpos dx, tpos dy, 
+  void draw(spr_handle spr, tpos sx, tpos sy, tpos dx, tpos dy,
             spr_handle dst, tpos tx, tpos ty)
   {
     SPRITE *p_spr = store.sprite_get(spr);
     SPRITE *p_dst = dst ? store.sprite_get(dst) : p_screen;
-    if(p_spr && p_dst)
+    if(p_spr && p_dst && p_spr->surf_get())
        p_spr->blit(sx, sy, dx, dy, p_dst, tx, ty);
   }
 
@@ -671,86 +689,51 @@ public:
     p_screen->rect_clamp(p_rect);
   }
 
-  void redraw_set(int red_) 
+  // The redraw rectangles of the old software framebuffer. Everything drawn
+  // is shown on the next flip() now; they only say that a flip is wanted.
+  void redraw_set(int red_)
   {
-    redraw = red_; 
+    redraw = red_ != 0;
   }
 
-  int  redraw_get(void) 
-  { 
-    return redraw; 
+  int  redraw_get(void)
+  {
+    return redraw;
   }
 
   void redraw_add(trec x, trec y, trec dx, trec dy)
   {
-    assert(rect_last < RECT_NUM);
-  
-    if(!dx || !dy)
-      return;
-  
-    RECT *p_tmp = rects+rect_last++;
-  
-    p_tmp->x = x;
-    p_tmp->y = y;
-  
-    p_tmp->w = dx;
-    p_tmp->h = dy;
-
-    p_screen->rect_clamp(p_tmp);
+    redraw = true;
   }
 
   void redraw_add(spr_handle spr, trec x, trec y)
   {
-    assert(rect_last < RECT_NUM);
-  
-    RECT *p_tmp = rects+rect_last++;
-  
-    p_tmp->x = x;
-    p_tmp->y = y;
-  
-    p_tmp->w = sprite_get_width(spr);
-    p_tmp->h = sprite_get_height(spr);
-
-    p_screen->rect_clamp(p_tmp);
+    redraw = true;
   }
 
   void redraw_add(RECT *p_rect)
   {
-    assert(rect_last < RECT_NUM);
-  
-    if(!p_rect->w || !p_rect->h)
-      return;
-  
-    rects[rect_last++] = *p_rect;
-    p_screen->rect_clamp(p_rect);
+    if(p_rect->w && p_rect->h)
+      p_screen->rect_clamp(p_rect);
+    redraw = true;
   }
 
   void redraw_add(void)
   {
-    rect_whole = TRUE;
+    redraw = true;
   }
 
   void redraw_reset(void)
   {
-    rect_last = 0;
-    redraw = false;  
+    redraw = false;
   }
 
-  // Present the framebuffer. Only the changed rectangles are uploaded to the
-  // texture (the same as SDL_UpdateRects() did for the SDL 1.2 screen).
+  // Present the screen when anything changed
   int flip(void)
   {
-    if(rect_last || rect_whole) {
-      if(rect_last > RECT_NUM_ALERT)
-        bprintf("RECT_NUM_ALERT: %d slots.", rect_last);
-      if(rect_whole) {
-        video.upload(p_screen_surface->surf_get());
-        rect_whole = FALSE;
-      } else {
-        video.upload(p_screen_surface->surf_get(), rects, rect_last);
-        redraw_reset();
-      }
+    if(redraw || video.scene_changed_get()) {
       video.present();
+      redraw = false;
     }
     return (TRUE);
   }
@@ -762,14 +745,14 @@ public:
 
   void check(void);
 
-  graph_2d(tpos dx, tpos dy, int depth, bool fullscreen, const VIDEO_SETTINGS &settings) 
+  graph_2d(tpos dx, tpos dy, int depth, bool fullscreen, const RENDER_SETTINGS &settings)
     : p_screen_surface(NULL),
       p_screen(NULL),
-      video_settings(settings),
-      store(SURFACES, SPRITES), 
-      rect_last(0)
+      render_settings(settings),
+      store(SURFACES, SPRITES),
+      redraw(false)
   {
-    /* Create new screen (the color depth isn't used - it's always 32bit) */
+    /* Create new screen (the color depth isn't used) */
     bprintf("Seting up screen %dx%d, fullscreen = %d...",dx, dy, fullscreen);
     screen_create(0, dx, dy, depth, fullscreen);
   }
@@ -777,6 +760,7 @@ public:
   ~graph_2d(void)
   {
     // The window must go before SDL
+    video.scene_set(NULL);
     screen_destroy();
     video.destroy();
     SDL_Quit();

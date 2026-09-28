@@ -9,19 +9,19 @@
  */
 
 /*
- * Video presentation backend (SDL3).
+ * Video backend (SDL3): window, renderer, presentation.
  *
- * The game renders into a CPU framebuffer (an SDL_Surface owned by graph_2d)
- * with the original software blitter. This class is the ONLY place that knows
- * how that framebuffer gets to the screen:
+ *   game (logical units) -> screen canvas (scene.h, retained display list)
+ *        -> scene_renderer: GPU compositing into a render target at the
+ *           render scale derived from the output (render_layout.h)
+ *        -> video_backend: the render target is placed into the window's
+ *           content viewport (aspect ratio kept, black bars elsewhere),
+ *           touch controls and the diagnostics overlay are drawn over it in
+ *           output pixels, SDL_RenderPresent
  *
- *   software framebuffer -> SDL_UpdateTexture -> SDL_RenderTexture
- *                        -> SDL_RenderPresent -> SDL_Window
- *
- * The framebuffer has a fixed logical resolution (640x480, or 1280x900 in
- * double-size mode). The window can have any size / DPI / aspect ratio: SDL's
- * logical presentation scales and letterboxes the picture, and converts
- * mouse / touch coordinates back to the logical (framebuffer) coordinates.
+ * This class owns SDL_Window / SDL_Renderer, fullscreen, HiDPI, the output
+ * size and the window <-> logical coordinate conversion. It knows nothing
+ * about the game's layout; the game only tells it the composition size.
  */
 
 #ifndef __VIDEO_H__
@@ -29,66 +29,66 @@
 
 #include <SDL3/SDL.h>
 
-typedef enum {
+#include "render_layout.h"
+#include "scene.h"
 
-  SCALE_INTEGER = 0,        // integer multiples only, crisp pixels (default)
-  SCALE_FIT_NEAREST,        // fit the window keeping aspect, nearest filter
-  SCALE_FIT_LINEAR          // fit the window keeping aspect, smooth filter
-
-} VIDEO_SCALE_MODE;
-
-typedef struct video_settings {
-
-  int              window_scale;     // initial window size = logical size * window_scale
-  VIDEO_SCALE_MODE scale_mode;
-  bool             vsync;
-
-  video_settings(void) : window_scale(1), scale_mode(SCALE_INTEGER), vsync(true) {}
-
-} VIDEO_SETTINGS;
-
-// Something drawn over the game picture in window pixels (touch controls).
-// The renderer has no logical presentation while it's called.
+// Something drawn over the game picture in output pixels (touch controls).
 typedef void (*VIDEO_OVERLAY)(SDL_Renderer *p_renderer, void *p_data);
 
-typedef class video_backend {
+typedef class video_backend : public canvas_listener {
 
-  SDL_Window   *p_window;
-  SDL_Renderer *p_renderer;
-  SDL_Texture  *p_texture;
+  SDL_Window     *p_window;
+  SDL_Renderer   *p_renderer;
 
-  int           logical_width;
-  int           logical_height;
+  RENDER_SETTINGS settings;
+  RENDER_LAYOUT   layout;
+  scene_renderer  scene;
+  canvas         *p_scene;            // the screen canvas
 
-  VIDEO_SETTINGS settings;
+  int             logical_width;      // the composition
+  int             logical_height;
+  int             max_texture;
 
-  VIDEO_OVERLAY overlay;
-  void         *overlay_data;
+  VIDEO_OVERLAY   overlay;
+  void           *overlay_data;
 
-  bool          fullscreen;
-  bool          texture_lost;       // texture content must be uploaded again
-  bool          repaint;            // window needs to be presented again
+  bool            fullscreen;
+  bool            repaint;            // the window has to be presented again
+  bool            scene_changed;      // something was drawn since the last present
+  bool            replay_pending;     // the render target must be drawn again
+  bool            textures_lost;      // the render device was reset
+
+  // present rate for the diagnostics overlay
+  Uint64          rate_start;
+  int             rate_frames;
+  float           rate;
 
 private:
 
-  bool texture_create(void);
-  void presentation_set(void);
+  bool layout_update(void);
   void render(void);
+  void debug_draw(void);
 
 public:
 
   video_backend(void);
   ~video_backend(void);
 
-  // Creates window + renderer + texture for the given logical resolution.
-  // When the window exists it's just resized.
-  bool create(int width, int height, bool fullscreen_, const VIDEO_SETTINGS &settings_);
+  // Creates window + renderer for a composition of the given logical size.
+  // When the window exists only the composition changes.
+  bool create(int width, int height, bool fullscreen_, const RENDER_SETTINGS &settings_);
   void destroy(void);
 
   bool is_created(void)
   {
     return(p_window != NULL);
   }
+
+  // The canvas that is shown in the window (the game's screen)
+  void scene_set(canvas *p_canvas);
+
+  // canvas_listener: a new operation of the screen canvas
+  virtual void canvas_op(const DRAW_OP &op);
 
   // Window
   void title_set(const char *p_title);
@@ -99,11 +99,27 @@ public:
     return(fullscreen);
   }
 
-  // Upload (parts of) the framebuffer to the texture. No rectangles = whole surface.
-  void upload(SDL_Surface *p_framebuffer, const SDL_Rect *p_rects = NULL, int num = 0);
+  // Render settings can change at run time (settings menu, tests)
+  const RENDER_SETTINGS & settings_get(void)
+  {
+    return(settings);
+  }
+  void settings_set(const RENDER_SETTINGS &settings_);
+  void debug_overlay_toggle(void);
 
-  // Render the texture to the window
+  const RENDER_LAYOUT & layout_get(void)
+  {
+    return(layout);
+  }
+
+  // Shows the scene in the window
   void present(void);
+  // Presents when something was drawn, the window was damaged or resized
+  bool present_if_needed(void);
+  bool scene_changed_get(void)
+  {
+    return(scene_changed);
+  }
 
   void overlay_set(VIDEO_OVERLAY overlay_, void *p_data)
   {
@@ -111,36 +127,44 @@ public:
     overlay_data = p_data;
   }
 
-  // What is in the window right now (window pixels, letterbox included).
-  // The returned surface has to be destroyed by the caller. Used by tests.
+  // What is in the window right now (output pixels, bars and overlays
+  // included) and the scene at the render resolution. Used by tests; the
+  // caller destroys the surface.
   SDL_Surface * capture(void);
+  SDL_Surface * capture_scene(void);
+  // The screen canvas as text (logical units)
+  bool scene_dump(const char *p_file);
 
-  // Call when the window content may be damaged (exposed, resized, ...).
-  // The window is presented again in present_if_needed().
+  // Call when the window content may be damaged (exposed, resized, ...)
   void repaint_request(void)
   {
     repaint = true;
   }
-  bool present_if_needed(SDL_Surface *p_framebuffer);
 
-  // Render device was reset - the texture must be filled again
+  // SDL_EVENT_RENDER_DEVICE_RESET: every texture is gone
   void device_reset(void)
   {
-    texture_lost = true;
+    textures_lost = true;
+    repaint = true;
+  }
+  // SDL_EVENT_RENDER_TARGETS_RESET: the render target lost its content
+  void targets_reset(void)
+  {
+    replay_pending = true;
     repaint = true;
   }
 
-  // Coordinates: window (physical, event) -> logical framebuffer.
-  // Works for mouse and touch events, HiDPI and letterboxing included.
+  // Coordinates: window (events) -> logical (the composition).
+  // Works for mouse and touch, HiDPI and letterboxing included.
   void event_to_logical(SDL_Event *p_event);
   bool window_to_logical(float window_x, float window_y, float *p_logical_x, float *p_logical_y);
   bool logical_to_window(float logical_x, float logical_y, float *p_window_x, float *p_window_y);
 
-  // Window pixels (renderer output) per one window coordinate (HiDPI)
+  // Output pixels per one window coordinate (HiDPI)
   float pixel_density(void);
   void  window_size(int *p_width, int *p_height);
 
-  SDL_Window   * window_get(void)
+  SDL_Window * window_get(void)
   {
     return(p_window);
   }
@@ -151,8 +175,5 @@ public:
   }
 
 } VIDEO_BACKEND;
-
-// Reads the optional video settings from the config file
-VIDEO_SETTINGS video_settings_load(const char *p_ini_file);
 
 #endif // __VIDEO_H__

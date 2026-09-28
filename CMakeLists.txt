@@ -66,6 +66,9 @@ set(BERUSKY_CORE_SOURCES
   src/input_sdl.cpp
   src/touch_controls.cpp
   src/test_script.cpp
+  src/render_layout.cpp
+  src/image_asset.cpp
+  src/scene.cpp
 )
 
 if(BERUSKY_ENABLE_EDITOR)

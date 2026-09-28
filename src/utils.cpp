@@ -931,33 +931,25 @@ int  background_num(DIR_LIST *p_dir)
 // TODO -> randomize the shadow
 void graphics_generate_floor(spr_handle spr, int type)
 {
+  // The shade is drawn in pixels of the (2x, 40x40) floor artwork
   SURFACE *p_surf = (p_grf->sprite_get(spr))->surf_get();
   tcolor color = p_surf->color_map(30, 30, 30);
+  tpos   width = p_surf->pixel_width_get();
+  tpos   height = p_surf->pixel_height_get();
   
   switch(type) {
     case 0:
-      {      
-        p_surf->blend(0, 0, 12, p_surf->height_get(), color, BLEND_SUB);
-        p_surf->blend(12, 0, p_surf->width_get()-12, 14, color, BLEND_SUB);
-      }
+      p_surf->blend(0, 0, 12, height, color, BLEND_SUB);
+      p_surf->blend(12, 0, width-12, 14, color, BLEND_SUB);
       break;
     case 1:
-      {
-        SURFACE *p_surf = (p_grf->sprite_get(spr))->surf_get();
-        p_surf->blend(0, 0, 12, 14, color, BLEND_SUB);
-      }
+      p_surf->blend(0, 0, 12, 14, color, BLEND_SUB);
       break;
     case 2:
-      {      
-        SURFACE *p_surf = (p_grf->sprite_get(spr))->surf_get();
-        p_surf->blend(0, 0, 12, p_surf->height_get(), color, BLEND_SUB);
-      }
+      p_surf->blend(0, 0, 12, height, color, BLEND_SUB);
       break;
     case 3:
-      {      
-        SURFACE *p_surf = (p_grf->sprite_get(spr))->surf_get();
-        p_surf->blend(0, 0, p_surf->width_get(), 14, color, BLEND_SUB);
-      }
+      p_surf->blend(0, 0, width, 14, color, BLEND_SUB);
       break;
     case 4: // no action
       break;
@@ -971,9 +963,7 @@ void graphics_generate(void)
 {
   // Create black sprite for blending
   p_grf->sprite_copy(SPRITE_BLACK, FIRST_CLASSIC_LEVEL+57, TRUE);
-  SDL_Surface *p_surf = ((p_grf->sprite_get(SPRITE_BLACK))->surf_get())->surf_get();
-  SDL_SetSurfaceBlendMode(p_surf, SDL_BLENDMODE_BLEND);
-  SDL_SetSurfaceAlphaMod(p_surf, 150);
+  (p_grf->sprite_get(SPRITE_BLACK))->surf_get()->alpha_mod_set(150);
 
   int i;
 

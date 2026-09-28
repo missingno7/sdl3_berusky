@@ -271,8 +271,10 @@ static void window_event(SDL_Event *p_event)
 
   switch(p_event->type) {
     case SDL_EVENT_RENDER_DEVICE_RESET:
-    case SDL_EVENT_RENDER_TARGETS_RESET:
       p_video->device_reset();
+      break;
+    case SDL_EVENT_RENDER_TARGETS_RESET:
+      p_video->targets_reset();
       break;
     case SDL_EVENT_WINDOW_MINIMIZED:
       bprintf("App iconified\n");
@@ -340,6 +342,14 @@ bool input_backend_poll(class input *p_input_, bool wait)
       case SDL_EVENT_KEY_UP:
         {
           bool pressed = (event.type == SDL_EVENT_KEY_DOWN);
+
+          // F12: the renderer's diagnostics overlay (not a game key)
+          if(event.key.key == SDLK_F12) {
+            if(pressed && !event.key.repeat && p_grf)
+              p_grf->video_get()->debug_overlay_toggle();
+            break;
+          }
+
           // Key repeat is off unless the input asks for it
           if(pressed && event.key.repeat && !p_input->key_repeat_get())
             break;

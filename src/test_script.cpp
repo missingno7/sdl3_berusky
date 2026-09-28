@@ -82,7 +82,7 @@ static KEYTYPE key_by_name(const char *p_name)
 
 static void screenshot(const char *p_file)
 {
-  if(!p_grf || !p_grf->screen_surface_get())
+  if(!p_grf)
     return;
 
   char path[MAX_FILENAME];
@@ -92,10 +92,13 @@ static void screenshot(const char *p_file)
   else
     snprintf(path, sizeof(path), "%s", p_file);
 
-  if(!SDL_SaveBMP(p_grf->screen_surface_get()->surf_get(), path))
+  // The scene at its render resolution
+  SDL_Surface *p_surface = p_grf->video_get()->capture_scene();
+  if(!p_surface || !SDL_SaveBMP(p_surface, path))
     bprintf("Test script: unable to save %s: %s", path, SDL_GetError());
   else
-    bprintf("Test script: saved %s", path);
+    bprintf("Test script: saved %s (%dx%d)", path, p_surface->w, p_surface->h);
+  SDL_DestroySurface(p_surface);
 }
 
 // A finger event as a touch screen would send it. Position is logical game

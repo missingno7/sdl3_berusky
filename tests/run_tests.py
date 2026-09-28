@@ -66,7 +66,7 @@ def script_header(script):
     return args, env
 
 
-def run_script(exe, script, out_dir):
+def run_script(exe, script, out_dir, renderer):
     # (the directory itself may be locked on Windows when it's somebody's cwd)
     if os.path.isdir(out_dir):
         for entry in os.listdir(out_dir):
@@ -80,6 +80,9 @@ def run_script(exe, script, out_dir):
     env["BERUSKY_USER_DIR"] = os.path.join(out_dir, "user")
     env["BERUSKY_TEST_SCRIPT"] = script
     env["BERUSKY_TEST_OUT"] = out_dir
+    # The software renderer gives the same pixels on every machine
+    if renderer:
+        env["SDL_RENDER_DRIVER"] = renderer
     args, extra_env = script_header(script)
     env.update(extra_env)
     with open(os.path.join(out_dir, "log.txt"), "w") as log:
@@ -95,6 +98,9 @@ def main():
     ap.add_argument("--exe")
     ap.add_argument("--update", action="store_true")
     ap.add_argument("--keep", action="store_true")
+    ap.add_argument("--renderer", default="software",
+                    help="SDL render driver (default software; '' = the platform default, "
+                         "GPU results are not comparable with the expected hashes)")
     ap.add_argument("names", nargs="*")
     args = ap.parse_args()
 
@@ -109,7 +115,7 @@ def main():
     for name in names:
         script = os.path.join(scripts_dir, name + ".txt")
         out_dir = os.path.join(ROOT, "build", "tests", name)
-        code = run_script(exe, script, out_dir)
+        code = run_script(exe, script, out_dir, args.renderer)
 
         shots = sorted(f for f in os.listdir(out_dir) if f.endswith(".bmp"))
         hashes = {s: pixel_hash(os.path.join(out_dir, s)) for s in shots}
