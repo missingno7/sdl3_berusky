@@ -322,6 +322,15 @@ bool test_script_poll(class input *p_input_)
     else if(!SDL_strcasecmp(cmd, "layoutshot")) {
       layout_screenshot(arg1);
     }
+    else if(!SDL_strcasecmp(cmd, "bench")) {
+      if(p_grf) {
+        const RENDER_LAYOUT &layout = p_grf->video_get()->layout_get();
+        float ms = p_grf->video_get()->benchmark(atoi(arg1));
+        bprintf("Test script: bench %s: %dx%d scene, %d operations: %.2f ms per full render + present",
+                p_grf->video_get()->renderer_name(), layout.target_w, layout.target_h,
+                (int)p_grf->screen_surface_get()->canvas_peek()->op_count(), ms);
+      }
+    }
     else if(!SDL_strcasecmp(cmd, "set")) {
       settings_set(arg1, arg2);
       // replayed and presented on the next poll

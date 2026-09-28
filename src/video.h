@@ -135,6 +135,10 @@ public:
   // The screen canvas as text (logical units)
   bool scene_dump(const char *p_file);
 
+  // Renders the whole scene again and presents it 'count' times; returns the
+  // average milliseconds per frame (tests, performance measurements)
+  float benchmark(int count);
+
   // Call when the window content may be damaged (exposed, resized, ...)
   void repaint_request(void)
   {
@@ -167,6 +171,11 @@ public:
   SDL_Window * window_get(void)
   {
     return(p_window);
+  }
+
+  const char * renderer_name(void)
+  {
+    return(p_renderer ? SDL_GetRendererName(p_renderer) : "none");
   }
 
   SDL_Renderer * renderer_get(void)

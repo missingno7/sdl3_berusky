@@ -108,14 +108,16 @@ def main():
     ap.add_argument("--renderer", default="software",
                     help="SDL render driver (default software; '' = the platform default, "
                          "GPU results are not comparable with the expected hashes)")
+    ap.add_argument("--scripts", help="directory with the scripts (default tests/scripts)")
     ap.add_argument("names", nargs="*")
     args = ap.parse_args()
 
     exe = find_exe(args.exe)
-    scripts_dir = os.path.join(HERE, "scripts")
+    scripts_dir = os.path.abspath(args.scripts) if args.scripts else os.path.join(HERE, "scripts")
     expected_dir = os.path.join(HERE, "expected")
     os.makedirs(expected_dir, exist_ok=True)
 
+    # (scripts in subdirectories are run by other scripts, e.g. child/)
     names = args.names or sorted(f[:-4] for f in os.listdir(scripts_dir) if f.endswith(".txt"))
     failed = 0
 

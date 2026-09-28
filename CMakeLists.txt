@@ -120,6 +120,16 @@ else()
 endif()
 
 # ---------------------------------------------------------------------------
+# Unit test of the render layout (HiDPI, phones, aspect ratios)
+# ---------------------------------------------------------------------------
+if(NOT ANDROID)
+  enable_testing()
+  add_executable(berusky_layout_test tests/layout_test.cpp)
+  target_link_libraries(berusky_layout_test PRIVATE berusky_core)
+  add_test(NAME render_layout COMMAND berusky_layout_test)
+endif()
+
+# ---------------------------------------------------------------------------
 # Install: the executable + the game data (Graphics, GameData, Levels, ...)
 # ---------------------------------------------------------------------------
 if(NOT ANDROID)

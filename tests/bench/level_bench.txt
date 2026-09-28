@@ -1,0 +1,19 @@
+# Performance: full scene re-render + present of a level at several render
+# resolutions. Not a regression test (tests/bench is not run by run_tests.py):
+#   python tests/run_tests.py --renderer "" --scripts tests/bench level_bench
+# args: -u tests/levels/mixed_density.lv3
+wait 60
+set vsync no
+set render_resolution 1
+bench 200
+set render_resolution 1.6875
+bench 200
+set render_resolution 2.25
+bench 200
+set render_resolution 3
+bench 200
+set render_resolution 4.5
+bench 200
+set asset_scaler scale2x
+bench 200
+quit

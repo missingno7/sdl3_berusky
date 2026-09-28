@@ -137,6 +137,7 @@ typedef struct scene_stats {
   int draws_by_density[5];      // variant used: 1x, 2x, 3x, 4x, more
   int cpu_scaled;               // draws of CPU pre-scaled textures
   int textures;                 // cached textures
+  float replay_ms;              // duration of the last full replay
 
 } SCENE_STATS;
 

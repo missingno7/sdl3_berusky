@@ -450,11 +450,13 @@ void scene_renderer::replay(const canvas *p_canvas)
   SDL_SetRenderDrawColor(p_renderer, 0, 0, 0, 255);
   SDL_RenderClear(p_renderer);
 
+  Uint64 start = SDL_GetPerformanceCounter();
   if(p_canvas) {
     for(size_t i = 0; i < p_canvas->op_count(); i++)
       draw(p_canvas->op_get(i));
   }
   stats.replays++;
+  stats.replay_ms = (SDL_GetPerformanceCounter() - start) * 1000.0f / SDL_GetPerformanceFrequency();
 }
 
 SDL_Surface * scene_renderer::target_read(void)

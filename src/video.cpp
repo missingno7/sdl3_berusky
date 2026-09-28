@@ -325,6 +325,25 @@ bool video_backend::scene_dump(const char *p_file)
   return(true);
 }
 
+float video_backend::benchmark(int count)
+{
+  if(!p_renderer || count <= 0)
+    return(0);
+
+  Uint64 start = SDL_GetPerformanceCounter();
+  for(int i = 0; i < count; i++) {
+    replay_pending = true;
+    present();
+  }
+  // wait for the GPU
+  SDL_Surface *p_pixel = NULL;
+  SDL_Rect one = { 0, 0, 1, 1 };
+  p_pixel = SDL_RenderReadPixels(p_renderer, &one);
+  SDL_DestroySurface(p_pixel);
+
+  return((SDL_GetPerformanceCounter() - start) * 1000.0f / SDL_GetPerformanceFrequency() / count);
+}
+
 // -------------------------------------------------------
 //   Diagnostics overlay (debug_overlay = yes, F12)
 // -------------------------------------------------------
@@ -367,8 +386,12 @@ void video_backend::debug_draw(void)
            image_filter_name(settings.presentation_filter));
   snprintf(lines[n++], 160, "scene %d images (1x %d, 2x %d, 3x %d, 4x %d, >4x %d), %d fills",
            images, by_density[0], by_density[1], by_density[2], by_density[3], by_density[4], fills);
-  snprintf(lines[n++], 160, "textures %d  draws %d  cpu scaled %d  replays %d",
-           stats.textures, stats.draws, stats.cpu_scaled, stats.replays);
+  if(test_script_active())
+    snprintf(lines[n++], 160, "textures %d  draws %d  cpu scaled %d  replays %d",
+             stats.textures, stats.draws, stats.cpu_scaled, stats.replays);
+  else
+    snprintf(lines[n++], 160, "textures %d  draws %d  cpu scaled %d  replays %d (last %.2f ms)",
+             stats.textures, stats.draws, stats.cpu_scaled, stats.replays, stats.replay_ms);
   // (the rate depends on the clock - left out of test screenshots)
   if(test_script_active())
     snprintf(lines[n++], 160, "present -/s  renderer %s", SDL_GetRendererName(p_renderer));

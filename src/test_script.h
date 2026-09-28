@@ -35,6 +35,8 @@
  *   touch <down|move|up> <id> <x> <y>   a finger at a logical game position
  *   touchw <down|move|up> <id> <x> <y>   a finger at a window position (0..1000 of the window)
  *   windowshot <file.bmp>  save what is in the window (scaled, letterboxed, controls)
+ *   bench <count>          render the whole scene again and present it count
+ *                          times, log the average time (performance)
  *   window <w> <h>         resize the window
  *   fullscreen <0|1>       switch fullscreen
  *   quit                   quit the game
