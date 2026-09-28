@@ -60,7 +60,10 @@ void         platform_message(bool error, const char *p_title, const char *p_tex
 
 /* Run a program and wait for it. p_args is a NULL terminated argv array.
  * Returns false when the program can't be started. */
-bool         platform_run_and_wait(const char * const *p_args);
+// Runs a program and waits for it. idle() is called while waiting, so the
+// caller's window keeps responding (repaints, the OS doesn't flag it as hung).
+typedef void (*PLATFORM_IDLE)(void);
+bool         platform_run_and_wait(const char * const *p_args, PLATFORM_IDLE idle = NULL);
 bool         platform_can_run_processes(void);
 
 #endif // __PLATFORM_H__

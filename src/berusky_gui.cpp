@@ -29,6 +29,7 @@
 
 #include "portability.h"
 #include "platform.h"
+#include "input_backend.h"
 #include "test_script.h"
 
 #include "berusky.h"
@@ -2494,7 +2495,7 @@ void game_gui::run_editor(void)
   const char *p_args[] = { p_dir->game_binary_get(), "-e", NULL };
 
   bprintf("%s -e",p_dir->game_binary_get());
-  if(!platform_run_and_wait(p_args)) {
+  if(!platform_run_and_wait(p_args, input_backend_idle)) {
     bprintf("Unable to run the editor: %s", SDL_GetError());
   }
 }

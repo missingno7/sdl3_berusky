@@ -1,0 +1,4 @@
+# The game started by the editor (tests/scripts/18_editor_run.txt)
+wait 60
+shot child_level.bmp
+quit

@@ -231,17 +231,40 @@ bool platform_can_run_processes(void)
 #endif
 }
 
-bool platform_run_and_wait(const char * const *p_args)
+bool platform_run_and_wait(const char * const *p_args, PLATFORM_IDLE idle)
 {
   if(!platform_can_run_processes())
     return(false);
 
-  SDL_Process *p_process = SDL_CreateProcess(p_args, false);
+  // A regression test gives the started program its own script
+  // (BERUSKY_TEST_CHILD_SCRIPT), not the one this process is replaying
+  SDL_Environment *p_env = SDL_CreateEnvironment(true);
+  const char *p_child_script = SDL_getenv("BERUSKY_TEST_CHILD_SCRIPT");
+  if(p_env && SDL_getenv("BERUSKY_TEST_SCRIPT")) {
+    if(p_child_script && p_child_script[0])
+      SDL_SetEnvironmentVariable(p_env, "BERUSKY_TEST_SCRIPT", p_child_script, true);
+    else
+      SDL_UnsetEnvironmentVariable(p_env, "BERUSKY_TEST_SCRIPT");
+    SDL_UnsetEnvironmentVariable(p_env, "BERUSKY_TEST_CHILD_SCRIPT");
+  }
+
+  SDL_PropertiesID props = SDL_CreateProperties();
+  SDL_SetPointerProperty(props, SDL_PROP_PROCESS_CREATE_ARGS_POINTER, (void *)p_args);
+  if(p_env)
+    SDL_SetPointerProperty(props, SDL_PROP_PROCESS_CREATE_ENVIRONMENT_POINTER, p_env);
+  SDL_Process *p_process = SDL_CreateProcessWithProperties(props);
+  SDL_DestroyProperties(props);
+  if(p_env)
+    SDL_DestroyEnvironment(p_env);
   if(!p_process)
     return(false);
 
   int exit_code = 0;
-  SDL_WaitProcess(p_process, true, &exit_code);
+  while(!SDL_WaitProcess(p_process, false, &exit_code)) {
+    if(idle)
+      idle();
+    SDL_Delay(20);
+  }
   SDL_DestroyProcess(p_process);
   return(true);
 }

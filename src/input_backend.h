@@ -28,4 +28,9 @@ class input;
 // Returns true when the application should quit.
 bool input_backend_poll(class input *p_input, bool wait);
 
+// Keeps the window alive while the game waits for something else (a program
+// it started): window events are handled and the picture is presented again,
+// key / button releases are passed on, new presses are dropped.
+void input_backend_idle(void);
+
 #endif // __INPUT_BACKEND_H__

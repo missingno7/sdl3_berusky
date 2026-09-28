@@ -34,6 +34,7 @@
 
 #include "portability.h"
 #include "platform.h"
+#include "input_backend.h"
 
 #include "berusky.h"
 #include "berusky_gui.h"
@@ -1526,7 +1527,7 @@ void editor_gui::editor_run_level(void)
     bprintf("Saved as %s",filename);
     bprintf("%s -u %s",p_dir->game_binary_get(),filename);
 
-    if(!platform_run_and_wait(p_args)) {
+    if(!platform_run_and_wait(p_args, input_backend_idle)) {
       bprintf("Unable to run the game: %s", SDL_GetError());
     }
   }

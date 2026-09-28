@@ -294,9 +294,46 @@ static void window_event(SDL_Event *p_event)
 //   Event loop
 // -------------------------------------------------------
 
+// The input the last poll worked for (releases during input_backend_idle())
+static INPUT *p_last_input = NULL;
+
+void input_backend_idle(void)
+{
+  SDL_Event event;
+  while(SDL_PollEvent(&event)) {
+    switch(event.type) {
+      case SDL_EVENT_KEY_UP:
+        if(p_last_input) {
+          KEYTYPE key = key_translate(event.key.key, event.key.scancode);
+          if(key != K_NONE)
+            p_last_input->key_input(key, mods_translate(event.key.mod), false);
+        }
+        break;
+      case SDL_EVENT_MOUSE_BUTTON_UP:
+        if(p_last_input && p_grf && event.button.button >= BUTTON_LEFT && event.button.button <= BUTTON_RIGHT) {
+          p_grf->video_get()->event_to_logical(&event);
+          p_last_input->mouse_input(pointer_coord(event.button.x), pointer_coord(event.button.y),
+                                    BUTTON_UP, event.button.button);
+        }
+        break;
+      default:
+        if((event.type >= SDL_EVENT_WINDOW_FIRST && event.type <= SDL_EVENT_WINDOW_LAST) ||
+           event.type == SDL_EVENT_RENDER_TARGETS_RESET ||
+           event.type == SDL_EVENT_RENDER_DEVICE_RESET) {
+          window_event(&event);
+        }
+        break;
+    }
+  }
+
+  if(p_grf)
+    p_grf->present_if_needed();
+}
+
 bool input_backend_poll(class input *p_input_, bool wait)
 {
   INPUT *p_input = (INPUT *)p_input_;
+  p_last_input = p_input;
   SDL_Event event;
   bool ret;
 

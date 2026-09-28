@@ -8,4 +8,20 @@ shot editor_help.bmp
 key f1
 wait 10
 shot editor_after_help.bmp
+window 1600 1125
+wait 5
+click 60 300
+wait 5
+click 400 400
+wait 5
+click 440 400
+wait 5
+shot editor_placed_hires.bmp
+layoutshot editor_placed.txt
+# the level isn't saved: "exit anyway?" - yes
+key esc
+wait 5
+key y
+key enter
+wait 10
 quit

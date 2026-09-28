@@ -1,0 +1,19 @@
+# args: -e
+# env: BERUSKY_TEST_CHILD_SCRIPT=tests/scripts/child/run_level.txt
+# Editor "run level" (F9) starts the game as a separate process. The editor
+# keeps handling its window while it waits (it used to block in
+# SDL_WaitProcess and Windows flagged it as not responding).
+wait 60
+click 60 300
+wait 5
+click 400 400
+wait 5
+key f9
+wait 10
+shot editor_after_run.bmp
+key esc
+wait 5
+key y
+key enter
+wait 10
+quit
