@@ -1,7 +1,5 @@
 # Profiles: type a new profile name, create it, list profiles
-wait 60
-click 295 250
-wait 40
+wait 100
 click 320 240
 wait 10
 shot profile_menu.bmp

@@ -216,29 +216,15 @@ bool set_fullscreen(const char *p_ini_file, bool state)
   return(ini_write_string(p_ini_file, INI_FULLSCREEN, my_itoa(10, tmp, state ? 1 : 0)));
 }
 
-#define INI_DOUBLESIZE "disable_double_size"
-bool get_doublesize(const char *p_ini_file)
-{
-  return(!ini_read_int_file(p_ini_file, INI_DOUBLESIZE, FALSE));
-}
+/* The keys of the old double-size mode (disable_double_size,
+   startup_doublesize_question) are not read any more: the renderer draws at
+   the display's resolution. They are left in old config files untouched. */
 
-bool set_doublesize(const char *p_ini_file, bool state)
+bool get_menu_background_photo(const char *p_ini_file)
 {
-  char tmp[100];
-  // it's reversed - disable_double_size = 0 is the default
-  return(ini_write_string(p_ini_file, INI_DOUBLESIZE, my_itoa(10, tmp, !state ? 1 : 0)));
-}
-
-#define INI_DOUBLESIZE_QUESTION "startup_doublesize_question"
-bool get_doublesize_question(const char *p_ini_file)
-{
-  return(ini_read_int_file(p_ini_file, INI_DOUBLESIZE_QUESTION, TRUE));
-}
-
-bool set_doublesize_question(const char *p_ini_file, bool state)
-{
-  char tmp[100];
-  return(ini_write_string(p_ini_file, INI_DOUBLESIZE_QUESTION, my_itoa(10, tmp, state ? 1 : 0)));
+  char value[100];
+  ini_read_string_file(p_ini_file, INI_MENU_BACKGROUND, value, sizeof(value), "photo");
+  return(!is_token(value, "black"));
 }
 
 int  get_colors(const char *p_ini_file, int default_color_depth)
@@ -751,7 +737,9 @@ bool graphics_game_load(DIR_LIST *p_dir)
   i += p_grf->sprite_insert("hraci3.spr", FIRST_PLAYER + 2 * ROT_SHIFT);
   i += p_grf->sprite_insert("hraci4.spr", FIRST_PLAYER + 3 * ROT_SHIFT);
 
-  if(berusky_config::new_gfx) {
+  // Genuine 2x artwork (Berusky 1.7). They used to be loaded in the
+  // double-size mode only; now they are just assets with density 2.
+  {
     i += p_grf->sprite_insert("box_bright1.spr", FIRST_BOX_BRIGHT);
     i += p_grf->sprite_insert("box_dark1.spr", FIRST_BOX_DARK);
     i += p_grf->sprite_insert("box_paper1.spr", FIRST_BOX_PAPER);

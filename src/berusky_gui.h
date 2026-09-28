@@ -36,9 +36,10 @@
 #define LEVEL_NEXT            (FIRST_CLASSIC_LEVEL+45)
 #define LEVEL_CLOSED          (FIRST_CLASSIC_LEVEL+42)
 
-#define ITEM_SIZE             (DOUBLE_SIZE ? 40 : 20)
-#define TEXT_SHIFT_VERTICAL   (DOUBLE_SIZE ? 10 : 0)
-#define TEXT_SHIFT_HORIZONTAL (DOUBLE_SIZE ? 50 : 20)
+// Level select screen: one level / pipe item, logical units
+#define ITEM_SIZE             20
+#define TEXT_SHIFT_VERTICAL   0
+#define TEXT_SHIFT_HORIZONTAL 20
 
 #define MENU_PATH_GROUP       1
 
@@ -80,9 +81,6 @@ public:
   char * credit_text_load(void);
 
   // Run menu (create menu background) in GUI
-  void menu_double_size_question(MENU_STATE state, size_ptr data = 0, size_ptr data1 = 0);
-  void menu_double_size_question_switch(void);
-  void menu_double_size_set(bool double_size);
   void menu_main(MENU_STATE state, size_ptr data = 0, size_ptr data1 = 0);
   void menu_new_game(MENU_STATE state, size_ptr data = 0, size_ptr data1 = 0);
   void menu_profiles(MENU_STATE state, size_ptr data = 0, size_ptr data1 = 0);
@@ -104,7 +102,9 @@ public:
   
   // Helpers
   void menu_settings_fullscreen(void);
-  void menu_settings_doublesize(void);
+  void menu_settings_integer(void);
+  void menu_settings_filter_next(void);
+  void menu_settings_background(void);
   void menu_level_run_path_draw(int level_set, int level_act, int level_num, int level_last);
   int  menu_level_run_path_draw_line(const char *p_path, int level_act, int level_num, int level_last, int level_set, int sx, int sy);
   void menu_level_draw_level(int lev, int level_act, int level_num, int level_last, int level_set, int x, int y);

@@ -37,13 +37,11 @@
 /* berusky-config defininitions
 */
 int berusky_config::game_fps;
-int berusky_config::new_gfx;
 
 int berusky_config::screen_depth;
 int berusky_config::fullscreen;
 
-int berusky_config::double_size;
-int berusky_config::double_size_question;
+int berusky_config::menu_background_photo;
 
 int berusky_config::game_resolution_x;
 int berusky_config::game_resolution_y;
@@ -63,10 +61,8 @@ int berusky_config::editor_screen_start_y;
 int berusky_config::cell_size_x;
 int berusky_config::cell_size_y;
 
-void berusky_config::original_size_set(void)
+void berusky_config::layout_game_set(void)
 {
-  new_gfx = false;
-
   game_resolution_x = 640;
   game_resolution_y = 480;
 
@@ -86,10 +82,8 @@ void berusky_config::original_size_set(void)
   cell_size_y = 20;
 }
 
-void berusky_config::double_size_set(void)
+void berusky_config::layout_editor_set(void)
 {
-  new_gfx = true;
-
   game_resolution_x = 1280;
   game_resolution_y = 900;
 
@@ -115,14 +109,8 @@ void berusky_config::game_config_load(const char *p_ini_file)
 
   fullscreen = get_fullscreen(p_ini_file);
   screen_depth = get_colors(p_ini_file, SCREEN_DEPTH_DEFAULT);
-  double_size_question = get_doublesize_question(p_ini_file);
-
-  if(double_size_question) {
-    double_size = FALSE;    
-  }
-  else {
-    double_size = get_doublesize(p_ini_file);
-  }
+  menu_background_photo = get_menu_background_photo(p_ini_file);
+  layout_game_set();
 }
 
 void berusky_config::user_level_config_load(const char *p_ini_file)
@@ -131,7 +119,8 @@ void berusky_config::user_level_config_load(const char *p_ini_file)
 
   fullscreen = get_fullscreen(p_ini_file);
   screen_depth = get_colors(p_ini_file, SCREEN_DEPTH_DEFAULT);
-  double_size = get_doublesize(p_ini_file);
+  menu_background_photo = get_menu_background_photo(p_ini_file);
+  layout_game_set();
 }
 
 void berusky_config::editor_config_load(const char *p_ini_file)
@@ -141,24 +130,20 @@ void berusky_config::editor_config_load(const char *p_ini_file)
   fullscreen = get_fullscreen(p_ini_file);
   screen_depth = get_colors(p_ini_file, SCREEN_DEPTH_DEFAULT);
 
-  // Runs only in double-size mode
-  double_size = TRUE;
-  double_size_set();
+  layout_editor_set();
 }
 
 void berusky_config::game_screen_set(void)
 {
-  if(DOUBLE_SIZE) {
-    double_size_set();
-  }
-  else {
-    original_size_set();
-  }
-
   graphics_start(GAME_RESOLUTION_X, GAME_RESOLUTION_Y, SCREEN_DEPTH, FULLSCREEN);
+  p_grf->store_get()->cell_zoom_set((float)CELL_ZOOM);
+}
 
-  // Save the recent double size state
-  set_doublesize(INI_FILE, DOUBLE_SIZE);
+void berusky_config::editor_screen_set(void)
+{
+  graphics_start(EDITOR_RESOLUTION_X, EDITOR_RESOLUTION_Y, SCREEN_DEPTH, FULLSCREEN);
+  // Level cell art fills the editor's 40 unit cells
+  p_grf->store_get()->cell_zoom_set((float)CELL_ZOOM);
 }
 
 berusky::berusky(ITEM_REPOSITORY *p_repo_, DIR_LIST *p_dir_)

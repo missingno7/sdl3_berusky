@@ -1,10 +1,6 @@
 # env: BERUSKY_TOUCH_CONTROLS=1
 # Touch: menus by finger (logical coordinates), on-screen controls in a level
-wait 60
-touch down 1 295 250
-wait 2
-touch up 1 295 250
-wait 40
+wait 100
 touch down 1 320 205
 wait 2
 touch up 1 320 205

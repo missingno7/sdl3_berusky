@@ -358,11 +358,10 @@ public:
 bool get_fullscreen(const char *p_ini_file);
 bool set_fullscreen(const char *p_ini_file, bool state);
 
-bool get_doublesize(const char *p_ini_file);
-bool set_doublesize(const char *p_ini_file, bool state);
 
-bool get_doublesize_question(const char *p_ini_file);
-bool set_doublesize_question(const char *p_ini_file, bool state);
+// menu_background = photo | black
+#define INI_MENU_BACKGROUND "menu_background"
+bool get_menu_background_photo(const char *p_ini_file);
 
 int  get_colors(const char *p_ini_file, int default_color_depth);
 

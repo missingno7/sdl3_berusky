@@ -1,7 +1,5 @@
-# Settings (fullscreen checkbox), help screens
-wait 60
-click 295 250
-wait 40
+# Settings (fullscreen, integer scaling, menu photos, graphics filter), help
+wait 100
 click 320 275
 wait 10
 shot settings.bmp
@@ -11,6 +9,32 @@ shot settings_fullscreen_on.bmp
 click 200 193
 wait 30
 shot settings_fullscreen_off.bmp
+window 1000 700
+wait 5
+click 200 228
+wait 10
+windowshot settings_integer_on.bmp
+click 200 228
+wait 10
+click 200 263
+wait 10
+shot settings_photos_off.bmp
+click 200 263
+wait 10
+click 200 298
+wait 10
+shot settings_filter_scale2x.bmp
+click 200 298
+wait 10
+click 200 298
+wait 10
+click 200 298
+wait 10
+click 200 298
+wait 10
+shot settings_filter_pixelart.bmp
+window 640 480
+wait 5
 click 330 420
 wait 15
 shot back_to_menu.bmp

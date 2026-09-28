@@ -1,0 +1,38 @@
+# args: -u tests/levels/mixed_density.lv3
+# Asset scalers on a level with 1x and genuine 2x artwork at render scale 2.5
+# (1600x1200 scene). The layout is the same for every scaler.
+# same: nearest.txt linear.txt scale2x.txt
+wait 60
+window 1600 1200
+wait 5
+set asset_scaler nearest
+wait 3
+shot nearest.bmp
+layoutshot nearest.txt
+set asset_scaler linear
+wait 3
+shot linear.bmp
+layoutshot linear.txt
+set asset_scaler pixelart
+wait 3
+shot pixelart.bmp
+set asset_scaler scale2x
+wait 3
+shot scale2x.bmp
+layoutshot scale2x.txt
+set asset_scaler legacy2x
+wait 3
+shot legacy2x.bmp
+set asset_scaler xbrz
+wait 3
+shot xbrz_fallback.bmp
+set asset_scaler pixelart
+set render_resolution integer
+set presentation_filter linear
+wait 3
+shot integer_scene.bmp
+windowshot integer_presented_linear.bmp
+set presentation_filter nearest
+wait 3
+windowshot integer_presented_nearest.bmp
+quit

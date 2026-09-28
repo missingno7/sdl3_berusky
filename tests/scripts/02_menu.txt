@@ -1,11 +1,7 @@
-# Answer the resolution question with "no" (original 640x480), look at the main menu
-wait 60
-move 295 250
-wait 3
-shot q_hover.bmp
-click 295 250
-wait 40
+# Main menu (photo background, original 640x480 layout), hover
+wait 100
 shot main_menu.bmp
+layoutshot main_menu.txt
 move 320 240
 wait 3
 shot main_menu_hover.bmp

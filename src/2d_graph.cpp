@@ -1011,6 +1011,17 @@ FONT     *p_font = NULL;
 void graphics_start(tpos dx, tpos dy, int depth, bool fullscreen)
 {
   if(!p_grf) {
+    // HD asset pack: name@Nx.png variants are looked for there first
+    // (hd_pack = directory in the config, BERUSKY_HD_PACK overrides it)
+    char hd_pack[MAX_FILENAME];
+    const char *p_env = SDL_getenv("BERUSKY_HD_PACK");
+    if(p_env && p_env[0]) {
+      image_asset::hd_dir_set(p_env);
+    } else {
+      ini_read_string_file(INI_FILE, "hd_pack", hd_pack, sizeof(hd_pack), "");
+      image_asset::hd_dir_set(hd_pack);
+    }
+
     p_grf = new GRAPH_2D(dx, dy, depth, fullscreen, render_settings_load(INI_FILE));
   } else {
     p_grf->screen_resize(dx, dy);

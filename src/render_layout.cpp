@@ -126,8 +126,63 @@ IMAGE_FILTER asset_scaler_filter(ASSET_SCALER scaler)
 #define INI_PRESENTATION_FILTER  "presentation_filter"
 #define INI_WINDOW_SCALE         "window_scale"
 
+static bool token_bool(const char *p_value, bool *p_state)
+{
+  if(!SDL_strcasecmp(p_value, "yes") || !SDL_strcasecmp(p_value, "on") || !strcmp(p_value, "1")) {
+    *p_state = true;
+    return(true);
+  }
+  if(!SDL_strcasecmp(p_value, "no") || !SDL_strcasecmp(p_value, "off") || !strcmp(p_value, "0")) {
+    *p_state = false;
+    return(true);
+  }
+  return(false);
+}
+
+bool render_settings_set(RENDER_SETTINGS *p_settings, const char *p_key, const char *p_value)
+{
+  if(!SDL_strcasecmp(p_key, INI_PRESENTATION)) {
+    if(!SDL_strcasecmp(p_value, "integer"))
+      p_settings->presentation = PRESENT_INTEGER;
+    else if(!SDL_strcasecmp(p_value, "fit"))
+      p_settings->presentation = PRESENT_FIT;
+    else
+      return(false);
+    return(true);
+  }
+  if(!SDL_strcasecmp(p_key, INI_RENDER_RESOLUTION)) {
+    if(!SDL_strcasecmp(p_value, "native")) {
+      p_settings->render_resolution = RENDER_RES_NATIVE;
+    } else if(!SDL_strcasecmp(p_value, "integer")) {
+      p_settings->render_resolution = RENDER_RES_INTEGER;
+    } else {
+      float scale = (float)atof(p_value);
+      if(scale < 0.25f || scale > 16.0f)
+        return(false);
+      p_settings->render_resolution = RENDER_RES_FIXED;
+      p_settings->render_scale = scale;
+    }
+    return(true);
+  }
+  if(!SDL_strcasecmp(p_key, INI_ASSET_SCALER))
+    return(asset_scaler_parse(p_value, &p_settings->asset_scaler));
+  if(!SDL_strcasecmp(p_key, INI_PRESENTATION_FILTER))
+    return(image_filter_parse(p_value, &p_settings->presentation_filter));
+  if(!SDL_strcasecmp(p_key, INI_WINDOW_SCALE)) {
+    p_settings->window_scale = !SDL_strcasecmp(p_value, "auto") ? 0 : SDL_max(0, atoi(p_value));
+    return(true);
+  }
+  if(!SDL_strcasecmp(p_key, "vsync"))
+    return(token_bool(p_value, &p_settings->vsync));
+  if(!SDL_strcasecmp(p_key, "debug_overlay"))
+    return(token_bool(p_value, &p_settings->debug_overlay));
+  return(false);
+}
+
 RENDER_SETTINGS render_settings_load(const char *p_ini_file)
 {
+  static const char *keys[] = { INI_PRESENTATION, INI_RENDER_RESOLUTION, INI_ASSET_SCALER,
+                                INI_PRESENTATION_FILTER, INI_WINDOW_SCALE, "vsync", "debug_overlay" };
   RENDER_SETTINGS settings;
   char value[100];
 
@@ -147,48 +202,11 @@ RENDER_SETTINGS render_settings_load(const char *p_ini_file)
     }
   }
 
-  ini_read_string_file(p_ini_file, INI_PRESENTATION, value, sizeof(value), "");
-  if(value[0]) {
-    if(is_token(value, "integer"))
-      settings.presentation = PRESENT_INTEGER;
-    else if(is_token(value, "fit"))
-      settings.presentation = PRESENT_FIT;
-    else
-      bprintf("Unknown %s = %s", INI_PRESENTATION, value);
+  for(size_t i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+    ini_read_string_file(p_ini_file, keys[i], value, sizeof(value), "");
+    if(value[0] && !render_settings_set(&settings, keys[i], value))
+      bprintf("Unknown %s = %s", keys[i], value);
   }
-
-  ini_read_string_file(p_ini_file, INI_RENDER_RESOLUTION, value, sizeof(value), "");
-  if(value[0]) {
-    if(is_token(value, "native")) {
-      settings.render_resolution = RENDER_RES_NATIVE;
-    } else if(is_token(value, "integer")) {
-      settings.render_resolution = RENDER_RES_INTEGER;
-    } else {
-      float scale = (float)atof(value);
-      if(scale >= 0.25f && scale <= 16.0f) {
-        settings.render_resolution = RENDER_RES_FIXED;
-        settings.render_scale = scale;
-      } else {
-        bprintf("Unknown %s = %s", INI_RENDER_RESOLUTION, value);
-      }
-    }
-  }
-
-  ini_read_string_file(p_ini_file, INI_ASSET_SCALER, value, sizeof(value), "");
-  if(value[0] && !asset_scaler_parse(value, &settings.asset_scaler))
-    bprintf("Unknown %s = %s", INI_ASSET_SCALER, value);
-
-  ini_read_string_file(p_ini_file, INI_PRESENTATION_FILTER, value, sizeof(value), "");
-  if(value[0] && !image_filter_parse(value, &settings.presentation_filter))
-    bprintf("Unknown %s = %s", INI_PRESENTATION_FILTER, value);
-
-  ini_read_string_file(p_ini_file, INI_WINDOW_SCALE, value, sizeof(value), "auto");
-  settings.window_scale = is_token(value, "auto") ? 0 : atoi(value);
-  if(settings.window_scale < 0)
-    settings.window_scale = 0;
-
-  settings.vsync = ini_read_bool_file(p_ini_file, "vsync", TRUE) != 0;
-  settings.debug_overlay = ini_read_bool_file(p_ini_file, "debug_overlay", FALSE) != 0;
 
   if(settings.asset_scaler != asset_scaler_effective(settings.asset_scaler)) {
     bprintf("asset_scaler %s is not available, using %s",

@@ -1,9 +1,0 @@
-# Double-size (1280x900) mode: answer "yes", menu, play a level
-wait 60
-click 368 215
-wait 120
-shot double_menu.bmp
-click 640 400
-wait 10
-shot double_play_menu.bmp
-quit

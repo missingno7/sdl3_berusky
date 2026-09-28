@@ -55,10 +55,14 @@ typedef struct berusky_config {
   static int screen_depth;
   static int fullscreen;
 
-  static int double_size;
-  static int double_size_question;
-  static int new_gfx;
+  // Photo backgrounds behind the menus (menu_background = photo | black)
+  static int menu_background_photo;
 
+  /* Layout profile - all in logical units (see render_layout.h). The game
+     is a 640x480 composition with 20 unit cells; the editor lays out a
+     1280x900 composition with 40 unit cells. What that is in pixels is up
+     to the renderer.
+  */
   static int game_resolution_x;
   static int game_resolution_y;
 
@@ -79,9 +83,10 @@ typedef struct berusky_config {
 
 public:
 
-  static void original_size_set(void);
-  static void double_size_set(void);
+  static void layout_game_set(void);
+  static void layout_editor_set(void);
   static void game_screen_set(void);
+  static void editor_screen_set(void);
 
   static void game_config_load(const char *p_ini_file);
   static void user_level_config_load(const char *p_ini_file);

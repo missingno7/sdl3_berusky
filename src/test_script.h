@@ -9,13 +9,13 @@
  */
 
 /*
- * Scripted input + framebuffer screenshots for regression tests.
+ * Scripted input + scene screenshots for regression tests.
  *
  * Active only when the environment variable BERUSKY_TEST_SCRIPT names a
  * script file. It injects input through the same neutral-key / logical-pointer
  * paths as real devices (input::key_input(), input::mouse_input()) and saves
- * the software framebuffer, so a whole session can be replayed and its
- * pictures compared pixel by pixel (see tests/run_tests.py).
+ * the rendered scene, so a whole session can be replayed and its pictures
+ * compared pixel by pixel (see tests/run_tests.py).
  *
  * Script commands (one per line, '#' starts a comment; times are game ticks):
  *
@@ -25,8 +25,13 @@
  *   keyup <name>           release a key
  *   move <x> <y>           move the pointer (logical game coordinates)
  *   click <x> <y>          move the pointer and click the left button
- *   shot <file.bmp>        save the framebuffer (the file goes to BERUSKY_TEST_OUT
- *                          when it's set)
+ *   shot <file.bmp>        save the rendered scene at its render resolution (the
+ *                          file goes to BERUSKY_TEST_OUT when it's set)
+ *   layoutshot <file.txt>  save the screen's display list in logical units - the
+ *                          same for every window size, scaler and renderer
+ *   set <key> <value>      change a render setting at run time (config keys of
+ *                          render_layout.h: asset_scaler, presentation,
+ *                          presentation_filter, render_resolution, debug_overlay)
  *   touch <down|move|up> <id> <x> <y>   a finger at a logical game position
  *   touchw <down|move|up> <id> <x> <y>   a finger at a window position (0..1000 of the window)
  *   windowshot <file.bmp>  save what is in the window (scaled, letterboxed, controls)

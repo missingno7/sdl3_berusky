@@ -115,6 +115,8 @@ typedef struct render_settings {
 // Reads the settings from the config file (see render_layout.cpp for keys and
 // the migration of the older scale_mode key).
 RENDER_SETTINGS render_settings_load(const char *p_ini_file);
+// Sets one setting by its config key; false for an unknown key or value
+bool            render_settings_set(RENDER_SETTINGS *p_settings, const char *p_key, const char *p_value);
 // Writes the settings the user can change in the game menu
 void            render_settings_save(const char *p_ini_file, const RENDER_SETTINGS &settings);
 

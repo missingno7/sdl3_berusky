@@ -1,0 +1,22 @@
+# args: -u tests/levels/mixed_density.lv3
+# Mixed pixel density: 1x sprites (20x20) and genuine 2x sprites (40x40)
+# occupy the same 20 unit cells. At 1x the 2x art is reduced, at 2x it's
+# drawn from its own pixels 1:1, at 4x both are scaled (1x by 4, 2x by 2).
+# The diagnostics overlay shows which variants are drawn.
+# same: density_1x.txt density_2x.txt density_4x.txt
+wait 60
+layoutshot density_1x.txt
+shot density_1x.bmp
+window 1280 960
+wait 5
+shot density_2x.bmp
+layoutshot density_2x.txt
+set render_resolution 4
+wait 5
+shot density_4x.bmp
+layoutshot density_4x.txt
+set render_resolution native
+set debug_overlay yes
+wait 5
+windowshot debug_overlay.bmp
+quit

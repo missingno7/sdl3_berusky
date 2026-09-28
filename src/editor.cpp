@@ -656,52 +656,6 @@ void editor_gui::selection_cursor_draw(bool draw)
 
 /* Side menu - general
 */
-/*
-#define SIDE_MENU_X         (EDITOR_SCREEN_START_X+(DOUBLE_SIZE ? GAME_RESOLUTION_X/2+300 : GAME_RESOLUTION_X)+10)
-#define SIDE_MENU_Y         (EDITOR_SCREEN_START_Y+(DOUBLE_SIZE ? 160 : 60))
-#define SIDE_MENU_DX        (EDITOR_RESOLUTION_X-SIDE_MENU_X)
-#define SIDE_MENU_DY        (EDITOR_RESOLUTION_Y-SIDE_MENU_Y)
-#define SIDE_MENU_X_DIFF    0
-#define SIDE_MENU_Y_DIFF    35
-
-static char *side_menu[] = 
-{ 
-  _("help (f1)"),
-  _("new level"),
-  _("save (f2)"),
-  _("save as (ct+f2)"),
-  _("load (f3)"),
-  _("quit (esc)"),
-  _("run level (f9)"),
-  _("undo (ctrl+u)"),
-  _("redo (ctrl+r)"),
-  _("rotate (shft+r)"),
-  _("shade floor"),
-  _("background (b)"),
-};
-
-void editor_gui::side_menu_create(void)
-{
-  p_font->print(NULL,SIDE_MENU_X, SIDE_MENU_Y, "Editor menu:");
-
-  menu_item_set_pos(SIDE_MENU_X, SIDE_MENU_Y+SIDE_MENU_Y_DIFF);
-  menu_item_set_diff(SIDE_MENU_X_DIFF, SIDE_MENU_Y_DIFF);
-
-  menu_item_draw(side_menu[0], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_HELP));
-  menu_item_draw(side_menu[1], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_NEW));
-  menu_item_draw(side_menu[2], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_SAVE));
-  menu_item_draw(side_menu[3], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_SAVE_AS));
-  menu_item_draw(side_menu[4], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_LOAD));
-  menu_item_draw(side_menu[5], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_QUIT));
-  menu_item_draw(side_menu[6], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_RUN));
-  menu_item_draw(side_menu[7], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_UNDO));
-  menu_item_draw(side_menu[9], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_ROTATE_SELECTION));
-  menu_item_draw(side_menu[10],MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_SHADER));
-  menu_item_draw(side_menu[11],MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_CHANGE_BACKGROUND));
-
-  //p_grf->redraw_add(SIDE_MENU_X,SIDE_MENU_Y,SIDE_MENU_DX,SIDE_MENU_DY);
-}
-*/
 
 #define SIDE_MENU_X         (EDITOR_SCREEN_START_X+GAME_RESOLUTION_X/2+200)
 #define SIDE_MENU_Y         (650)

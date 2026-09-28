@@ -80,6 +80,41 @@ static KEYTYPE key_by_name(const char *p_name)
   return(K_NONE);
 }
 
+static void out_path(const char *p_file, char *p_path, size_t max)
+{
+  const char *p_out = SDL_getenv("BERUSKY_TEST_OUT");
+  if(p_out && p_out[0])
+    snprintf(p_path, max, "%s/%s", p_out, p_file);
+  else
+    snprintf(p_path, max, "%s", p_file);
+}
+
+// The screen's display list: layout regression independent of the resolution
+static void layout_screenshot(const char *p_file)
+{
+  if(!p_grf)
+    return;
+
+  char path[MAX_FILENAME];
+  out_path(p_file, path, sizeof(path));
+  if(!p_grf->video_get()->scene_dump(path))
+    bprintf("Test script: unable to save %s", path);
+  else
+    bprintf("Test script: saved %s", path);
+}
+
+static void settings_set(const char *p_key, const char *p_value)
+{
+  if(!p_grf)
+    return;
+
+  RENDER_SETTINGS settings = p_grf->video_get()->settings_get();
+  if(render_settings_set(&settings, p_key, p_value))
+    p_grf->video_get()->settings_set(settings);
+  else
+    bprintf("Test script: unknown setting %s = %s", p_key, p_value);
+}
+
 static void screenshot(const char *p_file)
 {
   if(!p_grf)
@@ -283,6 +318,13 @@ bool test_script_poll(class input *p_input_)
     }
     else if(!SDL_strcasecmp(cmd, "windowshot")) {
       window_screenshot(arg1);
+    }
+    else if(!SDL_strcasecmp(cmd, "layoutshot")) {
+      layout_screenshot(arg1);
+    }
+    else if(!SDL_strcasecmp(cmd, "set")) {
+      settings_set(arg1, arg2);
+      // replayed and presented on the next poll
     }
     else if(!SDL_strcasecmp(cmd, "window")) {
       if(p_grf)

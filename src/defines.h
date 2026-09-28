@@ -37,9 +37,6 @@
 #define SCREEN_DEPTH              (berusky_config::screen_depth)
 #define SCREEN_DEPTH_DEFAULT      32
 
-#define DOUBLE_SIZE               (berusky_config::double_size)
-#define DOUBLE_SIZE_QUESTION      (berusky_config::double_size_question)
-
 #define GAME_RESOLUTION_X         (berusky_config::game_resolution_x)
 #define GAME_RESOLUTION_Y         (berusky_config::game_resolution_y)
 
@@ -54,7 +51,7 @@
 
 #define SCREEN_TOP_PANNEL_X       0
 #define SCREEN_TOP_PANNEL_Y       0
-#define SCREEN_TOP_PANNEL_DX      (DOUBLE_SIZE ? GAME_RESOLUTION_X/2 : GAME_RESOLUTION_X)
+#define SCREEN_TOP_PANNEL_DX      (GAME_RESOLUTION_X)
 #define SCREEN_TOP_PANNEL_DY      40
 
 #define INSERT_FIRST              0
@@ -71,8 +68,15 @@
 #define IN_LEVEL(x,y)             ((x) >= 0 && (x) < LEVEL_CELLS_X && \
                                    (y) >= 0 && (y) < LEVEL_CELLS_Y)
 
+// Size of a level cell in the current layout (logical units)
 #define CELL_SIZE_X               (berusky_config::cell_size_x)
 #define CELL_SIZE_Y               (berusky_config::cell_size_y)
+
+// A level cell of the game layout is 20 logical units; level art has that
+// logical size whatever its pixel density is. The editor lays its level out
+// in bigger cells, so the art is zoomed there (see sprite_store::cell_zoom).
+#define LEVEL_CELL_UNITS          20
+#define CELL_ZOOM                 (CELL_SIZE_X / LEVEL_CELL_UNITS)
 
 #define EDITOR_ITEM_SIZE_X        (berusky_config::cell_size_x*3)
 #define EDITOR_ITEM_SIZE_Y        (berusky_config::cell_size_y*3)

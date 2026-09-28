@@ -38,9 +38,12 @@ def find_exe(explicit):
 
 
 def pixel_hash(path):
-    """SHA-256 of the BMP pixel data (so the hash doesn't depend on the file header)."""
+    """SHA-256 of the BMP pixel data (so the hash doesn't depend on the file
+    header), or of a layout dump (line ends normalized)."""
     with open(path, "rb") as f:
         data = f.read()
+    if path.endswith(".txt"):
+        return hashlib.sha256(data.replace(bytes([13, 10]), bytes([10]))).hexdigest()
     if data[:2] != b"BM":
         return hashlib.sha256(data).hexdigest()
     offset = struct.unpack_from("<I", data, 10)[0]
@@ -51,8 +54,10 @@ def script_header(script):
     """Leading comment lines may contain:
          # args: -e level.lv3       command line for the game
          # env: NAME=VALUE          environment variable
+         # same: a.txt b.txt ...    outputs that must be identical (e.g. the
+                                    layout at different window sizes)
     """
-    args, env = [], {}
+    args, env, same = [], {}, []
     with open(script) as f:
         for line in f:
             line = line.strip()
@@ -63,7 +68,9 @@ def script_header(script):
             elif line.startswith("# env:"):
                 name, _, value = line[len("# env:"):].strip().partition("=")
                 env[name.strip()] = value.strip()
-    return args, env
+            elif line.startswith("# same:"):
+                same.append(line[len("# same:"):].split())
+    return args, env, same
 
 
 def run_script(exe, script, out_dir, renderer):
@@ -83,7 +90,7 @@ def run_script(exe, script, out_dir, renderer):
     # The software renderer gives the same pixels on every machine
     if renderer:
         env["SDL_RENDER_DRIVER"] = renderer
-    args, extra_env = script_header(script)
+    args, extra_env, _ = script_header(script)
     env.update(extra_env)
     with open(os.path.join(out_dir, "log.txt"), "w") as log:
         try:
@@ -117,7 +124,8 @@ def main():
         out_dir = os.path.join(ROOT, "build", "tests", name)
         code = run_script(exe, script, out_dir, args.renderer)
 
-        shots = sorted(f for f in os.listdir(out_dir) if f.endswith(".bmp"))
+        # scene / window screenshots and layout dumps
+        shots = sorted(f for f in os.listdir(out_dir) if f.endswith(".bmp") or f.endswith(".txt") and f != "log.txt")
         hashes = {s: pixel_hash(os.path.join(out_dir, s)) for s in shots}
         expected_file = os.path.join(expected_dir, name + ".sha256")
 
@@ -136,6 +144,9 @@ def main():
                     expected[s] = h
 
         problems = []
+        for group in script_header(script)[2]:
+            if len({hashes.get(f) for f in group}) != 1:
+                problems.append("not identical: %s" % " ".join(group))
         if code != 0:
             problems.append("exit code %s" % code)
         for s in sorted(set(expected) | set(hashes)):

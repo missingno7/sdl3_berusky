@@ -140,13 +140,9 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
   switch(gmode) {
     /* Run menu */
     case MENU:
-      if(DOUBLE_SIZE_QUESTION) {
-        main_queue.add(LEVEL_EVENT(GC_MENU_DOUBLESIZE_QUESTION));
-      } else {
-        main_queue.add(LEVEL_EVENT(GC_GAME_DATA_LOAD));
-        main_queue.add(LEVEL_EVENT(GC_MENU_START));
-      }
-      
+      main_queue.add(LEVEL_EVENT(GC_GAME_DATA_LOAD));
+      main_queue.add(LEVEL_EVENT(GC_MENU_START));
+
       break;
     
     /* Run user level */
@@ -212,7 +208,7 @@ void run_editor(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
   /* Create game objects */
   berusky_config::editor_config_load(INI_FILE);
 
-  graphics_start(EDITOR_RESOLUTION_X, EDITOR_RESOLUTION_Y, SCREEN_DEPTH, FULLSCREEN);
+  berusky_config::editor_screen_set();
 
   /* Load&draw logos */
   graphics_logos_load(p_dir);

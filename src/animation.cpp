@@ -139,16 +139,8 @@ void animation_repository::repository_modify(void)
     }
   }
 
-  if(DOUBLE_SIZE) {
-    for(i = 0; i < 4; i++) {
-      p_tpl[i+ANIM_MOVE_UP].dx *= 2;
-      p_tpl[i+ANIM_MOVE_UP].dy *= 2;
-    }
-    for(i = 0; i < 4; i++) {
-      p_tpl[i+ANIM_MOVE_UP_FAST].dx *= 2;
-      p_tpl[i+ANIM_MOVE_UP_FAST].dy *= 2;
-    }
-  }
+  // Movement (dx, dy) is in logical units - one cell is 20 of them on every
+  // display, the renderer scales it
 }
 
 anim_template_handle animation_repository::template_create(int flag, int frame_num)

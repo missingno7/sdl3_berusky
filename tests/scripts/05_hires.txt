@@ -1,0 +1,30 @@
+# High resolution scene: the same logical layout rendered at 1x (640x480),
+# 2x (1280x960 window) and 3x (render_resolution 3). 1x sprites are scaled
+# once from their own pixels, nothing is stretched from a 640x480 frame.
+# same: menu_1x.txt menu_2x.txt
+# same: level_1x.txt level_2x.txt level_3x.txt
+wait 100
+layoutshot menu_1x.txt
+window 1280 960
+wait 5
+shot menu_2x.bmp
+layoutshot menu_2x.txt
+click 320 205
+wait 10
+click 330 225
+wait 15
+click 355 355
+wait 60
+set render_resolution native
+window 640 480
+wait 5
+layoutshot level_1x.txt
+window 1280 960
+wait 5
+shot level_2x.bmp
+layoutshot level_2x.txt
+set render_resolution 3
+wait 5
+shot level_3x.bmp
+layoutshot level_3x.txt
+quit

@@ -1,0 +1,16 @@
+# args: -u data/Levels/j01.lv3
+# env: BERUSKY_HD_PACK=tests/hdpack
+# HD pack: tests/hdpack/game_cur@4x.png is a 4x variant of the player cursor
+# (recolored so it's visible). At render scale 2 and 3 it's preferred over
+# the 1x original, the layout doesn't change.
+# same: hd_1x.txt hd_3x.txt
+wait 60
+layoutshot hd_1x.txt
+shot hd_1x.bmp
+window 1920 1440
+wait 5
+set render_resolution 3
+wait 5
+shot hd_3x.bmp
+layoutshot hd_3x.txt
+quit

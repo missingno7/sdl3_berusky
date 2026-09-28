@@ -1,4 +1,5 @@
-# Startup: logo, then the "double size" question (fresh user directory)
-wait 60
-shot startup_question.bmp
+# Startup: no resolution question any more, straight to the main menu
+# (fresh user directory, 640x480 window = render scale 1)
+wait 100
+shot startup_menu.bmp
 quit

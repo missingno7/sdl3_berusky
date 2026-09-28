@@ -1,7 +1,7 @@
-# Window presentation: scaling, letterbox, resize, fullscreen (original 640x480 mode)
-wait 60
-click 295 250
-wait 40
+# Presentation: the composition is fitted into any window keeping its aspect
+# ratio (black bars), rendered at the viewport's resolution; integer mode
+# uses whole multiples; a small window renders below 1x
+wait 100
 windowshot win_640x480.bmp
 window 1000 700
 wait 10
@@ -9,12 +9,19 @@ windowshot win_1000x700.bmp
 window 1300 1000
 wait 10
 windowshot win_1300x1000.bmp
+set presentation integer
+wait 5
+windowshot win_1300x1000_integer.bmp
+set presentation fit
 window 500 400
 wait 10
 windowshot win_500x400.bmp
+shot scene_500x400.bmp
 fullscreen 1
-shot fullscreen_fb.bmp
+shot fullscreen_scene.bmp
+windowshot fullscreen_window.bmp
 fullscreen 0
+window 640 480
 wait 10
 windowshot back_windowed.bmp
 quit

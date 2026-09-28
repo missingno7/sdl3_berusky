@@ -66,6 +66,10 @@ bool video_backend::create(int width, int height, bool fullscreen_, const RENDER
 
   if(!p_window) {
     SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    // A test script sets the window size itself; nothing else (window
+    // snapping, a maximize) may change it under a running test
+    if(test_script_active())
+      flags &= ~SDL_WINDOW_RESIZABLE;
     if(fullscreen_)
       flags |= SDL_WINDOW_FULLSCREEN;
 
@@ -365,7 +369,11 @@ void video_backend::debug_draw(void)
            images, by_density[0], by_density[1], by_density[2], by_density[3], by_density[4], fills);
   snprintf(lines[n++], 160, "textures %d  draws %d  cpu scaled %d  replays %d",
            stats.textures, stats.draws, stats.cpu_scaled, stats.replays);
-  snprintf(lines[n++], 160, "present %.1f/s  renderer %s", rate, SDL_GetRendererName(p_renderer));
+  // (the rate depends on the clock - left out of test screenshots)
+  if(test_script_active())
+    snprintf(lines[n++], 160, "present -/s  renderer %s", SDL_GetRendererName(p_renderer));
+  else
+    snprintf(lines[n++], 160, "present %.1f/s  renderer %s", rate, SDL_GetRendererName(p_renderer));
 
   const float text_scale = layout.pixel_density >= 1.5f ? floorf(layout.pixel_density) : 1.0f;
   float width = 0;

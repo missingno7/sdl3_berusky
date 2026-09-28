@@ -1,0 +1,4 @@
+Test fixture for the HD pack mechanism (tests/scripts/16_hdpack.txt):
+game_cur@4x.png is data/Graphics/game_cur.png enlarged 4x with a real alpha
+channel, recolored and marked with a dot, so a screenshot shows whether the
+renderer picked the 4x variant.

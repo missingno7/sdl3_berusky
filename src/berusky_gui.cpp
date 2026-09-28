@@ -51,6 +51,15 @@ spr_handle menu_background_get(void)
   return(handles[rand()/(RAND_MAX/num)]);
 }
 
+// The 2x photo backgrounds (drawn by the double-size mode of 1.7) behind the
+// menus that are black in the original layout; menu_background = black
+// gives the original look
+void menu_background_draw(void)
+{
+  if(berusky_config::menu_background_photo)
+    p_grf->draw(menu_background_get(),0,0);
+}
+
 // -------------------------------------------------------
 // Game UI
 // -------------------------------------------------------
@@ -81,80 +90,6 @@ game_gui::~game_gui(void)
 #undef MENU_Y_START
 #undef MENU_X_DIFF
 #undef MENU_Y_DIFF
-
-/* Double size start question after start
-*/
-void game_gui::menu_double_size_question(MENU_STATE state, size_ptr data, size_ptr data1)
-{
-  switch(state) {
-    case MENU_RETURN:
-    case MENU_ENTER:
-      {
-        menu_enter((GUI_BASE *)this,(GUI_BASE_FUNC)&game_gui::menu_settings, data, data1);
-    
-        p_grf->fill(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y, 0);
-              
-        p_font->select(FONT_DEFAULT);
-        p_font->alignment_set(MENU_CENTER);
-        p_font->start_set(0, 150);
-        p_font->print(NULL, _("Start in high resolution mode?"));
-      
-        #define MENU_X_START_BACK (GAME_RESOLUTION_X/2)
-        #define MENU_Y_START_BACK (200)
-        #define MENU_X_DIFF       0
-        #define MENU_Y_DIFF       35
-        
-        static char *yes = _("yes");
-        static char *no = _("no");
-                
-        menu_item_set_pos(MENU_X_START_BACK, MENU_Y_START_BACK);
-        menu_item_set_diff(MENU_X_DIFF, MENU_Y_DIFF);
-        menu_item_start();
-      
-        menu_item_draw(yes, MENU_LEFT, FALSE,
-                       LEVEL_EVENT(GC_MENU_DOUBLESIZE_SET, TRUE),
-                       LEVEL_EVENT(GC_GAME_DATA_LOAD),
-                       LEVEL_EVENT(GC_MENU_START));
-        menu_item_draw(no, MENU_RIGHT, FALSE, 
-                       LEVEL_EVENT(GC_MENU_DOUBLESIZE_SET, FALSE),
-                       LEVEL_EVENT(GC_GAME_DATA_LOAD),
-                       LEVEL_EVENT(GC_MENU_START));                       
-
-        #define MENU_X_START (GAME_RESOLUTION_X/2 - 120)
-        #define MENU_Y_START (400)
-      
-        static char *dont_ask = _("Don't ask again");
-      
-        menu_item_set_pos(MENU_X_START, MENU_Y_START);
-        menu_item_draw_checkbox(dont_ask, MENU_LEFT, !berusky_config::double_size_question, 0, 0,
-                                LEVEL_EVENT(GC_MENU_DOUBLESIZE_SWITCH));
-
-        p_grf->redraw_add(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y);
-        p_grf->flip();              
-      }
-      break;
-    
-    case MENU_LEAVE:
-      input.mevent_clear();
-      break;
-    default:
-      break;
-  }
-}
-
-void game_gui::menu_double_size_question_switch(void)
-{
-  berusky_config::double_size_question = !berusky_config::double_size_question;
-  set_doublesize_question(INI_FILE, berusky_config::double_size_question);
-}
-
-void game_gui::menu_double_size_set(bool double_size)
-{
-  if(berusky_config::double_size != double_size) {
-    berusky_config::double_size = double_size;
-    berusky_config::game_screen_set();
-  }
-}
 
 #define LAST_PLAYER_PROFILE "last_profile"
 
@@ -233,11 +168,9 @@ void game_gui::menu_main(MENU_STATE state, size_ptr data, size_ptr data1)
         tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
         tpos height = p_grf->sprite_get_height(MENU_SPRIT_LOGO);
       
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
       
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
       
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2, LOGO_START);
 
@@ -253,7 +186,7 @@ void game_gui::menu_main(MENU_STATE state, size_ptr data, size_ptr data1)
         menu_item_set_pos(GAME_RESOLUTION_X/2 - 70, GAME_RESOLUTION_Y/2 - 50);
 
         #define MENU_X_DIFF  0
-        #define MENU_Y_DIFF  (DOUBLE_SIZE ? 45 : 35)
+        #define MENU_Y_DIFF  35
         menu_item_set_diff(MENU_X_DIFF, MENU_Y_DIFF);
 
         menu_item_start();
@@ -275,7 +208,7 @@ void game_gui::menu_main(MENU_STATE state, size_ptr data, size_ptr data1)
         p_font->print(NULL,_("berusky version %s (C) Anakreon 1997-2012\n"), VERSION);
         p_font->print(_("distributed under GPLv2\n"));
         
-        #define PROFILE_Y_DIFF  (DOUBLE_SIZE ? 70 : -10)
+        #define PROFILE_Y_DIFF  (-10)
         p_font->alignment_set(MENU_CENTER);
         p_font->start_set(0, LOGO_START+height+PROFILE_Y_DIFF);
         p_font->print(NULL, _("Selected profile: %s"), profile.profile_name);
@@ -310,11 +243,9 @@ void game_gui::menu_new_game(MENU_STATE state, size_ptr data, size_ptr data1)
         
         tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
 
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
       
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
       
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
       
@@ -337,7 +268,7 @@ void game_gui::menu_new_game(MENU_STATE state, size_ptr data, size_ptr data1)
         menu_item_set_pos(MENU_X_START, MENU_Y_START);
         
         #define MENU_X_DIFF  0
-        #define MENU_Y_DIFF  (DOUBLE_SIZE ? 45 : 35)
+        #define MENU_Y_DIFF  35
         menu_item_set_diff(MENU_X_DIFF, MENU_Y_DIFF);
         
         menu_item_start();
@@ -383,30 +314,26 @@ void game_gui::menu_profiles(MENU_STATE state, size_ptr data, size_ptr data1)
 
         p_grf->fill(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y, 0);
       
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
       
-        if(DOUBLE_SIZE) {
-          tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
-          p_grf->draw(menu_background_get(),0,0);
-          p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
-        }
+        menu_background_draw();
       
         p_font->select(FONT_DEFAULT);
         p_font->alignment_set(MENU_CENTER);
-        #define PROFILE_NAME_START (DOUBLE_SIZE ? 250 : 0)
+        #define PROFILE_NAME_START 0
         p_font->start_set(0, PROFILE_NAME_START);
         p_font->print(NULL, _("Current profile is: %s"), profile.profile_name);
 
         // Create a new profile
-        #define INSERT_START          (DOUBLE_SIZE ? 300 : 30)
-        #define INSERT_START_CONSOLE  (INSERT_START + (DOUBLE_SIZE ? 50 : 30))
+        #define INSERT_START          30
+        #define INSERT_START_CONSOLE  (INSERT_START + 30)
         p_font->start_set(0, INSERT_START);
         p_font->print(_("Create a new player profile:\n"));
         p_font->print(NULL, 0, INSERT_START_CONSOLE, "_");
         profile_name[0] = '\0';
 
         #define MENU_X_START (GAME_RESOLUTION_X/2 - 50)
-        #define MENU_Y_START (DOUBLE_SIZE ? (INSERT_START+100) : (INSERT_START+70))
+        #define MENU_Y_START (INSERT_START+70)
         #define MENU_Y_DIFF  35
 
         static char *create = _("create");
@@ -416,10 +343,10 @@ void game_gui::menu_profiles(MENU_STATE state, size_ptr data, size_ptr data1)
                        LEVEL_EVENT(GC_MENU_PROFILE_CREATE, profile_name), 
                        LEVEL_EVENT(GI_MENU_BACK_POP));
 
-        #define PROFILE_LIST_START    (DOUBLE_SIZE ? 500 : 150)
-        #define PROFILE_MENU_Y_START  (DOUBLE_SIZE ? (PROFILE_LIST_START+50) : (PROFILE_LIST_START+35))
-        #define PROFILE_MAX           (DOUBLE_SIZE ? 15 : 10)
-        #define PROFILE_Y_DIFF        (DOUBLE_SIZE ? 25 : 25)
+        #define PROFILE_LIST_START    150
+        #define PROFILE_MENU_Y_START  (PROFILE_LIST_START+35)
+        #define PROFILE_MAX           10
+        #define PROFILE_Y_DIFF        25
 
         p_font->alignment_set(MENU_CENTER);
         p_font->start_set(0, PROFILE_LIST_START);
@@ -443,7 +370,7 @@ void game_gui::menu_profiles(MENU_STATE state, size_ptr data, size_ptr data1)
                               LEVEL_EVENT(GI_MENU_BACK_POP));
         }
 
-        #define MENU_BACK_Y_START (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 90 : 40))
+        #define MENU_BACK_Y_START (GAME_RESOLUTION_Y - 40)
         static char *back = _("back");
         menu_item_draw(MENU_X_START, MENU_BACK_Y_START, back, MENU_LEFT, FALSE, LEVEL_EVENT(GI_MENU_BACK_POP));
       
@@ -542,18 +469,16 @@ void game_gui::menu_help(MENU_STATE state, size_ptr data, size_ptr data1)
         
         tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
 
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
       
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
         
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
 
         #define MENU_X_START (GAME_RESOLUTION_X/2 - 80)
         #define MENU_Y_START (GAME_RESOLUTION_Y/2)
         #define MENU_X_DIFF  0
-        #define MENU_Y_DIFF  (DOUBLE_SIZE ? 45 : 35)
+        #define MENU_Y_DIFF  35
 
         bool from_game = (bool)data;
 
@@ -613,11 +538,9 @@ void game_gui::menu_settings(MENU_STATE state, size_ptr data, size_ptr data1)
         
         tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
 
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
       
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
         
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
       
@@ -630,8 +553,13 @@ void game_gui::menu_settings(MENU_STATE state, size_ptr data, size_ptr data1)
         bool from_game = (bool)data;
       
         static char *fulscreen = _("fulscreen");
-        static char *double_size = _("High resolution mode");
-        static char *double_size_question = _("Ask on start up");
+        static char *integer = _("integer scaling");
+        static char *photos = _("menu photos");
+        static char  filter[100];
+
+        const RENDER_SETTINGS &render = p_grf->video_get()->settings_get();
+        snprintf(filter, sizeof(filter), _("graphics filter: %s"),
+                 asset_scaler_name(asset_scaler_effective(render.asset_scaler)));
 /*      
         static char *sound = _("sound");
         static char *music = _("music");
@@ -643,13 +571,15 @@ void game_gui::menu_settings(MENU_STATE state, size_ptr data, size_ptr data1)
         menu_item_draw_checkbox(fulscreen, MENU_LEFT,
                                 p_grf->fullscreen_get(), 0, 0,
                                 LEVEL_EVENT(GC_MENU_SETTINGS_FULSCREEN_SWITCH));
-        menu_item_draw_checkbox(double_size, MENU_LEFT,
-                                berusky_config::double_size, 1, 0,
-                                LEVEL_EVENT(GC_MENU_SETTINGS_DOUBLESIZE_SWITCH));
-        menu_item_set_pos(MENU_X_START+35, MENU_Y_START+2*MENU_Y_DIFF);
-        menu_item_draw_checkbox(double_size_question, MENU_LEFT,
-                                berusky_config::double_size_question, 2, 0,
-                                LEVEL_EVENT(GC_MENU_DOUBLESIZE_SWITCH));
+        menu_item_draw_checkbox(integer, MENU_LEFT,
+                                render.presentation == PRESENT_INTEGER, 1, 0,
+                                LEVEL_EVENT(GC_MENU_SETTINGS_INTEGER_SWITCH));
+        menu_item_draw_checkbox(photos, MENU_LEFT,
+                                berusky_config::menu_background_photo, 2, 0,
+                                LEVEL_EVENT(GC_MENU_SETTINGS_BACKGROUND_SWITCH, from_game));
+        // Clicking cycles the filters
+        menu_item_draw(filter, MENU_LEFT, FALSE,
+                       LEVEL_EVENT(GC_MENU_SETTINGS_FILTER_NEXT, from_game));
 /*
         menu_item_draw_checkbox(sound, MENU_LEFT, p_ber->sound.sound_on, 1,
                                 LEVEL_EVENT(GC_MENU_SETTINGS_SOUND_SWITCH));
@@ -659,7 +589,7 @@ void game_gui::menu_settings(MENU_STATE state, size_ptr data, size_ptr data1)
         static char *back = _("back");
                 
         #define MENU_X_START_BACK (GAME_RESOLUTION_X/2 - 50)
-        #define MENU_Y_START_BACK (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 120 : 80))
+        #define MENU_Y_START_BACK (GAME_RESOLUTION_Y - 80)
         
         menu_item_set_pos(MENU_X_START_BACK, MENU_Y_START_BACK);
         menu_item_draw(back, MENU_LEFT, FALSE, LEVEL_EVENT(from_game ? GC_RESTORE_LEVEL : GI_MENU_BACK_POP));
@@ -683,18 +613,31 @@ void game_gui::menu_settings_fullscreen(void)
   set_fullscreen(INI_FILE, p_grf->fullscreen_get());
 }
 
-void game_gui::menu_settings_doublesize(void)
+void game_gui::menu_settings_integer(void)
 {
-  berusky_config::double_size = !berusky_config::double_size;
-  set_doublesize(INI_FILE, berusky_config::double_size);
+  RENDER_SETTINGS settings = p_grf->video_get()->settings_get();
+  settings.presentation = (settings.presentation == PRESENT_INTEGER) ? PRESENT_FIT : PRESENT_INTEGER;
+  p_grf->video_get()->settings_set(settings);
+  render_settings_save(INI_FILE, settings);
+}
 
-  p_font->select(FONT_DEFAULT);
-  p_font->alignment_set(MENU_CENTER);
-  p_font->start_set(0, GAME_RESOLUTION_Y - 200);
-  RECT r;
-  p_font->print(&r,_("The game must be restarted\nfor the change to take effect."));
-  p_grf->redraw_add(&r);
-  p_grf->flip();
+// nearest -> linear -> pixelart -> scale2x -> legacy2x -> nearest
+void game_gui::menu_settings_filter_next(void)
+{
+  RENDER_SETTINGS settings = p_grf->video_get()->settings_get();
+  ASSET_SCALER scaler = asset_scaler_effective(settings.asset_scaler);
+  do {
+    scaler = (ASSET_SCALER)((scaler + 1) % SCALER_NUM);
+  } while(asset_scaler_effective(scaler) != scaler);
+  settings.asset_scaler = scaler;
+  p_grf->video_get()->settings_set(settings);
+  render_settings_save(INI_FILE, settings);
+}
+
+void game_gui::menu_settings_background(void)
+{
+  berusky_config::menu_background_photo = !berusky_config::menu_background_photo;
+  ini_write_string(INI_FILE, INI_MENU_BACKGROUND, berusky_config::menu_background_photo ? "photo" : "black");
 }
 
 /*
@@ -717,22 +660,13 @@ void game_gui::menu_help_rules(MENU_STATE state, size_ptr data, size_ptr data1)
       
         p_grf->fill(0,0,GAME_RESOLUTION_X,GAME_RESOLUTION_Y,0);
       
-        if(DOUBLE_SIZE) {
-          #define LOGO_START 60
-          tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
-
-          p_grf->draw(menu_background_get(),0,0);
-          p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
-        }
-        else {
-          p_grf->draw(MENU_SPRIT_BACK,0,0);
-        }      
+        p_grf->draw(MENU_SPRIT_BACK,0,0);
       
         p_font->alignment_set(MENU_LEFT);
         p_font->select(FONT_DEFAULT);
       
-        #define X_START ((DOUBLE_SIZE) ? 320 : 0)
-        #define Y_START ((DOUBLE_SIZE) ? 150 : 0)
+        #define X_START 0
+        #define Y_START 0
 
         int j, i, x, y;
         int variants;
@@ -763,46 +697,26 @@ meaning now.\n"));
             y += 170; // 310
             p_font->print(NULL, x, y, _("box - it is possible to push it."));
             y += 30; // 340
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_BOX);
             if(variants > 13) {
-              variants = (DOUBLE_SIZE) ? 13 : 8;
+              variants = 8;
             }
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_BOX, i, 0);
-              x += DOUBLE_SIZE ? 50 : 30;
+              x += 30;
             }
 
-            if(DOUBLE_SIZE) {
-              x = 20+X_START;
-              y += 30;
-              if(DOUBLE_SIZE) y += 40;
-              p_font->print(NULL, x, y, _("Light box - bugs can push two of them."));
-              y += 30;
-              if(DOUBLE_SIZE) y += 10;
-              variants = p_repo->variants_get(P_BOX_LIGHT);
-              if(variants > 13) {
-                variants = (DOUBLE_SIZE) ? 13 : 8;
-              }
-              for (i = 0; i < variants; i++) {
-                p_repo->draw(x, y, P_BOX_LIGHT, i, 0);
-                x += DOUBLE_SIZE ? 50 : 30;
-              }
-            }
-          
             x = 20+X_START;
             y += 30;
-            if(DOUBLE_SIZE) y += 40;
             p_font->print(NULL, x, y, _("explosive - can destroy the boxes."));
             y += 30;
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_TNT);
             if(variants > 13) {
-              variants = (DOUBLE_SIZE) ? 13 : 5;
+              variants = 5;
             }
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_TNT, i, 0);
-              x += DOUBLE_SIZE ? 50 : 30;
+              x += 30;
             }
           
             page_prev = page;
@@ -818,49 +732,41 @@ meaning now.\n"));
             // A line for key
             p_font->alignment_set(MENU_LEFT);
             y += 40;
-            if(DOUBLE_SIZE) y += 40;
             p_font->print(NULL, x, y, _("key - you need five of them."));
             y += 30;
-            if(DOUBLE_SIZE) y += 10;
             p_grf->draw(p_repo->sprite_get(P_KEY, 0, 0), x, y);
 
             // A line for exits
             y += 40;
-            if(DOUBLE_SIZE) y += 40;
             p_font->print(NULL, x, y, _("exit - a gate to next level."));            
             y += 30;
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_EXIT);
             for (i = 0; i < variants - 1; i += 2) {
               p_repo->draw(x, y, P_EXIT, i, 0);
-              x += DOUBLE_SIZE ? 50 : 30;
+              x += 30;
             }
             p_grf->draw(p_repo->sprite_get(P_EXIT, i - 1, 0), x, y);
           
             // A line for stones
             x = 20+X_START;
             y += 40;
-            if(DOUBLE_SIZE) y += 40;
             p_font->print(NULL, x, y, _("stone - can be broken by a pickax."));
             y += 30;
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_STONE);
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_STONE, i, 0);
-              x += DOUBLE_SIZE ? 50 : 30;
+              x += 30;
             }
           
             // A line for pickax
             x = 20+X_START;
             y += 40;
-            if(DOUBLE_SIZE) y += 40;
             p_font->print(NULL, x, y, _("pickax - a tool for stone crushing."));
             y += 30;
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_MATTOCK);
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_MATTOCK, i, 0);
-              x += DOUBLE_SIZE ? 50 : 30;
+              x += 30;
             }
             break;
       
@@ -883,30 +789,26 @@ pick them up"));
               variants = p_repo->variants_get(P_KEY1 + j);
               for (i = 0; i < variants; i++) {
                 p_repo->draw(x, y, P_KEY1 + j, i, 0);
-                x += DOUBLE_SIZE ? 50 : 30;
+                x += 30;
               }
             }
           
             // Color doors
             x = 20+X_START;
             y += 40; // 250
-            if(DOUBLE_SIZE) y += 40;
             p_font->start_set(x, y);
             p_font->print(_("color door - can be opened by the\nrespective color key only"));
           
             x = 40+X_START;
-            if(DOUBLE_SIZE) x += 20;
             y += 50; // 300
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_DOOR1_V_Z);
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_DOOR1_V_Z, i, 0);              
-              x += DOUBLE_SIZE ? 140 : 70;
+              x += 70;
             }
           
             x = 20+X_START;
             y += 40; // 340
-            if(DOUBLE_SIZE) y += 40;
             p_font->start_set(x, y);
             p_font->print(_("color gate-way - only a bug with\n\
 identical color is allowed to go\n\
@@ -914,13 +816,11 @@ through. Boxes cannot be pushed\n\
 through."));
           
             x = 40+X_START;
-            if(DOUBLE_SIZE) x += 20;
             y += 90; // 430;
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_ID_DOOR1_V_Z);
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_ID_DOOR1_V_Z, i, 0);
-              x += DOUBLE_SIZE ? 140 : 70;
+              x += 70;
             }
                     
             break;
@@ -940,28 +840,23 @@ then it is closed off and there's no\n\
 way to open it\n"));
             
             x = 40+X_START;
-            if(DOUBLE_SIZE) x += 20;
             y += 80; // 220
-            if(DOUBLE_SIZE) y += 10;
             variants = p_repo->variants_get(P_DV_V_O);
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_DV_V_O, i, 0);        
-              x += DOUBLE_SIZE ? 140 : 70;
+              x += 70;
             }
             x = 40+X_START;
-            if(DOUBLE_SIZE) x += 20;
             y += 40; // 260;
-            if(DOUBLE_SIZE) y += 20;
             variants = p_repo->variants_get(P_DV_V_Z);
             for (i = 0; i < variants; i++) {
               p_repo->draw(x, y, P_DV_V_Z, i, 0);        
-              x += DOUBLE_SIZE ? 140 : 70;
+              x += 70;
             }
 
             // The rest
             x = 20+X_START;
             y += 40; // 300
-            if(DOUBLE_SIZE) y += 40;
             p_font->start_set(x, y);
             p_font->print(_("Other elements not listed here are just\n\
 walls, which have no interesting\n\
@@ -985,7 +880,7 @@ it is possible to break them anywise.\n"));
         #define MENU_X_START_L  MENU_X_START
         #define MENU_X_START_R  MENU_X_START_L + 250
         #define MENU_X_START_B  MENU_X_START_L + 50
-        #define MENU_Y_START    ((DOUBLE_SIZE) ? GAME_RESOLUTION_Y - 90 : 410)
+        #define MENU_Y_START    410
         #define MENU_X_DIFF     0
         #define MENU_Y_DIFF     30
       
@@ -1026,20 +921,11 @@ void game_gui::menu_help_keys(MENU_STATE state, size_ptr data, size_ptr data1)
       
         p_grf->fill(0,0,GAME_RESOLUTION_X,GAME_RESOLUTION_Y,0);
       
-        if(DOUBLE_SIZE) {      
-          #define LOGO_START 60
-          tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
-        
-          p_grf->draw(menu_background_get(),0,0);
-          p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
-        }
-        else {
-          p_grf->draw(MENU_SPRIT_BACK,0,0);
-        }
+        p_grf->draw(MENU_SPRIT_BACK,0,0);
         p_font->select(FONT_DEFAULT);
         
-        #define X_START ((DOUBLE_SIZE) ? 320 : 0)
-        #define Y_START ((DOUBLE_SIZE) ? 300 : 100)
+        #define X_START 0
+        #define Y_START 100
         #define Y_DIFF  25
             
         p_font->alignment_set(MENU_CENTER);
@@ -1073,7 +959,7 @@ which can be controlled by these keys:"));
         p_font->print(NULL, X_START+60,  start_y += Y_DIFF, _(". . . . . . . . Load level"));
 
         #define MENU_X_START (GAME_RESOLUTION_X/2-50)
-        #define MENU_Y_START ((DOUBLE_SIZE) ? GAME_RESOLUTION_Y - 90 : 400)
+        #define MENU_Y_START 400
         #define MENU_X_DIFF  90
         #define MENU_Y_DIFF  35
 
@@ -1104,8 +990,8 @@ which can be controlled by these keys:"));
 #undef MENU_X_START_L
 
 #define SCROLL_START_X  0
-#define SCROLL_START_Y  (DOUBLE_SIZE ? 180+60 : 180)
-#define SCROLL_LINES    (DOUBLE_SIZE ? 24 : 12)
+#define SCROLL_START_Y  180
+#define SCROLL_LINES    12
 
 void game_gui::menu_help_credits(MENU_STATE state, size_ptr data, size_ptr data1)
 {
@@ -1127,7 +1013,7 @@ void game_gui::menu_help_credits(MENU_STATE state, size_ptr data, size_ptr data1
         p_grf->fill(0,0,GAME_RESOLUTION_X,GAME_RESOLUTION_Y,0);
         tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
       
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
         p_grf->redraw_add(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y);
         p_grf->flip();
@@ -1159,7 +1045,7 @@ void game_gui::menu_help_credits(MENU_STATE state, size_ptr data, size_ptr data1
             menu_timer.clear();
           
             #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17)
-            #define MENU_Y_START   (DOUBLE_SIZE ? GAME_RESOLUTION_Y - 90 : 440)
+            #define MENU_Y_START   440
                         
             static char *back_string = _("back");
 
@@ -1208,12 +1094,7 @@ void game_gui::menu_level_hint(MENU_STATE state, size_ptr data, size_ptr data1)
       
         p_grf->fill(0,0,GAME_RESOLUTION_X,GAME_RESOLUTION_Y,0);
       
-        if(DOUBLE_SIZE) {
-          p_grf->draw(MENU_SPRIT_BACK1,0,0);
-        }
-        else {
-          p_grf->draw(MENU_SPRIT_BACK,0,0);
-        }
+        p_grf->draw(MENU_SPRIT_BACK,0,0);
 
         p_font->select(FONT_DEFAULT);
         p_font->alignment_set(MENU_LEFT);
@@ -1229,17 +1110,8 @@ void game_gui::menu_level_hint(MENU_STATE state, size_ptr data, size_ptr data1)
           p_hint = level_hint_load(set, level);
         }
       
-        tpos start_x;
-        tpos start_y;
-      
-        if(DOUBLE_SIZE) {
-          start_x = GAME_RESOLUTION_X/2-60;
-          start_y = GAME_RESOLUTION_Y/2;
-        }
-        else {
-          start_x = 0;
-          start_y = 0;
-        }
+        tpos start_x = 0;
+        tpos start_y = 0;
 
         if(p_hint) {
           p_font->print(NULL, start_x+20, start_y+100, _("Level hint:"));
@@ -1249,7 +1121,7 @@ void game_gui::menu_level_hint(MENU_STATE state, size_ptr data, size_ptr data1)
         p_font->print(NULL, start_x+20, start_y+120, p_hint);
 
         #define MENU_X_START (start_x+270)
-        #define MENU_Y_START ((DOUBLE_SIZE) ? GAME_RESOLUTION_Y - 90 : 400)
+        #define MENU_Y_START 400
         #define MENU_X_DIFF  90
         #define MENU_Y_DIFF  35
 
@@ -1353,7 +1225,9 @@ void game_gui::menu_level_draw_level(int lev,
 {
   assert(lev < level_num);
 
-  char *p_level_name = DOUBLE_SIZE ? p_ber->levelset_get_passwd(lev) : (char*)"";
+  // (the double-size layout printed the level password here, there's no
+  // room for it in the 640x480 composition)
+  char *p_level_name = (char*)"";
 
   if(lev > level_last) {
     // Draw as inactive sprite
@@ -1484,10 +1358,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
   p_font->alignment_set(MENU_LEFT);
   p_font->select(FONT_DEFAULT);
   
-  #define IMAGE_START         (DOUBLE_SIZE ? 100 : 50)
-  #define TEXT_START          (DOUBLE_SIZE ? 400 : 250)
+  #define IMAGE_START         50
+  #define TEXT_START          250
   
-  p_grf->draw(DOUBLE_SIZE ? menu_background_get() : MENU_SPRIT_WALL, 0, 0);
+  p_grf->draw(MENU_SPRIT_WALL, 0, 0);
 
   // Levels are drawn as menu
   menu_item_start();
@@ -1558,10 +1432,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
         menu_level_draw_pipe(2,7,1);
         menu_level_draw_pipe(2,7,0);
         
-        if(!DOUBLE_SIZE) {
+        {
           #define MENU_X_START_L (GAME_RESOLUTION_X/2 + 60 - 17 - 60)
           #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 60 + 60)
-          #define MENU_Y_START   (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 180 : 140))
+          #define MENU_Y_START   (GAME_RESOLUTION_Y - 140)
           #define MENU_X_DIFF     0
           #define MENU_Y_DIFF     30
         
@@ -1623,10 +1497,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
                                              level_act, level_num, level_last, level_set, 14, 10);
         //assert(lev == 50);
         
-        if(!DOUBLE_SIZE) {
+        {
           #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17 - 60 - 10)
           #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 60 - 10)
-          #define MENU_Y_START   (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 180 : 130))
+          #define MENU_Y_START   (GAME_RESOLUTION_Y - 130)
           #define MENU_X_DIFF     0
           #define MENU_Y_DIFF     30
         
@@ -1665,10 +1539,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
         lev += menu_level_run_path_draw_line(LEVEL_LINE, level_act, level_num, level_last, level_set, 27, -1);
         assert(lev == 35);
       
-        if(!DOUBLE_SIZE) {
+        {
           #define MENU_X_START_L (GAME_RESOLUTION_X/2 +20 - 17 - 60)
           #define MENU_X_START_R (GAME_RESOLUTION_X/2 +20 + 60)
-          #define MENU_Y_START   (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 180 : 130))
+          #define MENU_Y_START   (GAME_RESOLUTION_Y - 130)
           #define MENU_X_DIFF     0
           #define MENU_Y_DIFF     30
         
@@ -1802,10 +1676,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
         menu_level_draw_pipe(0, ADV_START_X-14, ADV_START_Y+6);
         menu_level_draw_pipe(0, ADV_START_X-15, ADV_START_Y+6);
 
-        if(!DOUBLE_SIZE) {
+        {
           #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17 - 60 - 60)
           #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 60 - 60)
-          #define MENU_Y_START   (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 180 : 130))
+          #define MENU_Y_START   (GAME_RESOLUTION_Y - 130)
           #define MENU_X_DIFF     0
           #define MENU_Y_DIFF     30
         
@@ -1877,10 +1751,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
         menu_level_draw_pipe(1,IMP_START_X+1,IMP_START_Y-2);
         menu_level_draw_pipe(2,IMP_START_X+1,IMP_START_Y-1);
         
-        if(!DOUBLE_SIZE) {
+        {
           #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17 - 60)
           #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 60)
-          #define MENU_Y_START   (GAME_RESOLUTION_Y - (DOUBLE_SIZE ? 180 : 130))
+          #define MENU_Y_START   (GAME_RESOLUTION_Y - 130)
           #define MENU_X_DIFF     0
           #define MENU_Y_DIFF     30
         
@@ -1926,7 +1800,7 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
         #define LEVEL_LINE "DPDV29DPRPRPDV30DPRPRPDPDPLPLPLPDV31"
         lev += menu_level_run_path_draw_line(LEVEL_LINE, level_act, level_num, level_last, level_set, 23, -1);
               
-        if(!DOUBLE_SIZE) {
+        {
           #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17 - 60 - 60)
           #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 60 - 60)
           #define MENU_Y_START   (GAME_RESOLUTION_Y - 140)
@@ -1961,35 +1835,6 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
   #undef MENU_Y_START
   #undef MENU_X_DIFF
   #undef MENU_Y_DIFF
-
-  if(DOUBLE_SIZE) {
-    #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17 - 60)
-    #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 60)
-    #define MENU_Y_START   (GAME_RESOLUTION_Y - ((level_set < 5) ? 180 : 145))
-    #define MENU_X_DIFF     0
-    #define MENU_Y_DIFF     35
-    int     y_position = 0;
-  
-    menu_item_draw(MENU_X_START_R, MENU_Y_START+y_position*MENU_Y_DIFF, play_string,
-                   MENU_RIGHT, FALSE, 
-                   LEVEL_EVENT(GC_RUN_LEVEL_SET));
-    y_position++;
-  
-    if(level_set < 5) {
-      menu_item_draw(MENU_X_START_R, MENU_Y_START+y_position*MENU_Y_DIFF, level_hint,
-                     MENU_RIGHT, MENU_SAVE_BACK, 
-                     LEVEL_EVENT(GC_MENU_LEVEL_HINT, FALSE));
-      y_position++;
-    }
-    menu_item_draw(MENU_X_START_R, MENU_Y_START+y_position*MENU_Y_DIFF, select_string,
-                   MENU_RIGHT, FALSE, 
-                   LEVEL_EVENT(GC_RUN_LEVEL_SELECT, level_last, profile.level_spr_x ,profile.level_spr_y));
-    y_position++;
-    menu_item_draw(MENU_X_START_L, MENU_Y_START+y_position*MENU_Y_DIFF, back_string,
-                   MENU_LEFT, FALSE, 
-                   LEVEL_EVENT(GI_MENU_BACK_POP));
-    y_position++;
-  }
 
   p_grf->redraw_add(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y);
   p_grf->flip();
@@ -2038,12 +1883,7 @@ void game_gui::menu_level_name_print(void)
   int menu_x_start = 0;
   int menu_y_start = 0;
 
-  if(DOUBLE_SIZE) {
-    p_font->alignment_set(MENU_CENTER);
-    menu_x_start = 20;
-    menu_y_start = (GAME_RESOLUTION_Y - 220);
-  }
-  else {
+  {
     switch(level_set) {
       case 0:
         menu_x_start = (GAME_RESOLUTION_X/2 - 70);
@@ -2080,7 +1920,7 @@ void game_gui::menu_level_name_print(void)
   p_font->try_run_set(FALSE);
 
   // Adjust the stored rectange
-  #define NAME_MARGIN (DOUBLE_SIZE ? 20 : 10)
+  #define NAME_MARGIN 10
   r.x -= NAME_MARGIN;
   r.w += NAME_MARGIN*2;
 
@@ -2293,25 +2133,16 @@ void game_gui::menu_level_end(MENU_STATE state, size_ptr data, size_ptr data1)
         LEVEL_STATUS *p_status = p_ber->level_status_get();
         char tmp[100];
 
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
 
-        if(DOUBLE_SIZE) {
-          #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
-          tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
-          p_grf->draw(MENU_SPRIT_LOGO,
-                      (GAME_RESOLUTION_X-width)/2, 
-                      LOGO_START);
-        }
-        else {
+        {
           #define SMALL_LOGO_START 80
           p_grf->draw(MENU_SPRIT_LOGO_SMALL_2,
                       p_grf->sprite_get_width_center(MENU_SPRIT_LOGO_SMALL_2),
                       SMALL_LOGO_START);
         }
       
-        #define END_TEXT_START (DOUBLE_SIZE ? (GAME_RESOLUTION_Y/2-100) : 80)
+        #define END_TEXT_START 80
       
         if(p_status->resolved()) {
           p_font->print(NULL,0,END_TEXT_START+100,_("your bugs have survived!"));
@@ -2331,7 +2162,7 @@ void game_gui::menu_level_end(MENU_STATE state, size_ptr data, size_ptr data1)
         
         #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17 - 120)
         #define MENU_X_START_R (GAME_RESOLUTION_X/2 + 120)
-        #define MENU_Y_START   (DOUBLE_SIZE ? (GAME_RESOLUTION_Y-80) : 400)
+        #define MENU_Y_START   400
         #define MENU_X_DIFF     0
         #define MENU_Y_DIFF     30
         
@@ -2384,21 +2215,14 @@ void game_gui::menu_level_end_custom(MENU_STATE state, size_ptr data, size_ptr d
         p_font->alignment_set(MENU_CENTER);
         p_font->select(FONT_DEFAULT);
 
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
 
-        if(DOUBLE_SIZE) {
-          #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
-          tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
-          p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2, LOGO_START);
-        }
-        else {
+        {
           #define SMALL_LOGO_START 80
           p_grf->draw(MENU_SPRIT_LOGO_SMALL_2,p_grf->sprite_get_width_center(MENU_SPRIT_LOGO_SMALL_2),SMALL_LOGO_START);
         }
 
-        #define END_TEXT_START (DOUBLE_SIZE ? (GAME_RESOLUTION_Y/2-100) : 80)
+        #define END_TEXT_START 80
 
         p_font->print(NULL,0,END_TEXT_START+100,_("your bugs have survived!"));
         p_font->print(NULL,0,END_TEXT_START+130,_("custom level %s."), p_ber->levelset_get_name());
@@ -2413,7 +2237,7 @@ void game_gui::menu_level_end_custom(MENU_STATE state, size_ptr data, size_ptr d
                     GAME_RESOLUTION_Y-130);
 
         #define MENU_X_START   (GAME_RESOLUTION_X/2 - 35)
-        #define MENU_Y_START   (DOUBLE_SIZE ? (GAME_RESOLUTION_Y-80) : 400)
+        #define MENU_Y_START   400
         #define MENU_X_DIFF     0
         #define MENU_Y_DIFF     30
                 
@@ -2491,7 +2315,7 @@ void game_gui::menu_levelset_end(MENU_STATE state, size_ptr data, size_ptr data1
           tpos width = p_grf->sprite_get_width(MENU_SPRIT_END);
         
           p_grf->fill(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y, 0);
-          p_grf->draw(MENU_SPRIT_END,GAME_RESOLUTION_X/2-width/2,DOUBLE_SIZE ? 60 : 0);
+          p_grf->draw(MENU_SPRIT_END,GAME_RESOLUTION_X/2-width/2,0);
 
           if(position >= p_font->height_get_new_line(p_text)) {
             position -= p_font->height_get_new_line(p_text);
@@ -2501,14 +2325,14 @@ void game_gui::menu_levelset_end(MENU_STATE state, size_ptr data, size_ptr data1
           if(p_text) {
             #define SCROLL_START_X  0
             #define SCROLL_START_Y  0
-            #define SCROLL_LINES    (DOUBLE_SIZE ? 40 : 20)
+            #define SCROLL_LINES    20
 
             p_font->print(NULL, SCROLL_START_X, SCROLL_START_Y-position, SCROLL_LINES, p_text);
           } else {
             menu_timer.clear();
 
             #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17)
-            #define MENU_Y_START   (DOUBLE_SIZE ? (GAME_RESOLUTION_Y - 90) : 440)
+            #define MENU_Y_START   440
 
             static char *back_string = _("back");
 
@@ -2557,18 +2381,16 @@ void game_gui::menu_in_game(MENU_STATE state, size_ptr data, size_ptr data1)
         
         tpos width = p_grf->sprite_get_width(MENU_SPRIT_LOGO);
 
-        #define LOGO_START (DOUBLE_SIZE ? 60 : 0)
+        #define LOGO_START 0
 
-        if(DOUBLE_SIZE) {
-          p_grf->draw(menu_background_get(),0,0);
-        }
+        menu_background_draw();
 
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2,LOGO_START);
 
         #define MENU_X_START (GAME_RESOLUTION_X/2 - 120)
         #define MENU_Y_START (GAME_RESOLUTION_Y/2 - 60)
         #define MENU_X_DIFF  0
-        #define MENU_Y_DIFF  (DOUBLE_SIZE ? 45 : 35)
+        #define MENU_Y_DIFF  35
 
         static char *back    = _("return to game (ESC)");
         static char *rest    = _("restart level (CTRL+R)");
@@ -2701,15 +2523,6 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
       /* Start of the game
        * This is the firts event after start
        */
-      case GC_MENU_DOUBLESIZE_QUESTION:
-        menu_double_size_question(MENU_ENTER);
-        break;
-      case GC_MENU_DOUBLESIZE_SWITCH:
-        menu_double_size_question_switch();
-        break;
-      case GC_MENU_DOUBLESIZE_SET:
-        menu_double_size_set(ev.param_int_get(PARAM_0));
-        break;
       case GC_MENU_START:
         menu_main(MENU_ENTER);
         break;      
@@ -2731,8 +2544,16 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
       case GC_MENU_SETTINGS_FULSCREEN_SWITCH:
         menu_settings_fullscreen();
         break;
-      case GC_MENU_SETTINGS_DOUBLESIZE_SWITCH:
-        menu_settings_doublesize();
+      case GC_MENU_SETTINGS_INTEGER_SWITCH:
+        menu_settings_integer();
+        break;
+      case GC_MENU_SETTINGS_BACKGROUND_SWITCH:
+        menu_settings_background();
+        menu_settings(MENU_ENTER, ev.param_int_get(PARAM_0));
+        break;
+      case GC_MENU_SETTINGS_FILTER_NEXT:
+        menu_settings_filter_next();
+        menu_settings(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_SETTINGS_SOUND_SWITCH:
         //p_ber->sound.sound_on = !p_ber->sound.sound_on;

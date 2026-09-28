@@ -1,0 +1,29 @@
+# Widescreen and ultrawide windows: the 4:3 composition stays undistorted and
+# centered, the rest is black; the logical layout doesn't change at all
+# same: level_4x3.txt level_16x9.txt level_21x9.txt level_tall.txt
+wait 100
+click 320 205
+wait 10
+click 330 225
+wait 15
+click 355 355
+wait 60
+layoutshot level_4x3.txt
+window 1600 900
+wait 10
+windowshot level_16x9.bmp
+layoutshot level_16x9.txt
+window 1900 800
+wait 10
+windowshot level_21x9.bmp
+layoutshot level_21x9.txt
+window 600 900
+wait 10
+windowshot level_tall.bmp
+layoutshot level_tall.txt
+window 1900 800
+wait 10
+key right
+wait 20
+windowshot level_21x9_moved.bmp
+quit

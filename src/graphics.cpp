@@ -116,16 +116,12 @@ void screen::flip(void)
 screen_editor::screen_editor(tpos cell_x_, tpos cell_y_)
  : screen(cell_x_,cell_y_)
 {
-  if(DOUBLE_SIZE) {
-    selection_area_active = TRUE;
-    selection_min_x = 3;
-    selection_min_y = 4;
-    selection_max_x = 28;
-    selection_max_y = 16;
-  }
-  else {
-    selection_area_active = FALSE;
-  }
+  // The part of the level visible in the editor layout
+  selection_area_active = TRUE;
+  selection_min_x = 3;
+  selection_min_y = 4;
+  selection_max_x = 28;
+  selection_max_y = 16;
 }
 
 bool screen_editor::coord_in_level_shadowed(tpos level_x, tpos level_y)

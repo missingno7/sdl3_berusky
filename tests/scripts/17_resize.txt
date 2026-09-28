@@ -1,0 +1,25 @@
+# Resizing while a level runs: the scene is rendered again at every new size,
+# also in the middle of a move animation (timing is untouched - 30 Hz ticks)
+wait 100
+click 320 205
+wait 10
+click 330 225
+wait 15
+click 355 355
+wait 60
+key right
+window 900 700
+wait 1
+shot resize_mid_move.bmp
+wait 20
+window 1500 1000
+wait 3
+windowshot resize_1500x1000.bmp
+key down
+wait 3
+shot resize_move_start.bmp
+window 700 700
+wait 20
+windowshot resize_700x700.bmp
+shot resize_done.bmp
+quit
