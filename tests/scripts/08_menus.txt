@@ -1,0 +1,23 @@
+# Settings (fullscreen checkbox), help screens
+wait 60
+click 295 250
+wait 40
+click 320 275
+wait 10
+shot settings.bmp
+click 200 193
+wait 30
+shot settings_fullscreen_on.bmp
+click 200 193
+wait 30
+shot settings_fullscreen_off.bmp
+click 330 420
+wait 15
+shot back_to_menu.bmp
+click 320 310
+wait 15
+shot help_1.bmp
+key enter
+wait 15
+shot help_2.bmp
+quit

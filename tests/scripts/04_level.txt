@@ -1,0 +1,29 @@
+# Start training level 1, walk around, switch players, pause
+wait 60
+click 295 250
+wait 40
+click 320 205
+wait 10
+click 330 225
+wait 15
+click 355 355
+wait 60
+shot level_1_start.bmp
+key right
+wait 20
+shot level_1_right.bmp
+key down
+wait 20
+key down
+wait 20
+shot level_1_down.bmp
+key tab
+wait 10
+shot level_1_tab.bmp
+key esc
+wait 10
+shot level_1_pause_menu.bmp
+key esc
+wait 10
+shot level_1_resumed.bmp
+quit

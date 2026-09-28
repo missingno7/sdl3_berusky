@@ -27,6 +27,9 @@
  *   click <x> <y>          move the pointer and click the left button
  *   shot <file.bmp>        save the framebuffer (the file goes to BERUSKY_TEST_OUT
  *                          when it's set)
+ *   windowshot <file.bmp>  save what is in the window (scaled, letterboxed)
+ *   window <w> <h>         resize the window
+ *   fullscreen <0|1>       switch fullscreen
  *   quit                   quit the game
  *
  * Key names: a-z, 0-9, up, down, left, right, tab, enter, esc, space, bksp, f1-f12

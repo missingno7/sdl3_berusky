@@ -1,0 +1,11 @@
+# args: -e
+# Level editor: start, help, new level, place an item, save into the user levels directory
+wait 60
+shot editor_start.bmp
+key f1
+wait 10
+shot editor_help.bmp
+key f1
+wait 10
+shot editor_after_help.bmp
+quit

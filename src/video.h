@@ -85,6 +85,7 @@ public:
   // Window
   void title_set(const char *p_title);
   bool fullscreen_set(bool state);
+  void size_set(int width, int height);
   bool fullscreen_get(void)
   {
     return(fullscreen);
@@ -95,6 +96,10 @@ public:
 
   // Render the texture to the window
   void present(void);
+
+  // What is in the window right now (window pixels, letterbox included).
+  // The returned surface has to be destroyed by the caller. Used by tests.
+  SDL_Surface * capture(void);
 
   // Call when the window content may be damaged (exposed, resized, ...).
   // The window is presented again in present_if_needed().

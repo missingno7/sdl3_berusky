@@ -1,0 +1,10 @@
+# args: -u data/Levels/j01.lv3
+# "berusky -u level.lv3": a level given on the command line, movement and step counter
+wait 60
+shot user_level_start.bmp
+key right
+wait 20
+key up
+wait 20
+shot user_level_moved.bmp
+quit

@@ -97,6 +97,29 @@ static void screenshot(const char *p_file)
     bprintf("Test script: saved %s", path);
 }
 
+// What is really in the window: the presentation (scaling, letterbox)
+static void window_screenshot(const char *p_file)
+{
+  if(!p_grf)
+    return;
+
+  char path[MAX_FILENAME];
+  const char *p_out = SDL_getenv("BERUSKY_TEST_OUT");
+  if(p_out && p_out[0])
+    snprintf(path, sizeof(path), "%s/%s", p_out, p_file);
+  else
+    snprintf(path, sizeof(path), "%s", p_file);
+
+  SDL_Surface *p_surface = p_grf->video_get()->capture();
+  if(!p_surface) {
+    bprintf("Test script: window capture failed: %s", SDL_GetError());
+    return;
+  }
+  SDL_SaveBMP(p_surface, path);
+  bprintf("Test script: saved %s (%dx%d)", path, p_surface->w, p_surface->h);
+  SDL_DestroySurface(p_surface);
+}
+
 // Read the next line of the script. Returns false at the end.
 static bool line_next(char *p_line, size_t max)
 {
@@ -201,6 +224,21 @@ bool test_script_poll(class input *p_input_)
     }
     else if(!SDL_strcasecmp(cmd, "shot")) {
       screenshot(arg1);
+    }
+    else if(!SDL_strcasecmp(cmd, "windowshot")) {
+      window_screenshot(arg1);
+    }
+    else if(!SDL_strcasecmp(cmd, "window")) {
+      if(p_grf)
+        p_grf->video_get()->size_set(atoi(arg1), atoi(arg2));
+      wait_ticks = 5;
+      return(false);
+    }
+    else if(!SDL_strcasecmp(cmd, "fullscreen")) {
+      if(p_grf && (p_grf->fullscreen_get() != (atoi(arg1) != 0)))
+        p_grf->fullscreen_toggle();
+      wait_ticks = 15;
+      return(false);
     }
     else if(!SDL_strcasecmp(cmd, "quit")) {
       return(true);

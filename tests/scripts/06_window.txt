@@ -1,0 +1,20 @@
+# Window presentation: scaling, letterbox, resize, fullscreen (original 640x480 mode)
+wait 60
+click 295 250
+wait 40
+windowshot win_640x480.bmp
+window 1000 700
+wait 10
+windowshot win_1000x700.bmp
+window 1300 1000
+wait 10
+windowshot win_1300x1000.bmp
+window 500 400
+wait 10
+windowshot win_500x400.bmp
+fullscreen 1
+shot fullscreen_fb.bmp
+fullscreen 0
+wait 10
+windowshot back_windowed.bmp
+quit

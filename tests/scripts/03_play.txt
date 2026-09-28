@@ -1,0 +1,10 @@
+# Answer "no", open the play menu, choose the training set, level select screen
+wait 60
+click 295 250
+wait 40
+click 320 205
+wait 10
+shot play_menu.bmp
+click 330 225
+wait 15
+shot level_select.bmp

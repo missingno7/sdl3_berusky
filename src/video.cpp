@@ -185,6 +185,26 @@ void video_backend::present(void)
   repaint = false;
 }
 
+SDL_Surface * video_backend::capture(void)
+{
+  if(!p_renderer || !p_texture)
+    return(NULL);
+
+  SDL_SetRenderDrawColor(p_renderer, 0, 0, 0, 255);
+  SDL_RenderClear(p_renderer);
+  SDL_RenderTexture(p_renderer, p_texture, NULL, NULL);
+  SDL_Surface *p_surface = SDL_RenderReadPixels(p_renderer, NULL);
+  return(p_surface);
+}
+
+void video_backend::size_set(int width, int height)
+{
+  if(p_window && !fullscreen) {
+    SDL_SetWindowSize(p_window, width, height);
+    repaint = true;
+  }
+}
+
 bool video_backend::present_if_needed(SDL_Surface *p_framebuffer)
 {
   if(texture_lost) {

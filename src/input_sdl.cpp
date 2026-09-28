@@ -204,7 +204,8 @@ bool input_backend_poll(class input *p_input_, bool wait)
 
   // Loop until there are no SDL events left on the queue
   if(wait) {
-    ret = SDL_WaitEvent(&event);
+    // A running test script must be polled even when there are no events
+    ret = test_script_active() ? SDL_WaitEventTimeout(&event, 20) : SDL_WaitEvent(&event);
   }
   else {
     ret = SDL_PollEvent(&event);

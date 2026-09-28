@@ -47,17 +47,32 @@ def pixel_hash(path):
     return hashlib.sha256(data[offset:]).hexdigest()
 
 
+def script_args(script):
+    """A script may start with '# args: -e level.lv3' - command line for the game."""
+    with open(script) as f:
+        first = f.readline().strip()
+    if first.startswith("# args:"):
+        return first[len("# args:"):].split()
+    return []
+
+
 def run_script(exe, script, out_dir):
+    # (the directory itself may be locked on Windows when it's somebody's cwd)
     if os.path.isdir(out_dir):
-        shutil.rmtree(out_dir)
-    os.makedirs(out_dir)
+        for entry in os.listdir(out_dir):
+            path = os.path.join(out_dir, entry)
+            if os.path.isdir(path):
+                shutil.rmtree(path, ignore_errors=True)
+            else:
+                os.remove(path)
+    os.makedirs(out_dir, exist_ok=True)
     env = dict(os.environ)
     env["BERUSKY_USER_DIR"] = os.path.join(out_dir, "user")
     env["BERUSKY_TEST_SCRIPT"] = script
     env["BERUSKY_TEST_OUT"] = out_dir
     with open(os.path.join(out_dir, "log.txt"), "w") as log:
         try:
-            r = subprocess.run([exe], env=env, stdout=log, stderr=subprocess.STDOUT, timeout=120)
+            r = subprocess.run([exe] + script_args(script), env=env, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=120)
             return r.returncode
         except subprocess.TimeoutExpired:
             return "timeout"

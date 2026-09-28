@@ -1,0 +1,20 @@
+# Cheat key (shift+e) ends the level as solved: level completion, profile save
+wait 60
+click 295 250
+wait 40
+click 320 205
+wait 10
+click 330 225
+wait 15
+click 355 355
+wait 60
+key e shift
+wait 60
+shot completed_1.bmp
+key enter
+wait 40
+shot completed_2.bmp
+key enter
+wait 40
+shot completed_3.bmp
+quit
