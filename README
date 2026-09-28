@@ -146,3 +146,7 @@ Mouse:
 
   F + third mouse button  - clear solid rectangle with selected item
   D + third mouse button  - clear empty rectangle with selected item
+
+----------------------------------------------------------------------
+SDL3 port: build with CMake (see PORTING_SDL3.md); the instructions above
+describe the old SDL 1.2 / autotools build.
