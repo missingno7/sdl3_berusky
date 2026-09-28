@@ -111,16 +111,23 @@ void berusky_profile::save(void)
            level_set[3].level_last,
            level_set[4].level_last,
            level_set[5].level_last);
-  file_save(DIRECTORY_GET(INI_USER_PROFILES), filename, (void *)buffer, strlen(buffer), "w");
+  file_save(user_dir_profiles(), filename, (void *)buffer, (t_off)strlen(buffer), "w");
 }
 
 void berusky_profile::create(const char *p_name)
 {
   memset(this,0,sizeof(*this));
   strcpy(profile_name, p_name);
-  strcpy(filename,"profileXXXXXX");
-  mktemp(filename);
-  strcat(filename,".ini");
+
+  // A unique file name: profileXXXXXX.ini
+  static const char chars[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+  do {
+    strcpy(filename,"profile");
+    for(int i = 0; i < 6; i++)
+      filename[7+i] = chars[SDL_rand((Sint32)(sizeof(chars)-1))];
+    filename[13] = '\0';
+    strcat(filename,".ini");
+  } while(file_exists(user_dir_profiles(), filename));
 }
 
 // Scan the directory for all profile files
@@ -132,13 +139,13 @@ bool profiles_load(BERUSKY_PROFILE **p_profiles, int *p_num)
   *p_profiles = NULL;
   *p_num = 0;
 
-  int files = file_list_get(DIRECTORY_GET(INI_USER_PROFILES), PROFILE_FILE_MASK, &p_profile_names);
+  int files = file_list_get(user_dir_profiles(), PROFILE_FILE_MASK, &p_profile_names);
   if(!files)
     return(FALSE);
 
   BERUSKY_PROFILE *p_list = new BERUSKY_PROFILE[files];
   for(int i = 0; i < files; i++) {
-    p_list[i].load(DIRECTORY_GET(INI_USER_PROFILES), p_profile_names[i].name);
+    p_list[i].load(user_dir_profiles(), p_profile_names[i].name);
   }
   ffree(p_profile_names);
   

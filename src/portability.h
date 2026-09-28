@@ -33,44 +33,28 @@
 #define __PORTABILITY_H__
 
 /*
- * Defines for windows
+ * Compiler / C library portability only.
+ *
+ * Operating-system differences (paths, directories, processes, dialogs) are
+ * NOT handled by #ifdefs in the game code - see platform.h.
+ * There is intentionally no LINUX/WINDOWS macro anymore.
  */
-#ifdef _WIN32
 
-#define WINDOWS   1
-#undef  LINUX
+#include <stddef.h>
+#include <stdint.h>
 
-#include <io.h>
-#include "window.h"
-
+#ifndef VERSION
 #define VERSION           "1.7.2"
-#define PATH_MAX          128
+#endif
 
+#ifdef _WIN32
+#include <stdlib.h>
 #define random()          rand()
-#define snprintf          _snprintf
-#define mkdirm            _mkdir
-#define mktemp            _mktemp
-#define stat              _stat
+#endif
 
-// Stupid VC2010
-#pragma warning(disable: 4996 4800)
-
-#endif // _WIN32
-
-/*
- * Defines for linux
- */
-#ifndef _WIN32
-
-#undef  WINDOWS
-#ifndef LINUX
-#define LINUX   1
-#endif // LINUX
-
-#include <unistd.h>
-
-#define mkdirm(d)  mkdir(d,DEFAULT_DIR_MASK)
-
-#endif // ! _WIN32
+#ifdef _MSC_VER
+// unsafe C library functions, int/bool conversions
+#pragma warning(disable: 4996 4800 4244 4267 4305 4018)
+#endif
 
 #endif // __PORTABILITY_H__

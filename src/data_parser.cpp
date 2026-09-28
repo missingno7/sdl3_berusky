@@ -123,7 +123,7 @@ int data_parser::records_get(DATA_RECORD *p_records, int record_num)
 
   int akt_rec = 0;
 
-  while(!akt_rec && (p_token = fgets(record, MAX_RECORD_LEN, datafile)) && !feof(datafile)) {
+  while(!akt_rec && (p_token = file_gets(record, MAX_RECORD_LEN, datafile)) && !file_eof(datafile)) {
     while(p_token && (p_token = token_translate(p_token, &num, &base), num != NO_VALUE) && akt_rec < record_num) {
       p_records->base = base;
       p_records->offset = num - base;
@@ -142,7 +142,7 @@ void data_parser::get_indexes(int *p_indexes, int index_num)
 
   memset(p_indexes, 0, sizeof(p_indexes[0])*index_num);
 
-  while(fgets(record, MAX_RECORD_LEN, datafile)) {    
+  while(file_gets(record, MAX_RECORD_LEN, datafile)) {    
     char *p_tmp = token_translate(record, &num, &base);
     if(!p_tmp) {
       continue;
@@ -154,14 +154,14 @@ void data_parser::get_indexes(int *p_indexes, int index_num)
     }
   }
 
-  rewind(datafile);
+  file_rewind(datafile);
 }
 
 int data_parser::get_max_index(void)
 {
   int max = 0, num;
 
-  while(fgets(record, MAX_RECORD_LEN, datafile)) {
+  while(file_gets(record, MAX_RECORD_LEN, datafile)) {
     char *p_tmp = token_translate(record, &num);
     if(!p_tmp) {
       continue;
@@ -171,7 +171,7 @@ int data_parser::get_max_index(void)
     }
   }
 
-  rewind(datafile);
+  file_rewind(datafile);
 
   return(max);
 }
@@ -188,8 +188,8 @@ int data_parser::open(const char *p_file, const char *p_dir)
 void data_parser::close(void)
 {
   if(datafile) {
-    fclose(datafile);
-    datafile = (void *)NULL;
+    file_close(datafile);
+    datafile = FHANDLE();
   }
 }
 

@@ -29,20 +29,16 @@
   Utility
 */
 #include <stdio.h>
-#include <error.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include <SDL3/SDL.h>
 
 #include "portability.h"
-
-#ifdef LINUX
-#include <dirent.h>
-#include <fnmatch.h>
-#endif
-#ifdef WINDOWS
-#include <direct.h>
-#endif
+#include "platform.h"
 
 #include "ini.h"
 #include "utils.h"
@@ -60,14 +56,14 @@ void log_close(void)
 {
   if(log_file) {
     file_close(log_file);
-    log_file = (void *)NULL;
+    log_file = FHANDLE();
   }
 }
 
 void log_open(const char *p_file)
 {
   log_close();
- 
+
   if(p_file) {
     log_file = file_open(NO_DIR,p_file,"a",FALSE);
     if(!log_file)
@@ -78,29 +74,83 @@ void log_open(const char *p_file)
 
 void log_open_ini(const char *p_ini_file)
 {
-  char logfile[1000];
+  char logfile[MAX_FILENAME];
   #define INI_LOGFILE "logfile"
   #define INI_LOG     "log"
 
   if(ini_read_bool_file(p_ini_file, INI_LOG, FALSE)) {
-    ini_read_string_file(p_ini_file, INI_LOGFILE, logfile, sizeof(logfile),"./b1logfile.txt");
+    // The default log lives in the user data directory
+    ini_read_string_file(p_ini_file, INI_LOGFILE, logfile, sizeof(logfile), user_file_get("berusky.log"));
     log_open(logfile);
   }
 }
 
 void log_flush(void)
 {
-  if(log_file)
-    fflush(log_file);
+  file_flush(log_file);
 }
 
-void dir_list::update_path(char *p_dir)
+// A fatal error. Show it to the user (SDL message box / stderr) and quit.
+void berror_message(const char *p_text)
 {
-  char buffer[MAX_FILENAME];
-  return_path(p_dir, "", buffer, MAX_FILENAME);
-  chdir(cwd);
-  chdir(buffer);
-  getcwd(p_dir,MAX_FILENAME);
+  bprintf("Error: %s", p_text);
+  log_close();
+
+  platform_message(true, GAME_TITLE, p_text);
+  exit(255);
+}
+
+// -------------------------------------------------------
+//   User (writable) data locations
+// -------------------------------------------------------
+
+// <user data dir>/<name>
+const char * user_file_get(const char *p_name)
+{
+  static char path[MAX_FILENAME];
+  snprintf(path, sizeof(path), "%s%s", platform_user_dir(), p_name);
+  return(path);
+}
+
+const char * user_dir_levels(void)
+{
+  static char path[MAX_FILENAME];
+  snprintf(path, sizeof(path), "%s%s", platform_user_dir(), USER_LEVELS_DIR);
+  return(path);
+}
+
+const char * user_dir_profiles(void)
+{
+  static char path[MAX_FILENAME];
+  snprintf(path, sizeof(path), "%s%s", platform_user_dir(), USER_PROFILES_DIR);
+  return(path);
+}
+
+// -------------------------------------------------------
+//   Game directories
+// -------------------------------------------------------
+
+// Read a directory from the config file. It overrides the default one.
+static void dir_config_read(const char *p_ini, const char *p_key, char *p_dir,
+                            int max, const char *p_default)
+{
+  ini_read_string_file(p_ini, p_key, p_dir, max, p_default);
+
+  // An empty value means "use the default"
+  if(!p_dir[0])
+    strncpy(p_dir, p_default, max-1);
+
+  // '~' -> home directory
+  if(p_dir[0] == '~') {
+    char tmp[MAX_FILENAME];
+    return_path(p_dir, "", tmp, MAX_FILENAME);
+    // return_path() appends a separator, we don't want it here
+    size_t len = strlen(tmp);
+    if(len > 0 && tmp[len-1] == '/')
+      tmp[len-1] = '\0';
+    strncpy(p_dir, tmp, max-1);
+  }
+  p_dir[max-1] = '\0';
 }
 
 void dir_list::load(const char *p_ini)
@@ -110,51 +160,50 @@ void dir_list::load(const char *p_ini)
   #define INI_GRAPHICS    "graphics_data"
   #define INI_LEVEL_USER  "level_data_user"
   #define INI_BINARY      "game_binary"
-
-  ini_read_string_file(p_ini, INI_LEVEL, levels, sizeof(levels), "./Lihen/Levels");
-  ini_read_string_file(p_ini, INI_GAME, gamedata, sizeof(gamedata), "./Lihen/GameData");
-  ini_read_string_file(p_ini, INI_GRAPHICS, graphics, sizeof(graphics), "./Lihen/Graphics");
-  ini_read_string_file(p_ini, INI_BINARY, game_binary, sizeof(game_binary), "berusky");
-
-#ifdef LINUX
-  ini_read_string_file(p_ini, INI_LEVEL_USER, levels_user, sizeof(levels_user), "./Lihen/User");
-
   #define INI_TMP         "tmp_data"
-  ini_read_string_file(p_ini, INI_TMP, tmp, sizeof(tmp), "/var/tmp");
 
-  getcwd(cwd,MAX_FILENAME);
-  update_path(levels);
-  update_path(gamedata);
-  update_path(graphics);  
-  update_path(levels_user);
-  update_path(tmp);
-  chdir(cwd);
-#endif
+  char def[MAX_FILENAME];
+  const char *p_root = platform_asset_root();
 
-#ifdef WINDOWS
-  strcpy(levels_user,DIRECTORY_GET(INI_USER_LEVELS));
+  // Read-only data. Defaults come from the platform asset root, the config
+  // file may point elsewhere.
+  snprintf(def, sizeof(def), "%sLevels", p_root);
+  dir_config_read(p_ini, INI_LEVEL, levels, sizeof(levels), def);
 
-  char path[PATH_MAX];
-  strcpy(tmp,tmpfile_get(path));
+  snprintf(def, sizeof(def), "%sGameData", p_root);
+  dir_config_read(p_ini, INI_GAME, gamedata, sizeof(gamedata), def);
+
+  snprintf(def, sizeof(def), "%sGraphics", p_root);
+  dir_config_read(p_ini, INI_GRAPHICS, graphics, sizeof(graphics), def);
+
+  // Writable data - user directory
+  dir_config_read(p_ini, INI_LEVEL_USER, levels_user, sizeof(levels_user), user_dir_levels());
+  dir_config_read(p_ini, INI_TMP, tmp, sizeof(tmp), user_file_get("Tmp"));
+  dir_config_read(p_ini, INI_BINARY, game_binary, sizeof(game_binary), platform_executable());
+
+  dir_create(levels_user);
   dir_create(tmp);
-#endif
-  
+
   bprintf("level_data: %s",levels);
   bprintf("game_data: %s",gamedata);
   bprintf("graphics_data: %s",graphics);
   bprintf("level_data_user: %s",levels_user);
   bprintf("tmp_data: %s",tmp);
-  bprintf("current working dir: %s",cwd);
+  bprintf("game_binary: %s",game_binary);
 }
+
+// -------------------------------------------------------
+//   Config file values
+// -------------------------------------------------------
 
 #define INI_FULLSCREEN "fullscreen"
 bool get_fullscreen(const char *p_ini_file)
-{  
+{
   return(ini_read_int_file(p_ini_file, INI_FULLSCREEN, FALSE));
 }
 
 bool set_fullscreen(const char *p_ini_file, bool state)
-{  
+{
   char tmp[100];
   return(ini_write_string(p_ini_file, INI_FULLSCREEN, my_itoa(10, tmp, state ? 1 : 0)));
 }
@@ -180,12 +229,12 @@ bool get_doublesize_question(const char *p_ini_file)
 
 bool set_doublesize_question(const char *p_ini_file, bool state)
 {
-  char tmp[100];  
+  char tmp[100];
   return(ini_write_string(p_ini_file, INI_DOUBLESIZE_QUESTION, my_itoa(10, tmp, state ? 1 : 0)));
 }
 
 int  get_colors(const char *p_ini_file, int default_color_depth)
-{ 
+{
   #define INI_COLOR "color_depth"
   return(ini_read_int_file(p_ini_file, INI_COLOR, default_color_depth));
 }
@@ -230,55 +279,217 @@ char * my_itoa(int base, char *buf, int d)
   return(buf);
 }
 
-/* Create a path */
+// -------------------------------------------------------
+//   Paths & files
+// -------------------------------------------------------
+
+/* Create a path. '/' is used as the separator on all platforms. */
 char * return_path(const char *p_dir, const char *p_file, char *p_buffer, int max_lenght)
 {
   if(p_dir) {
     if(p_dir[0] == '~') {
       dir_home_get(p_buffer,max_lenght);
       strncat(p_buffer,p_dir+1,max_lenght-strlen(p_buffer)-1);
-    } else {      
+    } else {
       strncpy(p_buffer,p_dir,max_lenght-1);
+      p_buffer[max_lenght-1] = '\0';
     }
-#ifdef LINUX
-    strcat(p_buffer,"/");
-#elif WINDOWS
-    strcat(p_buffer,"\\");
-#endif
-    strncat(p_buffer,p_file,max_lenght-strlen(p_buffer));
+    // don't produce "//" for empty directory parts
+    size_t len = strlen(p_buffer);
+    if(len > 0)
+      strncat(p_buffer,"/",max_lenght-strlen(p_buffer)-1);
+    strncat(p_buffer,p_file,max_lenght-strlen(p_buffer)-1);
   } else {
     if(p_file[0] == '~') {
       dir_home_get(p_buffer,max_lenght);
       strncat(p_buffer,p_file+1,max_lenght-strlen(p_buffer)-1);
     } else {
       strncpy(p_buffer,p_file,max_lenght-1);
+      p_buffer[max_lenght-1] = '\0';
     }
   }
   return(p_buffer);
 }
 
+struct file_impl {
+
+  bool          reading;
+
+  // Reading: whole file in memory
+  char         *p_data;
+  size_t        size;
+  size_t        pos;
+  bool          eof;     // set by a read that ran into the end of data (like feof())
+
+  // Writing
+  SDL_IOStream *p_io;
+
+};
+
 /* Open a file */
 FHANDLE file_open(const char * p_dir, const char * p_file, const char *p_mode, bool safe)
 {
-  FHANDLE tmp;
-
   char filename[MAX_FILENAME];
+  return_path(p_dir, p_file, filename, MAX_FILENAME);
 
-  tmp = fopen(return_path(p_dir, p_file, filename, MAX_FILENAME),p_mode);
-  if(!tmp && safe) {
-    char cwd[MAX_FILENAME];
-    berror("Unable to open %s!\nError: %s\nCurrent dir: %s",
-            filename,strerror(errno),getcwd(cwd,MAX_FILENAME));
+  struct file_impl *p_f = (struct file_impl *)mmalloc(sizeof(struct file_impl));
+
+  bool writing = strchr(p_mode,'w') || strchr(p_mode,'a') || strchr(p_mode,'+');
+  p_f->reading = !writing;
+
+  if(p_f->reading) {
+    p_f->p_data = (char *)SDL_LoadFile(filename, &p_f->size);
+    if(p_f->p_data && !strchr(p_mode,'b')) {
+      // Text mode - drop CR of CRLF the way the C library does on Windows
+      size_t in, out;
+      for(in = out = 0; in < p_f->size; in++) {
+        if(p_f->p_data[in] == '\r' && in+1 < p_f->size && p_f->p_data[in+1] == '\n')
+          continue;
+        p_f->p_data[out++] = p_f->p_data[in];
+      }
+      p_f->size = out;
+    }
+    if(!p_f->p_data) {
+      free(p_f);
+      p_f = NULL;
+    }
+  } else {
+    p_f->p_io = SDL_IOFromFile(filename, p_mode);
+    if(!p_f->p_io) {
+      free(p_f);
+      p_f = NULL;
+    }
   }
 
-  return(tmp);
+  if(!p_f && safe) {
+    berror("Unable to open %s!\nError: %s", filename, SDL_GetError());
+  }
+
+  return(FHANDLE(p_f));
 }
 
 void file_close(FHANDLE f)
 {
   if(f) {
-    fclose(f);
+    if(f.f->reading)
+      SDL_free(f.f->p_data);
+    else
+      SDL_CloseIO(f.f->p_io);
+    free(f.f);
   }
+}
+
+// fgets()
+char * file_gets(char *p_buffer, int max_lenght, FHANDLE f)
+{
+  struct file_impl *p_f = f.f;
+
+  if(!p_f || !p_f->reading || max_lenght < 2)
+    return(NULL);
+
+  if(p_f->pos >= p_f->size) {
+    p_f->eof = true;
+    return(NULL);
+  }
+
+  int i = 0;
+  while(i < max_lenght-1 && p_f->pos < p_f->size) {
+    char c = p_f->p_data[p_f->pos++];
+    p_buffer[i++] = c;
+    if(c == '\n')
+      break;
+  }
+  p_buffer[i] = '\0';
+
+  // like the C library: reading the last line w/o a newline hits the EOF
+  if(p_buffer[i-1] != '\n' && p_f->pos >= p_f->size)
+    p_f->eof = true;
+
+  return(p_buffer);
+}
+
+size_t file_read(void *p_buffer, size_t bytes, FHANDLE f)
+{
+  struct file_impl *p_f = f.f;
+
+  if(!p_f || !p_f->reading)
+    return(0);
+
+  size_t left = p_f->size - p_f->pos;
+  if(bytes > left) {
+    bytes = left;
+    p_f->eof = true;
+  }
+  memcpy(p_buffer, p_f->p_data + p_f->pos, bytes);
+  p_f->pos += bytes;
+  return(bytes);
+}
+
+size_t file_write(const void *p_buffer, size_t bytes, FHANDLE f)
+{
+  struct file_impl *p_f = f.f;
+
+  if(!p_f || p_f->reading)
+    return(0);
+
+  return(SDL_WriteIO(p_f->p_io, p_buffer, bytes));
+}
+
+int file_printf(FHANDLE f, const char *p_format, ...)
+{
+  struct file_impl *p_f = f.f;
+
+  if(!p_f || p_f->reading)
+    return(0);
+
+  va_list arguments;
+  va_start(arguments, p_format);
+  char text[4000];
+  int len = vsnprintf(text, sizeof(text), p_format, arguments);
+  va_end(arguments);
+
+  if(len > (int)sizeof(text)-1)
+    len = sizeof(text)-1;
+  if(len > 0)
+    SDL_WriteIO(p_f->p_io, text, len);
+  return(len);
+}
+
+bool file_seek(FHANDLE f, long offset)
+{
+  struct file_impl *p_f = f.f;
+
+  if(!p_f || !p_f->reading || offset < 0 || (size_t)offset > p_f->size)
+    return(false);
+
+  p_f->pos = offset;
+  p_f->eof = false;
+  return(true);
+}
+
+void file_rewind(FHANDLE f)
+{
+  file_seek(f, 0);
+}
+
+long file_tell(FHANDLE f)
+{
+  struct file_impl *p_f = f.f;
+
+  if(!p_f)
+    return(-1);
+  return(p_f->reading ? (long)p_f->pos : (long)SDL_TellIO(p_f->p_io));
+}
+
+bool file_eof(FHANDLE f)
+{
+  return(f.f ? f.f->eof : true);
+}
+
+void file_flush(FHANDLE f)
+{
+  if(f.f && !f.f->reading)
+    SDL_FlushIO(f.f->p_io);
 }
 
 /* load file into memory */
@@ -288,7 +499,7 @@ int file_load(const char * p_dir, const char * p_file, char * p_mem, t_off max_l
 }
 
 int file_load_text(const char * p_dir, const char * p_file, char * p_mem, t_off max_lenght, t_off start_address, bool safe)
-{  
+{
   return(file_load_text(file_open(p_dir, p_file, "r", safe), p_mem, max_lenght, start_address));
 }
 
@@ -299,9 +510,9 @@ int file_load(FHANDLE f, char * p_mem, t_off max_lenght, t_off start_address)
 
   if(f) {
     if(start_address)
-      fseek(f, start_address, SEEK_SET);
-    loaded = fread(p_mem, 1, max_lenght, f);
-    fclose(f);
+      file_seek(f, start_address);
+    loaded = (dword)file_read(p_mem, max_lenght, f);
+    file_close(f);
   }
 
   return (loaded);
@@ -314,103 +525,72 @@ int file_load_text(FHANDLE f, char * p_mem, t_off max_lenght, t_off start_addres
 
   if(f) {
     if(start_address)
-      fseek(f, start_address, SEEK_SET);
-    loaded = fread(p_mem, 1, max_lenght, f);
+      file_seek(f, start_address);
+    loaded = (dword)file_read(p_mem, max_lenght, f);
     p_mem[loaded] = '\0';
-    fclose(f);
+    file_close(f);
   }
 
   return (loaded);
 }
 
-
 /* load file into memory */
 void * file_load(const char * p_dir, const char * p_file, t_off *p_lenght, t_off start_address, bool safe)
-{  
+{
   FHANDLE f = file_open(p_dir, p_file, "rb", safe);
-  t_off to_load;
 
   if(!f)
     return(NULL);
 
-  fseek(f, 0, SEEK_END);
-  to_load = ftell(f) - start_address;
+  size_t to_load = f.f->size > start_address ? f.f->size - start_address : 0;
 
+  // +1 - zero terminated for convenience
+  void *p_mem = mmalloc((int)to_load + 1);
   if(start_address)
-    fseek(f, start_address, SEEK_SET);
+    file_seek(f, start_address);
+  *p_lenght = (t_off)file_read(p_mem, to_load, f);
+  file_close(f);
 
-  void *p_mem = mmalloc(to_load);  
-  *p_lenght = fread(p_mem, 1, to_load, f);
-  fclose(f);
-  
   return (p_mem);
 }
 
 /* save file from memory */
 bool file_save(const char * p_dir, const char * p_file, void *p_buffer, t_off lenght, const char *p_mode)
-{  
+{
   FHANDLE f = file_open(p_dir, p_file, p_mode);
-  t_off wrt = fwrite(p_buffer, 1, lenght, f);
-  fclose(f);  
+  size_t wrt = file_write(p_buffer, lenght, f);
+  file_close(f);
   return(wrt == lenght);
-}
-
-#define FILE_BUF_SIZE 4096
-bool file_copy(FHANDLE f_in, FHANDLE f_out, int len)
-{  
-  char buffer[FILE_BUF_SIZE];
-  int  readed;
-
-  if(len) {
-    int to_read;
-    do {
-      len -= FILE_BUF_SIZE;
-      to_read = (len < 0) ? len+FILE_BUF_SIZE : FILE_BUF_SIZE;
-
-      if((readed = fread(buffer,1,to_read,f_in))) {
-        fwrite(buffer,1,readed,f_out);
-      }
-
-      if(readed != to_read) {
-        berror("file_copy - missing data?");
-      }
-    } while(to_read == FILE_BUF_SIZE);
-  }
-  else {
-    while((readed = fread(buffer,1,FILE_BUF_SIZE,f_in))) {
-      fwrite(buffer,1,readed,f_out);
-    }
-  }
-
-  return(TRUE);
 }
 
 bool file_copy(const char *p_src, const char *p_src_dir, const char *p_dest, const char *p_dest_dir, bool safe)
 {
-  FHANDLE src = file_open(p_src_dir,  p_src,  "rb", safe);
-  if(!src)
+  t_off  len = 0;
+  void  *p_data = file_load(p_src_dir, p_src, &len, 0, safe);
+  if(!p_data)
     return(FALSE);
 
   FHANDLE dst = file_open(p_dest_dir, p_dest, "wb", safe);
-  if(!dst) {    
-    file_close(src);
+  if(!dst) {
+    free(p_data);
     return(FALSE);
   }
 
-  bool ret = file_copy(src, dst);
-  
-  file_close(src);
+  bool ret = (file_write(p_data, len, dst) == len);
+
   file_close(dst);
+  free(p_data);
 
   return(ret);
 }
 
 bool file_exists(const char * p_dir, const char * p_file)
 {
-  FHANDLE f = file_open(p_dir, p_file, "rb", FALSE);  
+  // Open instead of stat() - it works for packaged assets, too
+  FHANDLE f = file_open(p_dir, p_file, "rb", FALSE);
   if(!(f)) {
     return(FALSE);
-  } 
+  }
   else {
     file_close(f);
     return(TRUE);
@@ -419,39 +599,31 @@ bool file_exists(const char * p_dir, const char * p_file)
 
 int file_size_get(FHANDLE f)
 {
-  int size;
-  int zal;
-
-  zal = ftell(f);
-  fseek(f, 0, SEEK_END);
-  size = ftell(f) + 1;
-  fseek(f, zal, SEEK_SET);
-
-  return (size);
+  return(f.f ? (int)f.f->size + 1 : 0);
 }
 
 int file_size_get(const char * p_dir, const char * p_file)
 {
-  return(file_size_get(file_open(p_dir, p_file, "rb")));
+  FHANDLE f = file_open(p_dir, p_file, "rb");
+  int size = file_size_get(f);
+  file_close(f);
+  return(size);
 }
 
 void print_errno(bool new_line)
 {
   if(new_line) {
-    bprintf("\nError: %s",strerror(errno));
+    bprintf("\nError: %s",SDL_GetError());
   } else {
-    bprintf(strerror(errno));
-  }  
+    bprintf("%s",SDL_GetError());
+  }
 }
 
 char * dir_home_get(char *p_dir, int max)
 {
   assert(p_dir);
 
-  char *p_tmp = getenv("HOME");
-  if(p_tmp) {
-    strncpy(p_dir,p_tmp,max);
-  } else {
+  if(!platform_home_dir(p_dir, max)) {
     // a homeless user?
     assert(max >= 1);
     p_dir[0] = '\0';
@@ -462,104 +634,59 @@ char * dir_home_get(char *p_dir, int max)
 bool dir_create(const char *p_dir)
 {
   assert(p_dir);
-  struct stat st;
 
   char tmp_dir[MAX_FILENAME];
-#ifdef WINDOWS
-  strcpy(tmp_dir, p_dir);
-#else
   return_path(p_dir, "", tmp_dir, MAX_FILENAME);
-#endif
+
+  // return_path() adds a separator behind the directory
+  size_t len = strlen(tmp_dir);
+  if(len > 1 && tmp_dir[len-1] == '/')
+    tmp_dir[len-1] = '\0';
 
   // Check the dir
   bprintfnl("Checking %s...",tmp_dir);
-  if(stat(tmp_dir,&st) == -1 && errno == ENOENT) {
-    bprintfnl("\nmissing, try to create it...");
-    if(mkdirm(tmp_dir) != -1) {
-      bprintf("ok");
-      return(TRUE);
-    } else {
-      print_errno(TRUE);      
-      return(FALSE);
-    }
-  } else {
+  if(platform_dir_exists(tmp_dir)) {
     bprintf("ok");
     return(TRUE);
   }
+
+  bprintfnl("\nmissing, try to create it...");
+  if(platform_dir_create(tmp_dir)) {
+    bprintf("ok");
+    return(TRUE);
+  }
+  print_errno(TRUE);
+  return(FALSE);
 }
 
-#ifdef LINUX
-static const char *p_file_mask;
-
-static int filter(const struct dirent *file)
+// Sorted list of files in the directory (writable data only - profiles).
+// Files are matched by a glob mask ('*' and '?').
+static int file_list_compare(const void *p_a, const void *p_b)
 {
-  return(!fnmatch(p_file_mask, file->d_name, 0));
+  return(strcmp(((const DIRECTORY_ENTRY *)p_a)->name, ((const DIRECTORY_ENTRY *)p_b)->name));
 }
 
 int file_list_get(const char *p_dir, const char *p_mask, DIRECTORY_ENTRY **p_list)
 {
   char tmp[MAX_FILENAME];
-  struct dirent **namelist;
-  int i;
-  
   return_path(p_dir, "", tmp, MAX_FILENAME);
-  
-  p_file_mask = p_mask;
-  int c = scandir(tmp, &namelist, &filter, alphasort);
-  if (c < 0) {
-    return 0;
+
+  int c = 0;
+  char **p_files = SDL_GlobDirectory(tmp, p_mask, SDL_GLOB_CASEINSENSITIVE, &c);
+  if(!p_files || c <= 0) {
+    SDL_free(p_files);
+    return(0);
   }
 
   *p_list = (DIRECTORY_ENTRY *)mmalloc(sizeof(DIRECTORY_ENTRY)*c);
-  for(i = 0; i < c; i++) {    
-    strcpy((*p_list)[i].name, namelist[i]->d_name);
-    free(namelist[i]);
-  } 
+  for(int i = 0; i < c; i++) {
+    strncpy((*p_list)[i].name, p_files[i], MAX_FILENAME-1);
+  }
+  SDL_free(p_files);
 
-  free(namelist);
+  qsort(*p_list, c, sizeof(DIRECTORY_ENTRY), file_list_compare);
   return(c);
 }
-#endif
-
-#ifdef WINDOWS
-int file_list_get(const char *p_dir, const char *p_mask, DIRECTORY_ENTRY **p_list)
-{	
-	long ret, handle;
-  char current_dir[MAX_FILENAME];
-	struct _finddata_t	Data;
-  int  size;
-
-  _getcwd(current_dir,MAX_FILENAME);
-  _chdir(p_dir);
-
-  size = 0;
-  handle = ret = _findfirst(p_mask, &Data);
-	while(ret != -1)
-	{
-    size++;
-		ret = _findnext(handle, &Data);
-	}
-	_findclose(handle); 
-
-  // Sorry dude, no files
-  if(size) {
-    *p_list = (DIRECTORY_ENTRY *)mmalloc(sizeof(DIRECTORY_ENTRY)*size);
-  
-    size = 0;
-    handle = ret = _findfirst(p_mask, &Data);	
-    while(ret != -1)
-    {
-      strcpy((*p_list)[size++].name, Data.name);
-      ret = _findnext(handle, &Data);
-    }
-    _findclose(handle); 
-  }
-
-  _chdir(current_dir);
-
-  return size;
-}
-#endif
 
 /* Loading routines
 */
@@ -837,7 +964,8 @@ void graphics_generate(void)
   // Create black sprite for blending
   p_grf->sprite_copy(SPRITE_BLACK, FIRST_CLASSIC_LEVEL+57, TRUE);
   SDL_Surface *p_surf = ((p_grf->sprite_get(SPRITE_BLACK))->surf_get())->surf_get();
-  SDL_SetAlpha(p_surf, SDL_SRCALPHA, 150);
+  SDL_SetSurfaceBlendMode(p_surf, SDL_BLENDMODE_BLEND);
+  SDL_SetSurfaceAlphaMod(p_surf, 150);
 
   int i;
 
@@ -905,31 +1033,39 @@ void graphics_generate(void)
   }
 }
 
-/* It tries to create the user directory (~./berusky)
- * and copy berusky.ini file there
- *
+// Used when the configuration template isn't shipped with the game data
+static const char default_config[] =
+  "# Configuration for berusky game\n"
+  "\n"
+  "# Graphics settings\n"
+  "# fullscreen = 1 - borderless fullscreen (desktop resolution), the game is scaled\n"
+  "# keeping its aspect ratio\n"
+  "fullscreen = 0\n"
+  "\n"
+  "# Logging\n"
+  "log = 0\n";
+
+/* It creates the user data directories (see platform.h) and the default
+ * configuration file there.
  */
 void user_directory_create(void)
 {
-  // Check ~./berusky
-#ifdef WINDOWS
-  dir_create(DIRECTORY_GET(INI_ANAKREON_DIR));
-  dir_create(DIRECTORY_GET(INI_BERUSKY_DIR));
-#endif
+  dir_create(platform_user_dir());
+  dir_create(user_dir_levels());
+  dir_create(user_dir_profiles());
 
-  dir_create(DIRECTORY_GET(INI_USER_DIRECTORY));
-  dir_create(DIRECTORY_GET(INI_USER_LEVELS));
-  dir_create(DIRECTORY_GET(INI_USER_PROFILES));
+  const char *p_ini = user_file_get(INI_FILE_NAME);
 
-  // Check ~./berusky/berusky.ini
-  bprintfnl(_("Checking %s/%s..."),DIRECTORY_GET(INI_USER_DIRECTORY),INI_FILE_NAME);
-  if(!file_exists(DIRECTORY_GET(INI_USER_DIRECTORY),INI_FILE_NAME)) {
-    bprintfnl(_("missing, try to copy it from %s..."),FILE_GET(INI_FILE_GLOBAL));
-    bool ret = file_copy(FILE_GET(INI_FILE_GLOBAL),
-                         NULL,
-                         INI_FILE_NAME, 
-                         DIRECTORY_GET(INI_USER_DIRECTORY),
-                         FALSE);
+  bprintfnl(_("Checking %s..."), p_ini);
+  if(!file_exists(NULL, p_ini)) {
+    bprintfnl(_("missing, creating it..."));
+
+    // Prefer the template shipped with the game data
+    bool ret = file_copy(INI_FILE_NAME, platform_asset_root()[0] ? platform_asset_root() : NULL,
+                         p_ini, NULL, FALSE);
+    if(!ret) {
+      ret = file_save(NULL, p_ini, (void *)default_config, (t_off)strlen(default_config), "wb");
+    }
     if(ret) {
       bprintf(_("ok"));
     } else {
@@ -941,4 +1077,3 @@ void user_directory_create(void)
   }
   bprintf(" ");
 }
-

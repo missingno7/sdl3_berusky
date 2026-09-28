@@ -28,15 +28,8 @@
 #include <errno.h>
 
 #include "portability.h"
-
-#ifdef LINUX
-#include <sys/wait.h>
-#endif
-
-#ifdef WINDOWS
-#include <stdio.h>
-#include <process.h>
-#endif
+#include "platform.h"
+#include "test_script.h"
 
 #include "berusky.h"
 #include "berusky_gui.h"
@@ -50,7 +43,8 @@ spr_handle menu_background_get(void)
   static int init = TRUE;
 
   if(init) {
-    srand(SDL_GetTicks());
+    // fixed seed when a test script runs - the same picture every time
+    srand(test_script_active() ? 1 : (unsigned int)SDL_GetTicks());
     init = FALSE;
   }
 
@@ -80,9 +74,6 @@ game_gui::~game_gui(void)
 
   if(p_ber)
     delete p_ber;
-   
-  // TODO -> dat to tam kde se to SDL inicializuje
-  SDL_Quit();
 }
 
 #undef LOGO_START
@@ -271,7 +262,9 @@ void game_gui::menu_main(MENU_STATE state, size_ptr data, size_ptr data1)
         menu_item_draw(profiles, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_PROFILES));
         menu_item_draw(settings, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_SETTINGS));
         menu_item_draw(help, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_HELP,FALSE));
-        menu_item_draw(editor, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_RUN_EDITOR));      
+        // The editor is a separate program run from here - only where the platform can do it
+        if(platform_can_run_processes())
+          menu_item_draw(editor, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_RUN_EDITOR));      
         menu_item_draw(quit, MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(GC_MENU_QUIT));
       
         p_font->alignment_set(MENU_CENTER);
@@ -2133,7 +2126,7 @@ char * game_gui::level_hint_load(int set, int level)
   // Search a mark in the hint file
   char line[1000];
   char *p_tmp = NULL;
-  while(fgets(line,1000,f)) {
+  while(file_gets(line,1000,f)) {
     if((p_tmp = strstr(line,start_mark)) && p_tmp == line) {
       break;
     }
@@ -2141,6 +2134,7 @@ char * game_gui::level_hint_load(int set, int level)
 
   // Did we find it?
   if(!p_tmp || p_tmp != line) {
+    file_close(f);
     return(NULL);
   }    
 
@@ -2150,7 +2144,7 @@ char * game_gui::level_hint_load(int set, int level)
 
   p_tmp = hint_buffer;
   while(1) {
-    p_tmp = fgets(p_tmp, HINT_BUFFER_LENGHT - (p_tmp - hint_buffer), f);
+    p_tmp = file_gets(p_tmp, (int)(HINT_BUFFER_LENGHT - (p_tmp - hint_buffer)), f);
     if(!p_tmp)
       break;
     if(p_tmp[0] == MARK_END[0]) {
@@ -2160,7 +2154,7 @@ char * game_gui::level_hint_load(int set, int level)
     p_tmp = p_tmp + strlen(p_tmp);
   }
 
-  fclose(f);
+  file_close(f);
   return(hint_buffer);
 }
 
@@ -2671,33 +2665,13 @@ void game_gui::level_load(LEVEL_EVENT_QUEUE *p_queue)
 
 void game_gui::run_editor(void)
 { 
-#ifdef LINUX
-  int pid = fork();
-  if(!pid) {
-    bprintf("%s -e",p_dir->game_binary_get());
-    int ret = execlp(p_dir->game_binary_get(),p_dir->game_binary_get(),"-e",NULL);
-    if(ret == -1) {
-      bprintf("Error: %s",strerror(errno));
-    }
-  }
-  else {
-    int status;
-    bprintf("Waiting for %d",pid);
-    waitpid(pid,&status,0);
-    bprintf("Pid %d done",pid);
-  }
-#elif WINDOWS
-  bprintf("%s -e",p_dir->game_binary_get());
+  // The editor is this program started with -e
+  const char *p_args[] = { p_dir->game_binary_get(), "-e", NULL };
 
-  char tmp[PATH_MAX] = "\"";
-  strcat(tmp, p_dir->game_binary_get());
-  strcat(tmp, "\"");
-  
-  int ret = _spawnl( _P_WAIT, p_dir->game_binary_get(), tmp,"-e",NULL);
-  if(ret == -1) {
-    bprintf("Error: %s",strerror(errno));
+  bprintf("%s -e",p_dir->game_binary_get());
+  if(!platform_run_and_wait(p_args)) {
+    bprintf("Unable to run the editor: %s", SDL_GetError());
   }
-#endif
 }
 
 bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
@@ -2884,7 +2858,6 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
 
 void game_gui::menu_dialog_error(char *p_text,...)
 {
-/*
   #define MAX_TEXT_LEN 2000
 
   char      text[MAX_TEXT_LEN];
@@ -2894,12 +2867,6 @@ void game_gui::menu_dialog_error(char *p_text,...)
   vsnprintf(text,MAX_TEXT_LEN,p_text,arguments);
   va_end(arguments);
 
-  GtkWidget *dialog = gtk_message_dialog_new(main_window_get(),
-                                GTK_DIALOG_DESTROY_WITH_PARENT,
-                                GTK_MESSAGE_ERROR,
-                                GTK_BUTTONS_CLOSE,
-                                text);
-  gtk_dialog_run (GTK_DIALOG (dialog));
-  gtk_widget_destroy (dialog);
-*/  
+  // SDL message box (or stderr where there's none)
+  platform_message(true, GAME_TITLE, text);
 }

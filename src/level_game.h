@@ -201,12 +201,9 @@ typedef unsigned short int word;
 
 #define H_LEVEL  "Level 3 (C) Anakreon 1999"
 
-#ifdef LINUX
-typedef struct __attribute__ ((__packed__)) {
-#elif WINDOWS
+// On-disk level format - it must not be padded by the compiler
 #pragma pack(push,1)
 typedef struct {
-#endif
 
    char signum[30];               // -> "Berusky (C) Anakreon 1998"
    char back;                     // -> background number
@@ -219,9 +216,7 @@ typedef struct {
 
 } LEVEL_DISK;
 
-#ifdef WINDOWS
 #pragma pack(pop)
-#endif
 
 typedef struct level_cell {
 

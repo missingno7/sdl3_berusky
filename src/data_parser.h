@@ -66,12 +66,10 @@ typedef class data_parser {
   // Helper functions
   // ***********************************************************************
 
-#ifdef WINDOWS
   bool isblank(char c)
   {
     return(c == ' ' || c == 0x9);
   }
-#endif
 
   char * token_get_next(char *p_line)
   {

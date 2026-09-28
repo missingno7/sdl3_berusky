@@ -82,8 +82,8 @@ char *ini_read_string(FHANDLE f, const char *p_template, char *p_out,
 {
   char line[MAX_TOKEN_LEN];
 
-  fseek(f, SEEK_SET, 0);
-  while (fgets(line, MAX_TOKEN_LEN, f)) {
+  file_rewind(f);
+  while (file_gets(line, MAX_TOKEN_LEN, f)) {
     int len = is_token(line, p_template);
     char *p_rest;
     if (len && (p_rest = ini_skip_separator(line + len))) {
@@ -103,25 +103,25 @@ char *ini_read_string_file(const char *p_file, const char *p_template, char *p_o
   if (!f)
     return (strcpy(p_out, p_default));
 
-  while (fgets(line, MAX_TOKEN_LEN, f)) {
+  while (file_gets(line, MAX_TOKEN_LEN, f)) {
     int len = is_token(line, p_template);
     char *p_rest;
     if (len && (p_rest = ini_skip_separator(line + len))) {
-      fclose(f);
+      file_close(f);
       return (ini_read_param(p_rest, p_out, max_len));
     }
   }
 
-  fclose(f);
+  file_close(f);
   return (strcpy(p_out, p_default));
 }
 
-int ini_read_int(FHANDLE f, char *p_template, int dflt)
+int ini_read_int(FHANDLE f, const char *p_template, int dflt)
 {
   char line[MAX_TOKEN_LEN];
 
-  fseek(f, SEEK_SET, 0);
-  while (fgets(line, MAX_TOKEN_LEN, f)) {
+  file_rewind(f);
+  while (file_gets(line, MAX_TOKEN_LEN, f)) {
     int len = is_token(line, p_template);
     char *p_rest;
     if (len && (p_rest = ini_skip_separator(line + len))) {
@@ -139,15 +139,15 @@ int ini_read_int_file(const char *p_file, const char *p_template, int dflt)
   if (!f)
     return (dflt);
 
-  while (fgets(line, MAX_TOKEN_LEN, f)) {
+  while (file_gets(line, MAX_TOKEN_LEN, f)) {
     int len = is_token(line, p_template);
     char *p_rest;
     if (len && (p_rest = ini_skip_separator(line + len))) {
-      fclose(f);
+      file_close(f);
       return (atoi(ini_remove_end_of_line(p_rest)));
     }
   }
-  fclose(f);
+  file_close(f);
   return (dflt);
 }
 
@@ -178,7 +178,7 @@ int ini_read_bool_file(const char *p_file, const char *p_template, int dflt)
     return (dflt);
 
   ini_read_string(f, p_template, line, MAX_TOKEN_LEN, "");
-  fclose(f);
+  file_close(f);
 
   if (line[0] == '\0')
     return (dflt);
@@ -204,7 +204,7 @@ int is_token(char *p_line, const char *p_token)
     p_token++;
   }
 
-  return (*p_token ? 0 : p_line - p_start);
+  return (*p_token ? 0 : (int)(p_line - p_start));
 }
 
 /* Reading token (between %) from file
@@ -212,98 +212,81 @@ int is_token(char *p_line, const char *p_token)
 int read_token(FHANDLE f_in, char *p_line, size_t max, char separator)
 {
   size_t len;
-  int c;
+  char c = 0;
+  bool got = false;
 
   for (len = 0;
-       (c = fgetc(f_in)) != EOF && c != separator && len + 2 < max;
+       len + 2 < max && (got = (file_read(&c, 1, f_in) == 1)) && c != separator;
        len++, p_line++) {
     *p_line = c;
   }
 
-  if (c == separator) {
+  if (got && c == separator) {
     *p_line++ = c;
   }
   *p_line = 0;
 
-  return (c == separator);
+  return (got && c == separator);
 }
 
-bool ini_find_token(FHANDLE f, const char *p_template,
-                    long *p_file_start, long *p_file_end)
-{
-  char line[MAX_TOKEN_LEN];
-  long file_pos = 0;
-
-  fseek(f, 0, SEEK_SET);
-  while (fgets(line, MAX_TOKEN_LEN, f)) {
-    if(is_token(line, p_template)) {
-      *p_file_start = file_pos;
-      *p_file_end = ftell(f);
-      return(TRUE);
-    }
-    file_pos = ftell(f);
-  }
-
-  // no token - write a new one
-  return(FALSE);
-}
-
-int ini_write_string(FHANDLE f_in, FHANDLE f_out, const char *p_template, const char *p_value)
-{
-  long file_start,
-       file_end;
-
-  int found = ini_find_token(f_in, p_template, &file_start, &file_end);
-
-  fseek(f_in, 0, SEEK_SET);
-  fseek(f_out, 0, SEEK_SET);
-
-  if(found) {
-    file_copy(f_in, f_out, file_start);
-    fprintf(f_out,"%s = %s\n",p_template, p_value);
-    fseek(f_in, file_end, SEEK_SET);
-    file_copy(f_in, f_out);
-  }
-  else {
-    file_copy(f_in, f_out);    
-    fprintf(f_out,"\n%s = %s\n",p_template, p_value);
-  }
-
-  return(TRUE);
-}
-
+/* Set "template = value" in the ini file. The file is small so it's
+   rewritten as a whole: the line with the token is replaced (or a new one
+   is appended).
+*/
 bool ini_write_string(const char *p_file,
                       const char *p_template, const char *p_value)
 {
-  int ret;
-
-  FHANDLE f_orig = file_open(NULL, p_file, "r", FALSE);
-  if (!f_orig)
-    return(FALSE);
-  
-#ifdef WINDOWS  
-  FHANDLE f_new(tmpfile_get());
-#else
-  FHANDLE f_new(tmpfile());
-#endif
-  if (!f_new)
+  t_off  len = 0;
+  char  *p_text = (char *)file_load(NULL, p_file, &len, 0, FALSE);
+  if (!p_text)
     return(FALSE);
 
-  ret = file_copy(f_orig, f_new);
-  if(!ret) {
-    fclose(f_orig);
-    fclose(f_new);
+  // Find the line with the token
+  size_t line_start = 0, line_end = 0;
+  bool   found = FALSE;
+  char   line[MAX_TOKEN_LEN];
+
+  size_t pos = 0;
+  while (pos < len) {
+    size_t end = pos;
+    while (end < len && p_text[end] != '\n')
+      end++;
+    if (end < len)
+      end++;                // include the newline
+
+    size_t copy = end - pos;
+    if (copy >= sizeof(line))
+      copy = sizeof(line) - 1;
+    memcpy(line, p_text + pos, copy);
+    line[copy] = '\0';
+
+    if (is_token(line, p_template)) {
+      line_start = pos;
+      line_end = end;
+      found = TRUE;
+      break;
+    }
+    pos = end;
+  }
+
+  FHANDLE f = file_open(NULL, p_file, "wb", FALSE);
+  if (!f) {
+    free(p_text);
     return(FALSE);
   }
 
-  fclose(f_orig);
-
-  if((f_orig = file_open(NULL, p_file, "w", FALSE))) {
-    ret = ini_write_string(f_new, f_orig, p_template, p_value);
-    fclose(f_orig);
+  if (found) {
+    file_write(p_text, line_start, f);
+    file_printf(f, "%s = %s\n", p_template, p_value);
+    file_write(p_text + line_end, len - line_end, f);
+  }
+  else {
+    file_write(p_text, len, f);
+    file_printf(f, "\n%s = %s\n", p_template, p_value);
   }
 
-  fclose(f_new);
+  file_close(f);
+  free(p_text);
 
-  return (ret);
+  return(TRUE);
 }

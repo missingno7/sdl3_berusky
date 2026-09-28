@@ -31,211 +31,131 @@
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
-/* Key definition - GTK */
 /*
-#include <gdk/gdkkeysyms.h>
+ * Input architecture
+ *
+ *   physical devices           neutral keys           game events
+ *   (keyboard, gamepad,   ->   (K_xxx below,     ->   (LEVEL_EVENT, see the
+ *    touch buttons, ...)        input::key_input)      key sets in input.cpp)
+ *
+ * The game never sees SDL key codes. The SDL3 input backend (input_sdl.cpp)
+ * translates whatever the device produces to the neutral key codes, and the
+ * game reacts only to the "key sets" (EVENT_KEY_SET) that map those keys to
+ * game events (move, switch player, pause, ...). A touch screen control or a
+ * gamepad only has to call input::key_input() with the same neutral key
+ * codes to drive the game - nothing in the game assumes a keyboard.
+ *
+ * Mouse and touch pointers are reported in logical game coordinates
+ * (see video.h), never in window pixels.
+ */
 
-  #define  KEYNUM    0xff
-  
-  #define  K_ESC     GDK_Escape
+/* Neutral key codes.
+   Printable keys use their ASCII value, so the keys typed into the
+   profile-name / level-name inputs are directly characters. */
 
-  #define  K_F1      GDK_F1
-  #define  K_F2      GDK_F1
-  #define  K_F3      GDK_F3
-  #define  K_F4      GDK_F4
-  #define  K_F5      GDK_F5
-  #define  K_F6      GDK_F6
-  #define  K_F7      GDK_F7
-  #define  K_F8      GDK_F8
-  #define  K_F9      GDK_F9
-  #define  K_F10     GDK_F10
-  #define  K_F11     GDK_F11
-  #define  K_F12     GDK_F12
-  
-  #define  K_1       GDK_1
-  #define  K_2       GDK_2
-  #define  K_3       GDK_3
-  #define  K_4       GDK_4
-  #define  K_5       GDK_5
-  #define  K_6       GDK_6
-  #define  K_7       GDK_7
-  #define  K_8       GDK_8
-  #define  K_9       GDK_9
-  #define  K_0       GDK_0
-    
-  #define  K_A       GDK_a
-  #define  K_B       GDK_b
-  #define  K_C       GDK_c
-  #define  K_D       GDK_d
-  #define  K_E       GDK_e
-  #define  K_F       GDK_f
-  #define  K_G       GDK_g
-  #define  K_H       GDK_h
-  #define  K_I       GDK_i
-  #define  K_J       GDK_j
-  #define  K_K       GDK_k
-  #define  K_L       GDK_l
-  #define  K_M       GDK_m
-  #define  K_N       GDK_n
-  #define  K_O       GDK_o
-  #define  K_P       GDK_p
-  #define  K_Q       GDK_q
-  #define  K_R       GDK_r
-  #define  K_S       GDK_s
-  #define  K_T       GDK_t
-  #define  K_U       GDK_u
-  #define  K_V       GDK_v
-  #define  K_W       GDK_w
-  #define  K_X       GDK_x
-  #define  K_Y       GDK_y
-  #define  K_Z       GDK_z
+#define  KEYNUM    512
 
-  #define  K_MINUS   GDK_minus
-  #define  K_PLUS    GDK_plus
+#define  K_NONE    0
 
-  #define  K_BKSP    GDK_BackSpace
-  #define  K_TAB     GDK_Tab
-  #define  K_ENTER   GDK_Return
-  
-  #define  K_BRACKET_L SDLK_LEFTBRACKET
-  #define  K_BRACKET_R SDLK_RIGHTBRACKET
-  
-  #define  K_SEMICOL   SDLK_SEMICOLON
-  #define  K_QUOTE     SDLK_QUOTE
-  #define  K_TILDA     
-  #define  K_BACKSLASH SDLK_BACKSLASH
-  #define  K_COMMA     SDLK_COMMA
-  #define  K_PERIOD    SDLK_PERIOD
-  #define  K_SLASH     SDLK_SLASH
-  #define  K_SPACE     SDLK_SPACE
-  
-  #define  K_UP        GDK_Up
-  #define  K_LEFT      GDK_Left
-  #define  K_RIGHT     GDK_Right
-  #define  K_DOWN      GDK_Down
+#define  K_BKSP    8
+#define  K_TAB     9
+#define  K_ENTER   13
+#define  K_ESC     27
+#define  K_SPACE   ' '
+#define  K_DEL     127
 
-  #define  K_HOME      SDLK_HOME
-  #define  K_PGUP      SDLK_PAGEUP
-  #define  K_END       SDLK_END
-  #define  K_PGDN      SDLK_PAGEDOWN
-  #define  K_INSERT    SDLK_INSERT
+#define  K_1       '1'
+#define  K_2       '2'
+#define  K_3       '3'
+#define  K_4       '4'
+#define  K_5       '5'
+#define  K_6       '6'
+#define  K_7       '7'
+#define  K_8       '8'
+#define  K_9       '9'
+#define  K_0       '0'
 
-  #define  K_DEL       GDK_Delete
-  
-  #define  K_SHIFT_MASK GDK_SHIFT_MASK
-  #define  K_CTRL_MASK  GDK_CONTROL_MASK
+#define  K_A       'a'
+#define  K_B       'b'
+#define  K_C       'c'
+#define  K_D       'd'
+#define  K_E       'e'
+#define  K_F       'f'
+#define  K_G       'g'
+#define  K_H       'h'
+#define  K_I       'i'
+#define  K_J       'j'
+#define  K_K       'k'
+#define  K_L       'l'
+#define  K_M       'm'
+#define  K_N       'n'
+#define  K_O       'o'
+#define  K_P       'p'
+#define  K_Q       'q'
+#define  K_R       'r'
+#define  K_S       's'
+#define  K_T       't'
+#define  K_U       'u'
+#define  K_V       'v'
+#define  K_W       'w'
+#define  K_X       'x'
+#define  K_Y       'y'
+#define  K_Z       'z'
 
+#define  K_MINUS      '-'
+#define  K_PLUS       '+'
+#define  K_BRACKET_L  '['
+#define  K_BRACKET_R  ']'
+#define  K_SEMICOL    ';'
+#define  K_QUOTE      '\''
+#define  K_BACKSLASH  '\\'
+#define  K_COMMA      ','
+#define  K_PERIOD     '.'
+#define  K_SLASH      '/'
 
-  typedef guint KEYTYPE;
-  typedef guint KEYMOD;
+// Non-printable keys
+#define  K_F1      256
+#define  K_F2      257
+#define  K_F3      258
+#define  K_F4      259
+#define  K_F5      260
+#define  K_F6      261
+#define  K_F7      262
+#define  K_F8      263
+#define  K_F9      264
+#define  K_F10     265
+#define  K_F11     266
+#define  K_F12     267
 
-#endif
-*/
+#define  K_UP      270
+#define  K_DOWN    271
+#define  K_LEFT    272
+#define  K_RIGHT   273
 
-/* Key definition - SDL */
+#define  K_HOME    274
+#define  K_END     275
+#define  K_PGUP    276
+#define  K_PGDN    277
+#define  K_INSERT  278
 
-#define  KEYNUM    0xff
+#define  KP_0      280
+#define  KP_1      281
+#define  KP_2      282
+#define  KP_3      283
+#define  KP_4      284
+#define  KP_5      285
+#define  KP_6      286
+#define  KP_7      287
+#define  KP_8      288
+#define  KP_9      289
 
-#define  K_ESC     SDLK_ESCAPE
+// Modifiers (bit mask)
+#define  K_SHIFT_MASK 0x1
+#define  K_CTRL_MASK  0x2
+#define  K_ALT_MASK   0x4
 
-#define  K_F1      SDLK_F1
-#define  K_F2      SDLK_F2
-#define  K_F3      SDLK_F3
-#define  K_F4      SDLK_F4
-#define  K_F5      SDLK_F5
-#define  K_F6      SDLK_F6
-#define  K_F7      SDLK_F7
-#define  K_F8      SDLK_F8
-#define  K_F9      SDLK_F9
-#define  K_F10     SDLK_F10
-#define  K_F11     SDLK_F11
-#define  K_F12     SDLK_F12
-
-#define  K_1       SDLK_1
-#define  K_2       SDLK_2
-#define  K_3       SDLK_3
-#define  K_4       SDLK_4
-#define  K_5       SDLK_5
-#define  K_6       SDLK_6
-#define  K_7       SDLK_7
-#define  K_8       SDLK_8
-#define  K_9       SDLK_9
-#define  K_0       SDLK_0
-
-#define  KP_0      SDLK_KP0
-#define  KP_1      SDLK_KP1
-#define  KP_2      SDLK_KP2
-#define  KP_3      SDLK_KP3
-#define  KP_4      SDLK_KP4
-#define  KP_5      SDLK_KP5
-#define  KP_6      SDLK_KP6
-#define  KP_7      SDLK_KP7
-#define  KP_8      SDLK_KP8
-#define  KP_9      SDLK_KP9
-
-#define  K_A       SDLK_a
-#define  K_B       SDLK_b
-#define  K_C       SDLK_c
-#define  K_D       SDLK_d
-#define  K_E       SDLK_e
-#define  K_F       SDLK_f
-#define  K_G       SDLK_g
-#define  K_H       SDLK_h
-#define  K_I       SDLK_i
-#define  K_J       SDLK_j
-#define  K_K       SDLK_k
-#define  K_L       SDLK_l
-#define  K_M       SDLK_m
-#define  K_N       SDLK_n
-#define  K_O       SDLK_o
-#define  K_P       SDLK_p
-#define  K_Q       SDLK_q
-#define  K_R       SDLK_r
-#define  K_S       SDLK_s
-#define  K_T       SDLK_t
-#define  K_U       SDLK_u
-#define  K_V       SDLK_v
-#define  K_W       SDLK_w
-#define  K_X       SDLK_x
-#define  K_Y       SDLK_y
-#define  K_Z       SDLK_z
-
-#define  K_MINUS   SDLK_MINUS
-#define  K_PLUS    SDLK_PLUS
-#define  K_BKSP    SDLK_BACKSPACE
-#define  K_TAB     SDLK_TAB
-
-#define  K_BRACKET_L  SDLK_LEFTBRACKET
-#define  K_BRACKET_R  SDLK_RIGHTBRACKET
-#define  K_ENTER      SDLK_RETURN
-
-#define  K_SEMICOL    SDLK_SEMICOLON
-#define  K_QUOTE      SDLK_QUOTE
-#define  K_TILDA     
-#define  K_BACKSLASH  SDLK_BACKSLASH
-#define  K_COMMA      SDLK_COMMA
-#define  K_PERIOD     SDLK_PERIOD
-#define  K_SLASH      SDLK_SLASH
-#define  K_SPACE      SDLK_SPACE
-
-#define  K_UP         SDLK_UP
-#define  K_LEFT       SDLK_LEFT
-#define  K_RIGHT      SDLK_RIGHT
-#define  K_DOWN       SDLK_DOWN
-
-#define  K_HOME       SDLK_HOME
-#define  K_PGUP       SDLK_PAGEUP
-#define  K_END        SDLK_END
-#define  K_PGDN       SDLK_PAGEDOWN
-#define  K_INSERT     SDLK_INSERT
-#define  K_DEL        SDLK_DELETE
-
-#define  K_SHIFT_MASK KMOD_SHIFT
-#define  K_CTRL_MASK  KMOD_CTRL
-
-typedef  SDLKey       KEYTYPE;
-typedef  SDLMod       KEYMOD;
- 
+typedef  int          KEYTYPE;
+typedef  int          KEYMOD;
 
 #define  KEY_PRESSED                  0x1     // key is pressed
 #define  KEY_CLEAR_AFTER_PRESS        0x2     // clear key after press
@@ -450,6 +370,9 @@ typedef class input {
 
   int               flag;            // current input-interface flags
 
+  bool              key_state[KEYNUM]; // neutral keys held right now
+  bool              key_repeat_enabled;
+
 private:
 
   void key_block(int group_mask, bool block);
@@ -458,10 +381,20 @@ private:
   
 public:
   
-  input(void) : p_set(NULL), group(0), flag(0) {};
+  input(void) : p_set(NULL), group(0), flag(0), key_repeat_enabled(false)
+  {
+    memset(key_state, 0, sizeof(key_state));
+  };
 
-  bool key_status(int sdl_key);
+  bool key_status(KEYTYPE key);
+
+  // Key repeat (the editor uses it). Repeated key-down events are ignored
+  // by the input backend when it's off.
   void key_repeat(bool state);
+  bool key_repeat_get(void)
+  {
+    return(key_repeat_enabled);
+  }
 
   // Block/Unblock all input
   void block(bool state);
@@ -472,6 +405,8 @@ public:
   
   // Keyboard interface
   void keyset_set(EVENT_KEY_SET *p_keyset);
+  // A neutral key (K_xxx) was pressed / released by any device.
+  // modification is a bit mask of K_xxx_MASK modifiers that are held.
   void key_input(KEYTYPE key, KEYMOD modification, bool pressed);
   void key_add(LEVEL_EVENT_QUEUE *p_queue);
 

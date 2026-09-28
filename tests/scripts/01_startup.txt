@@ -1,0 +1,4 @@
+# Startup: logo, then the "double size" question (fresh user directory)
+wait 60
+shot startup_question.bmp
+quit

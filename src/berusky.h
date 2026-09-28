@@ -34,34 +34,19 @@
 
 using namespace std;
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
-
 /* System include files
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include <locale.h>
+
+#include <SDL3/SDL.h>
 
 #include "portability.h"
 
-#ifdef LINUX
-
-#include <syslog.h>
-#include <libintl.h>
-#include <SDL/SDL.h>
-
-#define _(string) gettext (string)
-
-#elif WINDOWS
-
-#include "SDL.h"
+// Translations are not wired in (the original build never initialized gettext)
 #define _(string) (string)
-
-#endif
 
 typedef struct berusky_config {
 

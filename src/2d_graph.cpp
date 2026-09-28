@@ -28,8 +28,8 @@
 /*
   2D Graphics library
 */
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <math.h>
 
@@ -47,7 +47,7 @@
  */
 Uint32 getpixel(SDL_Surface *surf, int x, int y)
 {
-    int bpp = surf->format->BytesPerPixel;
+    int bpp = SDL_BYTESPERPIXEL(surf->format);
     /* Here p is the address to the pixel we want to retrieve */
     Uint8 *p = (Uint8 *)surf->pixels + y * surf->pitch + x * bpp;
 
@@ -75,7 +75,8 @@ Uint32 getpixel(SDL_Surface *surf, int x, int y)
 bool getpixel(SDL_Surface *p_surf, int x, int y, RGB *p_color)
 {
   Uint8 r,g,b;
-  SDL_GetRGB(getpixel(p_surf, x, y), p_surf->format, &r, &g, &b);
+  SDL_GetRGB(getpixel(p_surf, x, y), SDL_GetPixelFormatDetails(p_surf->format),
+             SDL_GetSurfacePalette(p_surf), &r, &g, &b);
   RGB key = sprite::color_key_get();
   if(r != key.r || g != key.g || b != key.b) {
     // it's not a transparent color - return it
@@ -93,7 +94,7 @@ bool getpixel(SDL_Surface *p_surf, int x, int y, RGB *p_color)
  */
 void putpixel(SDL_Surface *surf, int x, int y, Uint32 pixel)
 {
-    int bpp = surf->format->BytesPerPixel;
+    int bpp = SDL_BYTESPERPIXEL(surf->format);
     /* Here p is the address to the pixel we want to set */
     Uint8 *p = (Uint8 *)surf->pixels + y * surf->pitch + x * bpp;
 
@@ -136,7 +137,7 @@ bool putpixel(SDL_Surface *p_surf, int x, int y, RGB color)
   g = color.g;
   b = color.b;
 
-  putpixel(p_surf, x, y, SDL_MapRGB(p_surf->format, r, g, b));
+  putpixel(p_surf, x, y, SDL_MapSurfaceRGB(p_surf, r, g, b));
   return(TRUE);
 }
 
@@ -172,24 +173,40 @@ static RGB interpolate(RGB c1, RGB c2)
 // -------------------------------------------------------
 char surface::graphics_dir[MAX_FILENAME] = "";
 
+// All software surfaces (sprites, framebuffer) use one 32bit pixel format.
+// It replaces SDL_DisplayFormat() of SDL 1.2 - there is no display surface
+// any more, the framebuffer is presented through video.h.
+#define SURFACE_FORMAT  SDL_PIXELFORMAT_XRGB8888
+
 void surface::load(char *p_file)
 {
   char file[MAX_FILENAME];
 
   return_path(graphics_dir_get(), p_file, file, MAX_FILENAME);
 
-  SDL_Surface *p_tmp = IMG_Load(file);
+  // Read the file through the platform file layer (packaged assets on Android)
+  SDL_Surface *p_tmp = NULL;
+  t_off        size = 0;
+  void        *p_data = file_load(NULL, file, &size, 0, FALSE);
+  if(p_data) {
+    SDL_IOStream *p_io = SDL_IOFromConstMem(p_data, size);
+    if(p_io)
+      p_tmp = IMG_Load_IO(p_io, true);
+    ::free(p_data);
+  }
+
   if(p_tmp)
   {
-    p_surf = SDL_DisplayFormat(p_tmp);
+    // Alpha channel (if any) is dropped, the game uses color keys
+    p_surf = SDL_ConvertSurface(p_tmp, SURFACE_FORMAT);
     assert(p_surf);
-    SDL_FreeSurface(p_tmp);        
-  } 
+    SDL_DestroySurface(p_tmp);
+  }
   else {
-    bprintf("Unable to load %s",file);
+    bprintf("Unable to load %s: %s",file,SDL_GetError());
     assert(p_tmp);
     p_surf = NULL;
-  }     
+  }
   used = 0;
 }
 
@@ -197,16 +214,9 @@ void surface::create(tpos width, tpos height, bool display_format)
 {
   assert(!p_surf);
 
-  p_surf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32,0,0,0,0);
+  p_surf = SDL_CreateSurface(width, height, SURFACE_FORMAT);
   if(!p_surf) {
     berror("Unable to create surface! (%dx%d)", width, height);
-  }
-
-  if(display_format) {
-    SDL_Surface *p_tmp = SDL_DisplayFormat(p_surf);
-    assert(p_tmp);
-    SDL_FreeSurface(p_surf);
-    p_surf = p_tmp;
   }
 
   used = 0;
@@ -216,25 +226,19 @@ void surface::copy(class surface *p_src, RECT *p_src_rect)
 {
   assert(p_src->p_surf);
   if(p_surf) {
-    SDL_FreeSurface(p_surf);
+    SDL_DestroySurface(p_surf);
     p_surf = NULL;
-  }  
+  }
 
   if(p_src_rect) {
-    SDL_PixelFormat *p_format = p_src->p_surf->format;
-    p_surf = SDL_CreateRGBSurface(SDL_HWSURFACE, p_src_rect->w, p_src_rect->h,
-                                  p_format->BitsPerPixel,
-                                  p_format->Rmask,
-                                  p_format->Gmask,
-                                  p_format->Bmask,
-                                  p_format->Amask);
+    p_surf = SDL_CreateSurface(p_src_rect->w, p_src_rect->h, p_src->p_surf->format);
     if(!p_surf) {
       berror("Unable to create surface! (%dx%d)", p_src_rect->w, p_src_rect->h);
     }
     SDL_BlitSurface(p_src->p_surf, p_src_rect, p_surf, NULL);
   }
   else {
-    p_surf = SDL_ConvertSurface(p_src->p_surf, p_src->p_surf->format, SDL_HWSURFACE);
+    p_surf = SDL_DuplicateSurface(p_src->p_surf);
   }
   assert(p_surf);
 
@@ -246,7 +250,7 @@ void surface::free(void)
   assert(used == 0);
 
   if(p_surf) {
-    SDL_FreeSurface(p_surf);
+    SDL_DestroySurface(p_surf);
     p_surf = NULL;
   }
 }
@@ -305,28 +309,28 @@ surface::~surface(void)
 void surface::ckey_set(trgbcomp r, trgbcomp g, trgbcomp b)
 {
   assert(p_surf);
-  int ret = SDL_SetColorKey(p_surf, SDL_SRCCOLORKEY, SDL_MapRGB(p_surf->format, r, g, b));
-  assert(ret != -1);
+  bool ret = SDL_SetSurfaceColorKey(p_surf, true, SDL_MapSurfaceRGB(p_surf, r, g, b));
+  assert(ret);
 }
 
 void surface::ckey_set(tcolor color)
 {
   assert(p_surf);
-  int ret = SDL_SetColorKey(p_surf, SDL_SRCCOLORKEY, color);
-  assert(ret != -1);
+  bool ret = SDL_SetSurfaceColorKey(p_surf, true, color);
+  assert(ret);
 }
 
 void surface::fill(tcolor color)
 { 
   assert(p_surf);
-  SDL_FillRect(p_surf, NULL, color);
+  SDL_FillSurfaceRect(p_surf, NULL, color);
 }
 
 void surface::fill(tpos x, tpos y, tpos dx, tpos dy, tcolor color)
 { 
   assert(p_surf);
   SDL_Rect rec = { x, y, dx, dy };
-  SDL_FillRect(p_surf, &rec, color);
+  SDL_FillSurfaceRect(p_surf, &rec, color);
 }
 
 // blit whole source surtace to destination surface
@@ -350,7 +354,7 @@ void surface::blend(tpos sx, tpos sy, tpos dx, tpos dy, tcolor color, BLEND_OP o
 {
   // Lock the surface
   if(SDL_MUSTLOCK(p_surf) ) {
-    if(SDL_LockSurface(p_surf) < 0 ) {
+    if(!SDL_LockSurface(p_surf)) {
       berror("Can't lock surface: %s\n", SDL_GetError());      
     }
   }
@@ -417,14 +421,14 @@ void surface::scale(class surface *p_src, tpos src_x, tpos src_y,
 
   // Lock the surface
   if(SDL_MUSTLOCK(p_src_surf) ) {
-    if(SDL_LockSurface(p_src_surf) < 0 ) {
+    if(!SDL_LockSurface(p_src_surf)) {
       berror("Can't lock surface: %s\n", SDL_GetError());      
     }
   }
 
   // Lock the surface
   if(SDL_MUSTLOCK(p_surf) ) {
-    if(SDL_LockSurface(p_surf) < 0 ) {
+    if(!SDL_LockSurface(p_surf)) {
       berror("Can't lock surface: %s\n", SDL_GetError());      
     }
   }
@@ -737,7 +741,7 @@ spr_handle sprite_store::sprite_insert(const char *p_file, spr_handle first, spr
   RECT rec = {0,0,0,0};
 
   i = first;
-  while (fgets(line, 200, f))
+  while (file_gets(line, 200, f))
   {
     if (line[0] == ';')
       continue;
@@ -786,7 +790,7 @@ spr_handle sprite_store::sprite_insert(const char *p_file, spr_handle first, spr
       }
     }
   }
-  fclose(f);
+  file_close(f);
 
   if(p_orig) {
     delete p_orig;
@@ -877,41 +881,38 @@ void sprite_store::sprite_delete(spr_handle handle, int num)
 // -------------------------------------------------------
 void graph_2d::screen_create(int flag, int width, int height, int bpp, int fullscreen)
 {
+  // (flag, bpp) are relics of SDL_SetVideoMode(): the framebuffer is always
+  // 32bit XRGB and the presentation is done by the video backend.
+  if(!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+    berror("Unable to init SDL video: %s", SDL_GetError());
+  }
 
-  SDL_QuitSubSystem(SDL_INIT_VIDEO);
-  if(SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
-    fprintf(stderr, "unable to init SDL: %s", SDL_GetError());
-    exit(0);
-  }      
-        
-  sdl_video_flags = flag|SDL_HWSURFACE;
-  
   graphics_fullscreen = fullscreen;
-  if(fullscreen)
-    sdl_video_flags |= SDL_FULLSCREEN;
-
-  graphics_bpp = bpp;
   
   screen_resize(width, height);  
 }
 
-// Obtain the screen from SDL
-// If we have any screen/surface, release them first
+// Create the software framebuffer (owned by the game) and connect it with
+// the window. If we have any screen/surface, release them first.
 bool graph_2d::screen_regenerate(void)
 {
   screen_destroy();
 
-  bprintf("Init video surface...\n");
-  SDL_Surface *p_hwscreen = SDL_SetVideoMode(graphics_width, graphics_height, 
-                                             graphics_bpp, sdl_video_flags);
-  
-  if(!p_hwscreen) {
-    fprintf (stderr, "Unable to set the video mode: %s", SDL_GetError());
-    exit(0);
+  bprintf("Init video surface %dx%d...\n", graphics_width, graphics_height);
+
+  SDL_Surface *p_fb = SDL_CreateSurface(graphics_width, graphics_height, SURFACE_FORMAT);
+  if(!p_fb) {
+    berror("Unable to create the framebuffer %dx%d: %s", graphics_width, graphics_height, SDL_GetError());
   }
-   
-  p_screen_surface = new SURFACE(p_hwscreen);
+
+  p_screen_surface = new SURFACE(p_fb);
   p_screen = new SPRITE(p_screen_surface, SDL_SPRITE_SEPARATE_SURFACE, NULL);
+
+  video.create(graphics_width, graphics_height, graphics_fullscreen, video_settings);
+
+  // Show the (black) window right away
+  video.upload(p_fb);
+  video.present();
 
   redraw_reset();
   rect_whole = FALSE;
@@ -930,11 +931,6 @@ void graph_2d::screen_destroy(void)
     delete p_screen_surface;
     p_screen_surface = NULL;
   }
-
-  if(p_screen_surface) {
-    delete p_screen_surface;
-    p_screen_surface = NULL;
-  }
 }
 
 void graph_2d::screen_resize(tpos width, tpos height)
@@ -943,6 +939,13 @@ void graph_2d::screen_resize(tpos width, tpos height)
   graphics_height = height;
   
   screen_regenerate();
+}
+
+// Present the window again (it was exposed / resized / restored)
+void graph_2d::present_if_needed(void)
+{
+  if(p_screen_surface)
+    video.present_if_needed(p_screen_surface->surf_get());
 }
 
 void graph_2d::check(void)
@@ -981,12 +984,10 @@ void graph_2d::check(void)
 
 void graph_2d::fullscreen_toggle(void)
 {
-#ifdef LINUX
-  if(!SDL_WM_ToggleFullScreen(p_screen_surface->surf_get())) {
-    bprintf("SDL_WM_ToggleFullScreen() failed!");
+  if(!video.fullscreen_set(!graphics_fullscreen)) {
+    bprintf("Fullscreen switch failed!");
     return;
   }
-#endif  
   graphics_fullscreen = !graphics_fullscreen;  
 }
 
@@ -1002,12 +1003,12 @@ bool font_lookup_table::load(char *p_file)
   
   int pos = 0;
   char line[10];
-  while(fgets(line,10,f)) {
+  while(file_gets(line,10,f)) {
     position[toupper(line[0])] = position[tolower(line[0])] = pos;
     pos++;
   }
 
-  fclose(f);
+  file_close(f);
   return(TRUE);
 }
 
@@ -1213,7 +1214,7 @@ FONT     *p_font = NULL;
 void graphics_start(tpos dx, tpos dy, int depth, bool fullscreen)
 {
   if(!p_grf) {
-    p_grf = new GRAPH_2D(dx, dy, depth, fullscreen);
+    p_grf = new GRAPH_2D(dx, dy, depth, fullscreen, video_settings_load(INI_FILE));
   } else {
     p_grf->screen_resize(dx, dy);
   }

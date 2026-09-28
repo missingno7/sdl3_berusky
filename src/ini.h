@@ -24,6 +24,8 @@
 #ifndef __INI_H__
 #define __INI_H__
 
+#include "utils.h"
+
 #define MAX_TOKEN_LEN       1000
 
 #define TOKEN_TRUE1         "yes"
@@ -46,14 +48,14 @@ char *ini_remove_end_of_line(char *p_line);
 char *ini_skip_spaces(char *p_line);
 char *ini_skip_separator(char *p_line);
 char *ini_read_param(char *p_line, char *p_param, int max_len);
-char *ini_read_string(FILE *f, const char *p_template, char *p_out, int max_len, const char *p_default);
+char *ini_read_string(FHANDLE f, const char *p_template, char *p_out, int max_len, const char *p_default);
 char *ini_read_string_file(const char *p_file, const char *p_template, char *p_out, int max_len, const char *p_default);
-int ini_read_int(FILE *f, const char *p_template, int dflt);
+int ini_read_int(FHANDLE f, const char *p_template, int dflt);
 int ini_read_int_file(const char *p_file, const char *p_template, int dflt);
-int ini_read_bool(FILE *f, const char *p_template, int dflt);
+int ini_read_bool(FHANDLE f, const char *p_template, int dflt);
 int ini_read_bool_file(const char *p_file, const char *p_template, int dflt);
 bool ini_write_string(const char *p_file, const char *p_template, const char *p_value);
 int is_token(char *p_line, const char *p_token);
-int read_token(FILE *f_in, char *p_line, size_t max, char separator);
+int read_token(FHANDLE f_in, char *p_line, size_t max, char separator);
 
 #endif  // __INI_H__

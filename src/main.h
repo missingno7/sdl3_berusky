@@ -48,7 +48,6 @@ void  start_logo_draw(GAME_MODE mode);
 #define PROGRESS_MOVE (-1)
 void  start_logo_progress(int steps = PROGRESS_MOVE);
 int   background_num(DIR_LIST *p_dir);
-const char *config_file(bool configure = FALSE);
 bool  repository_load(ITEM_REPOSITORY *p_repo, DIR_LIST *p_dir);
 
 #endif

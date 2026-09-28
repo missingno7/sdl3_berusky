@@ -27,9 +27,7 @@
 
 #include "portability.h"
 
-#ifdef LINUX
-#include <endian.h>
-#endif // LINUX
+#include <SDL3/SDL.h>
 
 #include "berusky.h"
 
@@ -190,15 +188,8 @@ bool level_generic::level_exists(const char *p_file)
 //Fixes bug deb#431906.
 static inline word translate_level_word(word w)
 {
-#ifdef LINUX
-#if BYTE_ORDER == BIG_ENDIAN
-  return static_cast<word>(w >> 8) | static_cast<word>(w << 8);
-#else
-  return w;
-#endif
-#elif WINDOWS
-  return w;
-#endif
+  // The level files are little endian
+  return SDL_Swap16LE(w);
 }
 
 void level_generic::level_import(LEVEL_DISK *p_lev)

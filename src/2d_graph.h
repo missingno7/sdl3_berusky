@@ -49,16 +49,11 @@
 
 #include "portability.h"
 
-#ifdef LINUX
-#include <SDL/SDL.h>
-#endif
-
-#ifdef WINDOWS
-#include "SDL.h"
-#endif
+#include <SDL3/SDL.h>
 
 #include "ini.h"
 #include "utils.h"
+#include "video.h"
 
 #ifndef INSERT_APPEND
 #define INSERT_APPEND            (-1)
@@ -96,7 +91,6 @@ typedef unsigned int    tflag;
 typedef short int       trec;
 
 typedef SDL_Rect        RECT;
-typedef SDL_PixelFormat PIXELFORMAT;
 
 typedef class rgb {
 
@@ -190,12 +184,13 @@ public:
 
   tcolor color_map(Uint8 r, Uint8 g, Uint8 b)
   {    
-    return(SDL_MapRGB(p_surf->format, r, g, b));
+    return(SDL_MapSurfaceRGB(p_surf, r, g, b));
   }
 
   void color_unmap(tcolor color, Uint8 *r, Uint8 *g, Uint8 *b)
   {    
-    SDL_GetRGB(color, p_surf->format, r, g, b);    
+    SDL_GetRGB(color, SDL_GetPixelFormatDetails(p_surf->format),
+               SDL_GetSurfacePalette(p_surf), r, g, b);    
   }
   
   bool is_loaded(void)
@@ -247,7 +242,7 @@ public:
   RECT rect_get(void)
   {
     assert(p_surf);
-    RECT r = {0,0,(Uint16)p_surf->w,(Uint16)p_surf->h};
+    RECT r = {0,0,p_surf->w,p_surf->h};
     return(r);
   }
 
@@ -493,8 +488,13 @@ typedef class graph_2d
 {
   int          redraw;
 
+  // The software framebuffer. The game draws only into this surface,
+  // video (video.h) presents it in the window.
   SURFACE     *p_screen_surface;
   SPRITE      *p_screen;
+
+  VIDEO_BACKEND  video;
+  VIDEO_SETTINGS video_settings;
 
   // Array of surfaces
   SPRITE_STORE store;
@@ -506,9 +506,7 @@ typedef class graph_2d
 
   tpos         graphics_width;
   tpos         graphics_height;
-  int          graphics_bpp;
   bool         graphics_fullscreen;
-  int          sdl_video_flags;
 
 public:
   
@@ -645,6 +643,19 @@ public:
 
   void fullscreen_toggle(void);
 
+  VIDEO_BACKEND * video_get(void)
+  {
+    return(&video);
+  }
+
+  void title_set(const char *p_title)
+  {
+    video.title_set(p_title);
+  }
+
+  // Window content was damaged (exposed, resized, ...) - show it again
+  void present_if_needed(void);
+
   SPRITE * screen_get(void)
   {
     return(p_screen);
@@ -725,18 +736,21 @@ public:
     redraw = false;  
   }
 
+  // Present the framebuffer. Only the changed rectangles are uploaded to the
+  // texture (the same as SDL_UpdateRects() did for the SDL 1.2 screen).
   int flip(void)
   {
     if(rect_last || rect_whole) {
       if(rect_last > RECT_NUM_ALERT)
         bprintf("RECT_NUM_ALERT: %d slots.", rect_last);
       if(rect_whole) {
-        SDL_UpdateRect(p_screen_surface->surf_get(), 0, 0, 0, 0);
+        video.upload(p_screen_surface->surf_get());
         rect_whole = FALSE;
       } else {
-        SDL_UpdateRects(p_screen_surface->surf_get(), rect_last, rects);
+        video.upload(p_screen_surface->surf_get(), rects, rect_last);
         redraw_reset();
       }
+      video.present();
     }
     return (TRUE);
   }
@@ -748,23 +762,23 @@ public:
 
   void check(void);
 
-  graph_2d(tpos dx, tpos dy, int depth, bool fullscreen) 
+  graph_2d(tpos dx, tpos dy, int depth, bool fullscreen, const VIDEO_SETTINGS &settings) 
     : p_screen_surface(NULL),
       p_screen(NULL),
+      video_settings(settings),
       store(SURFACES, SPRITES), 
       rect_last(0)
   {
-    /* sdl init */
-    bprintf("SDL Init...");
-    SDL_Init(SDL_INIT_VIDEO);
-
-     /* Create new screen */
-    bprintf("Seting up screen %dx%d, color depth %d bits, fullscreen = %d...",dx, dy, depth, fullscreen);
+    /* Create new screen (the color depth isn't used - it's always 32bit) */
+    bprintf("Seting up screen %dx%d, fullscreen = %d...",dx, dy, fullscreen);
     screen_create(0, dx, dy, depth, fullscreen);
   }
 
   ~graph_2d(void)
   {
+    // The window must go before SDL
+    screen_destroy();
+    video.destroy();
     SDL_Quit();
   }
 

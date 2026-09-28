@@ -28,8 +28,6 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
-#include "config.h"
-
 /* Basic constants
 */
 #define GAME_FPS                  (berusky_config::game_fps)  // game refresh
@@ -441,32 +439,8 @@ typedef int anim_handle;
 // -------------------------------------------------------
 // Ini file & configuration
 // -------------------------------------------------------
+// The configuration file lives in the user data directory (platform.h)
 #define INI_FILE_NAME      "berusky.ini"
-
-#ifdef LINUX
-#define INI_USER_DIRECTORY "~/.berusky"
-#define INI_USER_LEVELS    "~/.berusky/User"
-#define INI_USER_PROFILES  "~/.berusky/Profiles"
-#define INI_FILE_GLOBAL    PACKAGE_DATA_DIR"/berusky/"INI_FILE_NAME
-#define INI_FILE_USER      "~/.berusky/"INI_FILE_NAME
-#define INI_FILE_LOCAL     "./"INI_FILE_NAME
-#define DIRECTORY_GET(d)   (d)
-#define FILE_GET(d)        (d)
-#elif WINDOWS
-#define INI_ANAKREON_DIR   0
-#define INI_BERUSKY_DIR    1
-
-#define INI_USER_DIRECTORY 10
-#define INI_USER_LEVELS    11
-#define INI_USER_PROFILES  12
-
-#define INI_FILE_GLOBAL    20
-#define INI_FILE_USER      21
-#define INI_FILE_LOCAL     22
-
-#define DIRECTORY_GET(d)   (windows_dir_get(d))
-#define FILE_GET(d)        (windows_file_get(d))
-#endif
 
 
 #define INI_FILE          (config_file())

@@ -29,18 +29,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include <error.h>
 #include <errno.h>
 #include <stdio.h>
 
 #include "portability.h"
-
-#ifdef LINUX
-#include <sys/wait.h>
-#elif WINDOWS
-#include <stdio.h>
-#include <process.h>
-#endif
+#include "platform.h"
 
 #include "berusky.h"
 #include "berusky_gui.h"
@@ -1003,13 +996,9 @@ void editor_gui::level_new(bool force)
     console.print("new level");
     level.level_new();
 
-    level_name[0] = '\0';
-#ifdef WINDOWS
-    // Windows usualy don't allow to write to current working directory
-    // it may be in C:\\Program Files or so...
-    strcpy(level_name,p_dir->levels_user_get());
-#endif
-    strcat(level_name,DEFAULT_LEVEL_NAME);
+    // New levels go to the user levels directory - the current directory
+    // (or the installation directory) isn't writable everywhere
+    return_path(p_dir->levels_user_get(), DEFAULT_LEVEL_NAME, level_name, MAX_FILENAME);
 
     level_edited_set();
     level_edited_clear();
@@ -1061,7 +1050,8 @@ void editor_gui::level_load(char *p_file, int force)
     undo_store();
   
     // Load given level
-    const char *p_paths[] = { p_dir->levels_user_get(), p_dir->cwd_get(), NULL };
+    // The user levels directory first, then the name as it was given
+    const char *p_paths[] = { p_dir->levels_user_get(), NULL };
   
     bool loaded = level.level_load(p_file,p_paths,sizeof(p_paths)/sizeof(p_paths[0]));
     if(loaded) {
@@ -1108,7 +1098,12 @@ void editor_gui::level_save_as(char *p_file, int force)
   } else if(file[0] != '\0') {
     p_file = file;  
   } else {
-    strncpy(file, p_file, MAX_FILENAME);
+    // A bare file name is saved to the user levels directory
+    if(strpbrk(p_file, "/\\:"))
+      strncpy(file, p_file, MAX_FILENAME);
+    else
+      return_path(p_dir->levels_user_get(), p_file, file, MAX_FILENAME);
+    p_file = file;
   }
 
   if(!force && level.level_exists(p_file)) {
@@ -1571,42 +1566,15 @@ void editor_gui::editor_run_level(void)
   return_path(p_dir->tmp_get(), TMP_LEVEL, filename, MAX_FILENAME);
 
   if(level.level_save(filename)) {
-#ifdef LINUX
-    int pid = fork();
-    if(!pid) {
-      char level_name[MAX_FILENAME];
-      return_path(p_dir->tmp_get(), TMP_LEVEL, level_name, MAX_FILENAME);
-      bprintf("%s -u %s",p_dir->game_binary_get(),level_name);
-      int ret = execlp(p_dir->game_binary_get(),p_dir->game_binary_get(),"-u",level_name,NULL);
-      if(ret == -1) {
-        bprintf("Error: %s",strerror(errno));
-      }      
-    } 
-    else {
-      int status;
-      bprintf("Waiting for %d",pid);
-      waitpid(pid,&status,0);
-      bprintf("Pid %d done",pid);
-    }
-#elif WINDOWS  
+    // The game is this program started with -u <level>
+    const char *p_args[] = { p_dir->game_binary_get(), "-u", filename, NULL };
+
     bprintf("Saved as %s",filename);
-    char level_name[MAX_FILENAME];
-    return_path(p_dir->tmp_get(), TMP_LEVEL, level_name, MAX_FILENAME);
-    bprintf("%s -u %s",p_dir->game_binary_get(),level_name);
+    bprintf("%s -u %s",p_dir->game_binary_get(),filename);
 
-    char game_path[PATH_MAX] = "\"";
-    strcat(game_path, p_dir->game_binary_get());
-    strcat(game_path, "\"");
-
-    char level_path[PATH_MAX] = "\"";
-    strcat(level_path, level_name);
-    strcat(level_path, "\"");
-
-    int ret = _spawnl( _P_WAIT, p_dir->game_binary_get(),game_path,"-u",level_path,NULL);
-    if(ret == -1) {
-      bprintf("Error: %s",strerror(errno));
+    if(!platform_run_and_wait(p_args)) {
+      bprintf("Unable to run the game: %s", SDL_GetError());
     }
-#endif  
   }
 }
 

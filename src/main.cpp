@@ -25,31 +25,42 @@
  *
  */
 #include "portability.h"
-#ifdef LINUX
-#include <gtk/gtk.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#include "platform.h"
 #include "berusky.h"
 #include "berusky_gui.h"
 #include "main.h"
 #include "editor.h"
 
+// SDL3 startup glue (Android / Windows GUI entry points). Must be included
+// in exactly one file - the one with main().
+#include <SDL3/SDL_main.h>
+
 void graphics_generate(void);
 
-/* Time loop - grabbed from SDL documentation */
+/*
+ * Game timing.
+ *
+ * The game simulation runs at a fixed rate (GAME_FPS, 30 Hz) - that's part of
+ * the game's behavior and it is not changed by the SDL3 port. One "tick" is
+ * one call of game_gui::callback(). If the game is late, ticks are run
+ * back to back until it catches up (the same as the original loop).
+ *
+ * Presenting the picture (p_grf->flip()) is separated from the tick in the
+ * graphics backend (video.h), so a higher refresh rate + interpolation can
+ * be added here later without touching the simulation.
+ */
 #define  TICK_INTERVAL    (1000 / GAME_FPS)
 
-static Uint32 next_time;
+static Uint64 next_time;
 
-Uint32 time_left(void)
+Uint64 time_left(void)
 {
-  Uint32 now = SDL_GetTicks();
+  Uint64 now = SDL_GetTicks();
   if(next_time <= now)
     return 0;
   else
@@ -157,7 +168,7 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
 
   start_logo_progress();
   if(gmode == MENU)
-    SDL_Delay(time_left());
+    SDL_Delay((Uint32)time_left());
   
   /* Time loop - grabbed from SDL documentation */
   int global_frame = 0;
@@ -173,7 +184,7 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
           break;
       }
         
-      SDL_Delay(time_left());
+      SDL_Delay((Uint32)time_left());
       next_time += TICK_INTERVAL;
   }  
 
@@ -244,32 +255,23 @@ void run_editor(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
 
 /*
  * Manage a configuration file
+ *
+ * The configuration is always the file in the user data directory
+ * (platform_user_dir()). It's created from the template shipped with the
+ * game data when it's missing (user_directory_create()), so the game can
+ * store its settings even when installed in a read-only location.
  */
 const char * config_file(bool configure)
 {
-  static const char *files[] = { FILE_GET(INI_FILE_LOCAL),
-                                 FILE_GET(INI_FILE_USER),
-                                 FILE_GET(INI_FILE_GLOBAL) 
-                               };
-  static const char *ini_file = NULL;
+  static char ini_file[MAX_FILENAME] = "";
 
   if(configure) {
-    int i;
-    for(i = 0; i < (int)(sizeof(files)/sizeof(files[0])); i++) {
-      bprintfnl(_("Checking config file %s..."),files[i]);
-      if(file_exists(NULL,files[i])) {
-        bprintf("ok");
-        ini_file = files[i];
-        bprintf(_("Selected config file %s"),ini_file);
-        return(ini_file);
-      }
-      else {
-        bprintf("fails");
-      }
+    snprintf(ini_file, sizeof(ini_file), "%s", user_file_get(INI_FILE_NAME));
+    bprintf(_("Selected config file %s"),ini_file);
+    if(!file_exists(NULL, ini_file)) {
+      berror(_("Can't find any configuration file!"));
     }
-    berror(_("Can't find any configuration file!"));
   }
-  bprintf(" ");
   return(ini_file);
 }
 
@@ -283,11 +285,8 @@ int main(int argc, char *argv[])
 
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
-  srand(clock());
-
-#ifdef LINUX
-  gtk_parse_args(&argc, &argv);
-#endif
+  // Regression tests need the same pictures every time (random shading of sprites)
+  srand(SDL_getenv("BERUSKY_TEST_SCRIPT") ? 1 : (unsigned int)clock());
 
   banner();
 
@@ -327,6 +326,7 @@ int main(int argc, char *argv[])
     help(TRUE);
   }
 
+  platform_init(argc > 0 ? argv[0] : NULL);
   user_directory_create();
   config_file(TRUE);
   log_open_ini(INI_FILE);

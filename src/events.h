@@ -33,10 +33,6 @@
 // uncomment for event debugging
 // #define EVENTS_DEBUG 1
 
-#ifdef LINUX
-#include <sys/time.h>
-#endif
-
 /****************************************************************
   Level events - for game level
   
@@ -450,11 +446,13 @@ public:
     params[5] = p5;
   }
 
+  // Integers are stored in the pointer-sized parameter through intptr_t
+  // (see INT_TO_POINTER()), so this is correct on 32 and 64 bit targets
+  // and independent on the byte order.
   int param_int_get(int index)
   {
     assert(index < PARAMS);
-    int *p_tmp = (int *)(params+index);
-    return((int)(*p_tmp));
+    return((int)(intptr_t)(params[index]));
   }
 
   void * param_point_get(int index)

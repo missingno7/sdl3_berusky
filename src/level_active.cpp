@@ -82,7 +82,7 @@ bool level_store::is_subdir(char *p_line, char *p_subdir)
   if(p_line[0] == '#' && !strncmp(p_line, "#subdirectory", 13)) {
     char *p_tmp = is_valid_line(p_line+13);
     if(p_tmp) {
-      strncpy(p_subdir, p_tmp, PATH_MAX);
+      strncpy(p_subdir, p_tmp, MAX_FILENAME);
       return(TRUE);
     }
   }
@@ -96,11 +96,11 @@ bool level_store::levelset_load(DIR_LIST *p_dir_, char *p_script)
   FHANDLE f = file_open(p_dir->gamedata_get(),p_script,"r");
   char *p_start = NULL;
   
-  char tmp[PATH_MAX];
-  char subdir[PATH_MAX] = "";
+  char tmp[MAX_FILENAME];
+  char subdir[MAX_FILENAME] = "";
   int  i,max;
   
-  for(i = 0, max = 0; fgets(tmp,sizeof(tmp),f); i++) {
+  for(i = 0, max = 0; file_gets(tmp,sizeof(tmp),f); i++) {
     if(is_subdir(tmp, subdir)) {
       fgets_correction(subdir);
       strcat(subdir,"/");
@@ -114,11 +114,11 @@ bool level_store::levelset_load(DIR_LIST *p_dir_, char *p_script)
   
   alloc(max);
   
-  fseek(f,0,SEEK_SET);
+  file_rewind(f);
   
   for(i = 0; i < max; i++) {
   
-    while((fgets(tmp,sizeof(tmp),f)) && !(p_start = is_valid_line(tmp)));
+    while((file_gets(tmp,sizeof(tmp),f)) && !(p_start = is_valid_line(tmp)));
     if(!p_start) {
       i--;
       break;
@@ -133,12 +133,16 @@ bool level_store::levelset_load(DIR_LIST *p_dir_, char *p_script)
     strncat(p_list[i].levelname,p_start,sizeof(p_list[i].levelname));
     fgets_correction(p_list[i].levelname);
   
-    while((fgets(tmp,sizeof(tmp),f)) && !(p_start = is_valid_line(tmp)));
-    if(!p_start) // We don't have any password for this level -> error
+    while((file_gets(tmp,sizeof(tmp),f)) && !(p_start = is_valid_line(tmp)));
+    if(!p_start) { // We don't have any password for this level -> error
+      file_close(f);
       return(false);
+    }
     strncpy(p_list[i].password,p_start,sizeof(p_list[i].password));
     fgets_correction(p_list[i].password);
   }
+
+  file_close(f);
 
   levelnum = i;
 
@@ -155,11 +159,7 @@ bool level_store::levelset_search(char *p_passwd, int *p_level)
   if(levelnum) {
     int i;
     for(i = 0; i < levelnum; i++) {
-#ifdef LINUX
-      if(!strncasecmp(p_list[i].password, p_passwd, MAX_PASSWORD)) {
-#elif WINDOWS
-      if(!_strnicmp(p_list[i].password, p_passwd, MAX_PASSWORD)) {
-#endif
+      if(!SDL_strncasecmp(p_list[i].password, p_passwd, MAX_PASSWORD)) {
         *p_level = i;
         return(TRUE);
       }
@@ -308,7 +308,9 @@ changer(&level,p_dir)
   if(p_status->user_get()) {
     bprintf(_("User defined level %s..."),p_name); 
   
-    const char *p_paths[] = { p_dir->levels_user_get(), p_dir->cwd_get(), NULL };
+    // User levels directory first, then the name as it was given
+    // (a path from the command line: "berusky -u level.lv3")
+    const char *p_paths[] = { p_dir->levels_user_get(), NULL };
       
     load = level.level_load(p_name, p_paths, sizeof(p_paths)/sizeof(p_paths[0]));
   }

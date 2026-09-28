@@ -30,6 +30,7 @@
 #include "berusky.h" 
 #include "berusky_gui.h"
 #include "editor.h"
+#include "input_backend.h"
 
 /* KB definitions
 */
@@ -154,10 +155,9 @@ bool key_to_ascii(int key, char *p_char)
 // -------------------------------------------------------------------------
 // Keyboard interface
 // -------------------------------------------------------------------------
-bool input::key_status(int sdl_key)
+bool input::key_status(KEYTYPE key)
 {
-  Uint8 *keystate = SDL_GetKeyState(NULL);
-  return(keystate[sdl_key]);
+  return(key > 0 && key < KEYNUM && key_state[key]);
 }
 
 void input::keyset_set(EVENT_KEY_SET *p_keyset)
@@ -233,6 +233,11 @@ void input::events_game(LEVEL_EVENT_QUEUE *p_queue)
 
 void input::key_input(KEYTYPE key, KEYMOD modification, bool pressed)
 {
+  // Remember the state of all keys - this replaces polling of the SDL 1.2
+  // keyboard state, and it doesn't depend on any physical device
+  if(key > 0 && key < KEYNUM)
+    key_state[key] = pressed;
+
   // check input queue
   if(pressed) {
     input_queue.add(LEVEL_EVENT(GI_KEY_DOWN, (int)key));
@@ -243,103 +248,41 @@ void input::key_input(KEYTYPE key, KEYMOD modification, bool pressed)
   if(!p_set || flag&INPUT_BLOCK_SETS)
     return;
  
-  // Update keyboard imput
-  SDL_PumpEvents();
-  
   EVENT_KEY *p_key = p_set->p_keys;
   int        keynum = p_set->keynum;
   int        i;
 
-  SDLMod mod = SDL_GetModState();
+  bool shift = (modification&K_SHIFT_MASK) != 0;
+  bool ctrl = (modification&K_CTRL_MASK) != 0;
   
-  bool shift = mod&KMOD_SHIFT;
-  bool ctrl = mod&KMOD_CTRL;
-  
-  int    numkeys;
-  byte  *keystate = SDL_GetKeyState(&numkeys);
-
   // Update all key events regard to current keyboard state
   for(i = 0; i < keynum; i++, p_key++) {
-    assert(p_key->key < numkeys);
-    if(keystate[p_key->key] && ctrl == p_key->ctrl && shift == p_key->shift) {
-      //bprintf("p_key = %p, activated, p_key->key = %d, keystate[p_key->key] = %d",p_key,p_key->key,keystate[p_key->key]);
+    assert(p_key->key >= 0 && p_key->key < KEYNUM);
+    if(key_state[p_key->key] && ctrl == p_key->ctrl && shift == p_key->shift) {
       p_key->flag = p_key->flag|KEY_PRESSED;
     }
-    else {
-      //bprintf("p_key = %p, activated, p_key->key = %d, keystate[p_key->key] = %d",p_key,p_key->key,keystate[p_key->key]);
+    else if(!(p_key->flag&KEY_CLEAR_AFTER_PRESS)) {
       p_key->flag = p_key->flag&~KEY_PRESSED;
     }
+    // One-shot keys (KEY_CLEAR_AFTER_PRESS) stay pressed until key_add()
+    // sends their event. This way a very short tap (down + up between two
+    // game ticks - typical for a touch screen) isn't lost.
   }  
 }
 
 void input::events_loop(LEVEL_EVENT_QUEUE *p_queue)
 {
-  // Queue where are stored events captured from KB/Mouse/...
-  SDL_Event event;
-  int ret;
-
   // Clear input queue
   input_queue.clear();
 
-  // Loop until there are no SDL events left on the queue    
-  if(flag&INPUT_EVENT_LOOP_WAIT) {
-    ret = SDL_WaitEvent(&event);    
+  // Read all events from the platform: keyboard, mouse, touch, gamepad...
+  // They call key_input() / mouse_input() of this class.
+  bool quit = input_backend_poll(this, (flag&INPUT_EVENT_LOOP_WAIT) != 0);
+  if(quit) {
+    p_queue->add(LEVEL_EVENT(GC_MENU_QUIT));
+    p_queue->commit();
+    return;
   }
-  else {
-    ret = SDL_PollEvent(&event);
-  }
-
-  while(ret) {
-    switch (event.type) {
-      case SDL_KEYDOWN:
-        //bprintf("SDL_KEYDOWN, sym = %d, mod = %d",event.key.keysym.sym, event.key.keysym.mod);
-        key_input(event.key.keysym.sym, event.key.keysym.mod, TRUE);
-        break;
-      case SDL_KEYUP:
-        //bprintf("SDL_KEYUP, sym = %d, mod = %d",event.key.keysym.sym, event.key.keysym.mod);
-        key_input(event.key.keysym.sym, event.key.keysym.mod, FALSE);
-        break;
-      case SDL_MOUSEMOTION:
-        {
-          bool pressed = FALSE;
-          int  i;
-          for(i = 0; i < MOUSE_BUTTONS; i++) {        
-            bool state = event.motion.state&SDL_BUTTON(i);
-            if(state) {
-              mouse_input(event.motion.x, event.motion.y, BUTTON_DOWN, i);
-              pressed = TRUE;
-            }
-          }
-          if(!pressed) {
-            mouse_input(event.motion.x, event.motion.y, BUTTON_NONE, 0);
-          }
-        }
-        break;
-      case SDL_MOUSEBUTTONDOWN:
-        mouse_input(event.button.x, event.button.y, BUTTON_DOWN, event.button.button);
-        break;
-      case SDL_MOUSEBUTTONUP:
-        mouse_input(event.button.x, event.button.y, BUTTON_UP, event.button.button);
-        break;
-      case SDL_ACTIVEEVENT:
-        if(event.active.state&SDL_APPACTIVE) {
-          if(event.active.gain) {
-            bprintf("App activated\n");
-          } else {
-            bprintf("App iconified\n");
-          }
-        }
-        break;
-      case SDL_QUIT:        
-        p_queue->add(LEVEL_EVENT(GC_MENU_QUIT));
-        p_queue->commit();
-        return;
-      default:
-        break;
-    }
-
-    ret = SDL_PollEvent(&event);
-  }  
 
   // Add all input events
   p_queue->add(&input_queue);
@@ -371,8 +314,6 @@ void input::mouse_input(tpos mx, tpos my, MOUSE_BUTTON_STATE state, int button)
 
   /* Process all events */
   if(!mevents.is_empty()) {  
-    Uint8 *p_keystate = SDL_GetKeyState(NULL);
-  
     MOUSE_EVENT *p_ev = reinterpret_cast<MOUSE_EVENT *>(mevents.list_get_first());
     while(p_ev) {
       bool cond_button = TRUE;
@@ -398,7 +339,7 @@ void input::mouse_input(tpos mx, tpos my, MOUSE_BUTTON_STATE state, int button)
       }
     
       if(p_ev->flag&MEVENT_KEY) {
-        cond_key = p_ev->mstate.key && p_keystate[p_ev->mstate.key];
+        cond_key = p_ev->mstate.key && key_status(p_ev->mstate.key);
       }
           
       if(cond_button && cond_key && cond_area) {
@@ -488,12 +429,7 @@ void input::block(bool state)
 
 void input::key_repeat(bool state)
 {
-  if(state) {
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
-  }
-  else {
-    SDL_EnableKeyRepeat(0,0);
-  }
+  key_repeat_enabled = state;
 }
 
 void input::events_wait(bool state)
