@@ -263,7 +263,7 @@ independent pixels; MSVC and MinGW GCC builds give identical results.
 | 08_menus | settings: fullscreen, integer scaling, menu photos, filter cycling at run time |
 | 09_editor, 18_editor_run | editor at 1280x900 and 1600x1125, placing items, "run level" in a child process |
 | 10_user_level | `-u level` |
-| 12_touch | touch menus, on-screen controls, finger -> logical mapping in a wide window |
+| 12_touch, 22_touch_hud | touch menus, swipes (one step, queued steps, walk on, turn), MENU button, a tap / click on a bug in the top panel |
 | 13_widescreen | 16:9, 21:9 and tall windows; identical layout |
 | 14_filters | nearest / linear / pixelart / scale2x / legacy2x / xbrz fallback; integer render resolution presented with linear and nearest |
 | 15_density | mixed 1x + genuine 2x art (`tests/levels/mixed_density.lv3`; no shipped level uses the 2x art) at 1x, 2x, 4x; diagnostics overlay |
@@ -287,9 +287,8 @@ resolutions. Visual regression: hashes per render configuration.
   touch controls and Home -> return work. Found and fixed there: SDL rotated
   the resizable window to portrait (landscape hint + fullscreen on mobile), the
   one present after resuming came before the new surface was ready (a short
-  repaint burst), taps shorter than a tick were lost (minimum hold). Not yet
-  run on a physical device; the touch controls overlap the picture a little on
-  20:9 screens.
+  repaint burst), taps shorter than a tick were lost (minimum hold). Walking
+  is by swipes, only RESET / MENU are buttons (top right).
 * **xBRZ** is not built in (license and size); the slot exists.
 * Only SDL's software renderer is pixel-tested. GPU backends were checked
   visually (Direct3D 11: nearest / linear / pixelart / scale2x) and benchmarked.

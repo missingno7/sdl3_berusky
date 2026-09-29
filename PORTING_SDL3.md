@@ -70,9 +70,13 @@ game / core code (unchanged game logic, animation, levels, menus, sprite store)
   `key_input()` with neutral keys. `KEY_CLEAR_AFTER_PRESS` / held-key
   semantics are unchanged (a one-shot key also survives a tap shorter than one
   tick).
-* **Touch** – `touch_controls.*`: on-screen D-pad, next player, player 1-5,
-  restart, menu, drawn as an overlay in window pixels (`video.cpp`) while a
-  level is played; a finger on a control = a neutral key press. Any other
+* **Touch** – `touch_controls.*`, while a level is played: a swipe anywhere
+  is one step (the arrow key is held until the game took the move, so swipes
+  made while the bug walks are queued), a swipe with the finger kept down
+  walks on until it's lifted (and turns with the finger), an indicator shows
+  `>` / `>>`. RESET and MENU buttons are drawn as an overlay in window pixels
+  (`video.cpp`). A tap is a click: a click on a bug in the top panel selects
+  it (`input::mouse_input()`, also with the mouse). Outside of a level a
   finger is converted window -> logical game coordinates and drives the
   existing mouse/menu system. On by default on Android/iOS
   (`touch_controls = yes|no|auto`).

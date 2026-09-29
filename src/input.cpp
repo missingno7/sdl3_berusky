@@ -204,8 +204,10 @@ void input::key_add(LEVEL_EVENT_QUEUE *p_queue)
       if(p_key->e2.valid())
         p_queue->add(LEVEL_EVENT(p_key->e2));
       
-      if(p_key->flag&KEY_GROUP_BLOCK)
+      if(p_key->flag&KEY_GROUP_BLOCK) {
         group |= p_key->group;
+        group_events_sent++;
+      }
 
       if(p_key->flag&KEY_CLEAR_AFTER_PRESS)
         p_key->flag &= ~KEY_PRESSED;
@@ -313,6 +315,18 @@ void input::mouse_input(tpos mx, tpos my, MOUSE_BUTTON_STATE state, int button)
 
   if(state != NO_BUTTON && button < MOUSE_BUTTONS) {
     mstate.button[button] = state;
+  }
+
+  // In a level a click on a bug in the top panel selects it (as keys 1-5)
+  if(p_set == &game_keys && state == BUTTON_DOWN && button == BUTTON_LEFT) {
+    for(int i = 0; i < MAX_PLAYERS; i++) {
+      RECT r = top_panel_player_rect(i);
+      if(in_rect(r, mx, my)) {
+        input_queue.add(LEVEL_EVENT(GL_PLAYER_SWITCH, i, 0));
+        input_queue.commit();
+        break;
+      }
+    }
   }
 
   /* Process all events */

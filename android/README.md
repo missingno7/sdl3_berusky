@@ -19,9 +19,15 @@ The game is the same code as the desktop build:
   `SDL_IOFromFile()`; the asset root is empty on Android (`src/platform.cpp`).
 * Writable data (config, profiles, user levels) is in the app storage
   (`SDL_GetPrefPath`).
-* Touch: on-screen controls while playing (`src/touch_controls.cpp`, on by default
-  on Android), menus by direct touch (fingers -> logical game coordinates).
-  The Android back button is the Escape key.
+* Touch (`src/touch_controls.h`, on by default on Android), while playing:
+  * swipe = one step; swipe and keep the finger down = walk on until it's
+    lifted (move the held finger to turn). An indicator shows `>` for a step
+    and `>>` for walking. Swipes made while the bug still walks are queued.
+  * tap a bug in the top panel = select it (unavailable ones do nothing).
+  * RESET and MENU buttons in the top-right corner.
+
+  Menus by direct touch (fingers -> logical game coordinates). The Android
+  back button is the Escape key.
 * The same renderer as on the desktop (`docs/RENDERER.md`): the scene is
   rendered at the screen's resolution, the 4:3 composition is centered on a
   wide screen, touch controls use the free space beside it.
@@ -40,11 +46,8 @@ cd android
 
 * Checked on the emulator: start-up from packaged assets, the renderer at the
   screen's resolution (GLES2, 1440x1080 viewport = scale 2.25, pixelart
-  filter), landscape lock + immersive fullscreen, menus by touch, the on-screen
-  controls (also very short taps), Home -> return (the scene is presented
-  again). Not tested on a physical device.
-* The on-screen controls overlap the picture slightly on 20:9 phones (the
-  free space beside the 4:3 composition is narrower than the D-pad); their
-  layout wasn't redesigned for the side areas yet.
+  filter), landscape lock + immersive fullscreen, menus by touch, Home ->
+  return (the scene is presented again). The swipe controls are tested with
+  injected finger events (`tests/scripts/12_touch.txt`, `22_touch_hud.txt`).
 * Text input (profile names) needs `SDL_StartTextInput` / `SDL_EVENT_TEXT_INPUT`.
 * No app icon of its own (SDL's default).

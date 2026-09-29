@@ -186,11 +186,32 @@ static void finger_event(INPUT *p_input, SDL_Event *p_event)
   const float wx = p_event->tfinger.x * ww;
   const float wy = p_event->tfinger.y * wh;
   const float density = p_video->pixel_density();
+  const SDL_FingerID id = p_event->tfinger.fingerID;
 
-  // A finger on a control (window pixels)
-  if(touch.finger_event(p_input, p_event, wx * density, wy * density)) {
-    p_video->repaint_request();
-    return;
+  // Controls and swipes in a level (window pixels). The pointer finger
+  // stays the pointer (it went down in a menu that started the level).
+  if(!(pointer_finger_active && pointer_finger == id)) {
+    float tap_x, tap_y;
+    switch(touch.finger_event(p_input, p_event, wx * density, wy * density, &tap_x, &tap_y)) {
+      case TOUCH_USED:
+        p_video->repaint_request();
+        return;
+      case TOUCH_TAP:
+        {
+          // A click there (a bug in the top panel selects it)
+          float lx, ly;
+          if(p_video->window_to_logical(tap_x / density, tap_y / density, &lx, &ly)) {
+            const tpos x = pointer_coord(lx), y = pointer_coord(ly);
+            p_input->mouse_input(x, y, BUTTON_NONE, 0);
+            p_input->mouse_input(x, y, BUTTON_DOWN, BUTTON_LEFT);
+            p_input->mouse_input(x, y, BUTTON_UP, BUTTON_LEFT);
+          }
+          p_video->repaint_request();
+        }
+        return;
+      default:
+        break;
+    }
   }
 
   // Any other finger works as the mouse in logical game coordinates
@@ -198,7 +219,6 @@ static void finger_event(INPUT *p_input, SDL_Event *p_event)
   if(!p_video->window_to_logical(wx, wy, &lx, &ly))
     return;
   const tpos x = pointer_coord(lx), y = pointer_coord(ly);
-  const SDL_FingerID id = p_event->tfinger.fingerID;
 
   switch(p_event->type) {
     case SDL_EVENT_FINGER_DOWN:
@@ -348,9 +368,7 @@ bool input_backend_poll(class input *p_input_, bool wait)
 
   // Touch controls are shown while a level is played
   {
-    bool was_visible = touch.visible();
-    touch.update(p_input);
-    if(was_visible != touch.visible() && p_grf)
+    if(touch.update(p_input) && p_grf)
       p_grf->video_get()->repaint_request();
   }
 

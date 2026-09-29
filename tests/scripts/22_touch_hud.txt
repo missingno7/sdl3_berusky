@@ -1,0 +1,24 @@
+# args: -u tests/levels/audio_events.lv3
+# env: BERUSKY_TOUCH_CONTROLS=1
+# Touch: a tap on a bug in the top panel selects it (bugs 1 and 2 are in
+# the level, a tap on bug 3 does nothing), a tap in the level does nothing.
+# The mouse does the same - a click on bug 1 at the end.
+wait 60
+window 1000 600
+wait 10
+touch down 1 168 20
+touch up 1 168 20
+wait 5
+shot hud_bug2.bmp
+touch down 1 268 20
+touch up 1 268 20
+wait 5
+touch down 1 320 300
+touch up 1 320 300
+wait 5
+shot hud_bug2_still.bmp
+click 70 20
+wait 5
+shot hud_bug1.bmp
+audiolog hud_audio.txt
+quit

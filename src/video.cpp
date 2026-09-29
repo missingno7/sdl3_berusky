@@ -497,9 +497,11 @@ void video_backend::window_size(int *p_width, int *p_height)
 float video_backend::pixel_density(void)
 {
   int ww = 0, wh = 0, ow = 0, oh = 0;
-  if(!p_window || !p_renderer)
+  if(!p_window)
     return(1.0f);
   SDL_GetWindowSize(p_window, &ww, &wh);
-  SDL_GetRenderOutputSize(p_renderer, &ow, &oh);
+  // Not SDL_GetRenderOutputSize(): the software renderer gives the size
+  // of a render target there while one is set (a scene capture)
+  SDL_GetWindowSizeInPixels(p_window, &ow, &oh);
   return(ww > 0 ? (float)ow / (float)ww : 1.0f);
 }

@@ -373,6 +373,8 @@ typedef class input {
   bool              key_state[KEYNUM]; // neutral keys held right now
   bool              key_repeat_enabled;
 
+  unsigned int      group_events_sent; // events sent by keys of a group (moves)
+
 private:
 
   void key_block(int group_mask, bool block);
@@ -381,7 +383,8 @@ private:
   
 public:
   
-  input(void) : p_set(NULL), group(0), flag(0), key_repeat_enabled(false)
+  input(void) : p_set(NULL), group(0), flag(0), key_repeat_enabled(false),
+                group_events_sent(0)
   {
     memset(key_state, 0, sizeof(key_state));
   };
@@ -413,6 +416,13 @@ public:
   // modification is a bit mask of K_xxx_MASK modifiers that are held.
   void key_input(KEYTYPE key, KEYMOD modification, bool pressed);
   void key_add(LEVEL_EVENT_QUEUE *p_queue);
+
+  // Grows whenever a held key of a group (a move) sent its event - a key
+  // can be held just until the game took it (touch swipes)
+  unsigned int group_events_sent_get(void)
+  {
+    return(group_events_sent);
+  }
 
   // Mouse interface
   void mouse_input(tpos mx, tpos my, MOUSE_BUTTON_STATE state, int button);

@@ -448,6 +448,16 @@ bool level_game::player_switch(int num)
   y_centre = PANEL_YOFFSET
 */
 
+RECT top_panel_player_rect(int num)
+{
+  RECT r;
+  r.x = PANEL_X_OFFSET + (num * PANEL_DIFF) - PANEL_X_SIZE;
+  r.y = 0;
+  r.w = PANEL_X_SIZE_2;
+  r.h = PANEL_Y_SIZE;
+  return(r);
+}
+
 void level_game::top_panel_player_draw(int num, bool redraw)
 {
   PLAYER *p_player = players+num;

@@ -793,6 +793,10 @@ public:
 
 } LEVEL_STATUS;
 
+// The picture of a bug in the top panel (screen coordinates). A click on it
+// selects the bug.
+RECT top_panel_player_rect(int num);
+
 /***********************************************************************
    Derived level interface for game
   **********************************************************************
