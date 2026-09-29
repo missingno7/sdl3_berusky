@@ -27,7 +27,7 @@ Release packages:
   Native Tools Command Prompt for VS" builds `build-release/` (Release, GUI
   application, static C/C++ runtime and SDL - only Windows' own DLLs are
   needed) and makes `dist/berusky-<version>-<suffix>-windows-x64.zip`
-  (`berusky.exe`, `data/`, `COPYING`, `README.txt`).
+  (`berusky.exe`, `data/`, `COPYING.txt`, `README.txt`).
 * Android: `./gradlew assembleRelease` in `android/`, signed when
   `android/keystore.properties` exists (see `android/README.md`).
 

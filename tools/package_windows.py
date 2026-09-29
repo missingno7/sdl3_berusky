@@ -13,7 +13,7 @@ runtime and SDL linked in statically - it needs nothing installed. The zip
 
     berusky.exe
     data/        GameData, Graphics, Levels, Music, Sound, berusky.ini
-    COPYING
+    COPYING.txt
     README.txt
 """
 import argparse
@@ -35,7 +35,7 @@ README = """Berusky {version} - SDL3 port for Windows
 
 Berusky is a logic game: guide the five bugs through the levels, collect
 five keys and reach the exit. Originally by AnakreoN (1997-2012),
-http://www.anakreon.cz/ - GPL v2 (see COPYING).
+http://www.anakreon.cz/ - GPL v2 (see COPYING.txt).
 
 Run berusky.exe. Nothing has to be installed; keep the data folder next to
 the executable.
@@ -100,7 +100,8 @@ def main():
                         ignore=shutil.ignore_patterns("Makefile*"))
     for f in DATA_FILES:
         shutil.copy2(os.path.join(ROOT, "data", f), os.path.join(stage, "data"))
-    shutil.copy2(os.path.join(ROOT, "COPYING"), stage)
+    # the GPL text (COPYING at the top of the tree is a dangling automake link)
+    shutil.copy2(os.path.join(ROOT, "data", "Windows", "COPYING.TXT"), os.path.join(stage, "COPYING.txt"))
     with open(os.path.join(stage, "README.txt"), "w", encoding="utf-8", newline="\r\n") as f:
         f.write(README.format(version=version))
 
