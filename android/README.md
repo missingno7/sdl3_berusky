@@ -7,10 +7,10 @@ device yet.
 The game is the same code as the desktop build:
 
 * Sound and music (`../docs/AUDIO.md`): SDL3 audio streams, libxmp-lite is
-  built into `libmain.so` by the same CMake (downloaded like SDL). The native
-  library was cross-compiled for arm64-v8a (NDK 27); the APK with audio was
-  not run yet, and what happens to the audio in the background is left to
-  SDL (not checked).
+  built into `libmain.so` by the same CMake (downloaded like SDL; linked with
+  `liblog`, which the debug libxmp build logs to). The debug APK starts on the
+  emulator with the audio device open (AAudio) and loads the modules; what
+  happens to the audio in the background is left to SDL (not checked).
 * `../CMakeLists.txt` builds `libmain.so` (`src/main.cpp` + `berusky_core`) and
   SDL3 / SDL3_image as shared libraries (downloaded by CMake). The editor is
   not built (`-DBERUSKY_ENABLE_EDITOR=OFF`).

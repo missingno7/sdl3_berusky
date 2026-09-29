@@ -114,3 +114,7 @@ endif()
 
 add_library(berusky_xmp INTERFACE)
 target_link_libraries(berusky_xmp INTERFACE ${BERUSKY_XMP_TARGET})
+if(ANDROID)
+  # A debug libxmp build logs through __android_log_print
+  target_link_libraries(berusky_xmp INTERFACE log)
+endif()
