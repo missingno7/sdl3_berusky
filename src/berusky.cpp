@@ -200,21 +200,18 @@ char * berusky::levelset_get_passwd(int level)
 
 char * berusky::levelset_get_difficulty(void)
 {
-  static char *p_name_table[LEVEL_SET_NUM] = {NULL,NULL,NULL,NULL,NULL,NULL};
+  static const char *p_name_table[LEVEL_SET_NUM] = {
+    N_("training"),
+    N_("easy"),
+    N_("intermediate"),
+    N_("advanced"),
+    N_("impossible"),
+    N_("user set")
+  };
 
-  if(!p_name_table[0]) {
-    p_name_table[0] = _("training");
-    p_name_table[1] = _("easy");
-    p_name_table[2] = _("intermediate");
-    p_name_table[3] = _("advanced");
-    p_name_table[4] = _("impossible");
-    p_name_table[5] = _("user set");
-  }
+  assert(state.level_set >= 0 && state.level_set < LEVEL_SET_NUM);
 
-  assert(state.level_set < (int)(sizeof(p_name_table)));
-  assert(state.level_set < LEVEL_SET_NUM);
-
-  return(p_name_table[state.level_set]);
+  return(_(p_name_table[state.level_set]));
 }
 
 char * berusky::levelset_get_name(void)
@@ -281,7 +278,7 @@ void berusky::level_restart(LEVEL_EVENT_QUEUE *p_queue)
 {
   level_stop(p_queue);
   if(!level_play(p_queue, state.level_num)) {
-    bprintf(_("Unable to restart level %d!"),state.level_num);
+    bprintf("Unable to restart level %d!",state.level_num);
   }
 }
 

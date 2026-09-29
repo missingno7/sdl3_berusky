@@ -308,6 +308,8 @@ typedef class dir_list {
   char levels_user[MAX_FILENAME];   // writable:  user levels
   char gamedata[MAX_FILENAME];      // read-only: game data
   char graphics[MAX_FILENAME];      // read-only: sprites
+  char sound[MAX_FILENAME];         // read-only: sound effects
+  char music[MAX_FILENAME];         // read-only: music
   char tmp[MAX_FILENAME];           // writable:  temporary files (editor)
   char game_binary[MAX_FILENAME];   // this executable (editor <-> game)
 
@@ -319,6 +321,8 @@ public:
     levels_user[0] = '\0';
     gamedata[0] = '\0';
     graphics[0] = '\0';
+    sound[0] = '\0';
+    music[0] = '\0';
     tmp[0] = '\0';
     game_binary[0] = '\0';
   }
@@ -349,6 +353,16 @@ public:
   char * graphics_get(void)
   {
     return(graphics);
+  }
+
+  char * sound_get(void)
+  {
+    return(sound);
+  }
+
+  char * music_get(void)
+  {
+    return(music);
   }
 
   char * tmp_get(void)

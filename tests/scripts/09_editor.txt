@@ -18,6 +18,11 @@ click 440 400
 wait 5
 shot editor_placed_hires.bmp
 layoutshot editor_placed.txt
+# over a side menu item and away (menu events of the editor)
+move 900 705
+wait 5
+move 400 300
+wait 5
 # the level isn't saved: "exit anyway?" - yes
 key esc
 wait 5

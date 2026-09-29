@@ -276,6 +276,15 @@ private:
   #define HIGHLIGHT_GROUP_NONE  0
   int         highlight_group_next;
 
+  /* Menu sounds: every item has a number, the "move" sound plays when
+     another item gets highlighted (MENU.C did the same) */
+  int         menu_item_next;
+  int         menu_item_highlighted;
+
+  int         menu_item_id_new(void) { return(menu_item_next++); }
+  LEVEL_EVENT menu_highlight_event(int item);
+  void        menu_click_sound_add(RECT *p_rect, int state);
+
 public:
 
   gui_base(void);

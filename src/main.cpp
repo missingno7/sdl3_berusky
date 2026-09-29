@@ -70,19 +70,19 @@ Uint64 time_left(void)
 void banner(void)
 {
   printf(_("Berusky v.%s (C) Anakreon 2006, http://www.anakreon.cz/\n"),VERSION);
-  printf(_("This is free software; see the source for copying conditions.\n"));
-  printf(_("There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"));
+  fputs(_("This is free software; see the source for copying conditions.\n"), stdout);
+  fputs(_("There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"), stdout);
   printf(_("Built %s, %s\n\n"),__DATE__,__TIME__);
 }
 
 void help(bool error)
 {
   if(error)
-    printf(_("Bad command line argument(s)!\n\n"));
+    fputs(_("Bad command line argument(s)!\n\n"), stdout);
   
-  printf(_("Using: berusky [-e [level.lv3]] [-u level.lv3]\n\n"));
-  printf(_("  -e [level.lv3]       -run level editor\n"));
-  printf(_("  -u  level.lv3        -run level\n"));
+  fputs(_("Using: berusky [-e [level.lv3]] [-u level.lv3]\n\n"), stdout);
+  fputs(_("  -e [level.lv3]       -run level editor\n"), stdout);
+  fputs(_("  -u  level.lv3        -run level\n"), stdout);
 /* TODO - not implemented yet
   printf(_("  -d  level.dm         -run demo.dm\n"));
 */  
@@ -128,6 +128,9 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
   ITEM_REPOSITORY repo;
   repository_load(&repo, p_dir);
   start_logo_progress();
+
+  /* Sound effects and music */
+  audio.init(INI_FILE, p_dir->sound_get(), p_dir->music_get());
 
   /* Load GUI */
   GAME_GUI *p_gui = new GAME_GUI(&repo, p_dir);
@@ -179,7 +182,10 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
         if(!status)
           break;
       }
-        
+
+      // Sounds are cut and delayed music started on the game tick
+      audio.tick();
+
       SDL_Delay((Uint32)time_left());
       next_time += TICK_INTERVAL;
   }  
@@ -189,10 +195,13 @@ void run_game(GAME_MODE gmode, char *p_garg, DIR_LIST *p_dir)
   graphics_game_free();
   graphics_logos_free();
 
-  /* Clean up */  
+  /* Clean up */
   delete p_gui;
 
-  /* Graphics stop */  
+  /* Audio before SDL goes */
+  audio.shutdown();
+
+  /* Graphics stop */
   graphics_stop();
 
   /* Game over */
@@ -271,7 +280,7 @@ const char * config_file(bool configure)
 
   if(configure) {
     snprintf(ini_file, sizeof(ini_file), "%s", user_file_get(INI_FILE_NAME));
-    bprintf(_("Selected config file %s"),ini_file);
+    bprintf("Selected config file %s",ini_file);
     if(!file_exists(NULL, ini_file)) {
       berror(_("Can't find any configuration file!"));
     }
@@ -291,6 +300,14 @@ int main(int argc, char *argv[])
   setbuf(stderr, NULL);
   // Regression tests need the same pictures every time (random shading of sprites)
   srand(SDL_getenv("BERUSKY_TEST_SCRIPT") ? 1 : (unsigned int)clock());
+
+  // The configuration (and the language) first - the messages below are
+  // translated
+  platform_init(argc > 0 ? argv[0] : NULL);
+  user_directory_create();
+  config_file(TRUE);
+  log_open_ini(INI_FILE);
+  lang_config_load(INI_FILE);
 
   banner();
 
@@ -329,11 +346,6 @@ int main(int argc, char *argv[])
   else {
     help(TRUE);
   }
-
-  platform_init(argc > 0 ? argv[0] : NULL);
-  user_directory_create();
-  config_file(TRUE);
-  log_open_ini(INI_FILE);
 
   DIR_LIST dir;
   dir.load(INI_FILE);
@@ -404,8 +416,8 @@ void start_logo_progress(int steps)
 
 bool repository_load(ITEM_REPOSITORY *p_repo, DIR_LIST *p_dir)
 {
-  bprintf(_("Data dir '%s'"),p_dir->gamedata_get());
-  bprintf(_("Loading items repository...."));
+  bprintf("Data dir '%s'",p_dir->gamedata_get());
+  bprintf("Loading items repository....");
 
   bool loaded = p_repo->load("items.dat", "items_animation.dat", p_dir->gamedata_get());
   if(!loaded) {

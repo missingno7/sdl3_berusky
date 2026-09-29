@@ -581,7 +581,7 @@ spr_handle sprite_store::sprite_insert(const char *p_file, spr_handle first, spr
       surf_handle s_handle = surface_insert(filename, density, zoom);
       p_surf = surface_get(s_handle);
       if(!p_surf->is_loaded()) {
-        berror("Can't load surface %s",filename);
+        berror(_("Can't load surface %s"),filename);
       }
       // The color key of the whole sheet
       SPRITE tmp(p_surf);
@@ -690,7 +690,7 @@ void graph_2d::screen_create(int flag, int width, int height, int bpp, int fulls
 {
   // (flag, bpp) are relics of SDL_SetVideoMode()
   if(!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
-    berror("Unable to init SDL video: %s", SDL_GetError());
+    berror(_("Unable to init SDL video: %s"), SDL_GetError());
   }
 
   graphics_fullscreen = fullscreen;
@@ -797,11 +797,17 @@ bool font_lookup_table::load(char *p_file)
   FHANDLE f = file_open(surface::graphics_dir_get(),p_file,"r");
   
   memset(position,0,sizeof(position));
-  
+  for(int i = 0; i < ACCENT_NUM; i++)
+    accent[i] = -1;
+
   int pos = 0;
+  int accents = ACCENT_NONE;
   char line[10];
   while(file_gets(line,10,f)) {
     position[toupper(line[0])] = position[tolower(line[0])] = pos;
+    // caron, acute, ring - in this order
+    if(line[0] == '^' && accents+1 < ACCENT_NUM)
+      accent[++accents] = pos;
     pos++;
   }
 
@@ -843,8 +849,48 @@ bool font_info::load(int font_index, int first, int num)
 }
 
 void font_info::free(void)
-{ 
+{
   p_grf->sprite_delete(font_sprite_first, font_sprite_num);
+}
+
+bool font_info::glyph_get(unsigned ch, spr_handle *p_base, spr_handle *p_accent)
+{
+  *p_accent = FONT_NO_ACCENT;
+
+  if(ch == '\r')
+    return(FALSE);
+
+  ACCENT accent_type;
+  int base = glyph_decompose(ch, &accent_type);
+
+  *p_base = font_sprite_first+ftable.lookup(base & 0xff);
+
+  int accent = ftable.accent_lookup(accent_type);
+  if(accent >= 0)
+    *p_accent = font_sprite_first+accent;
+
+  return(TRUE);
+}
+
+// The accent glyphs are drawn this much higher than the letter so they sit
+// above the capitals (the font has capitals only)
+#define ACCENT_LIFT 1
+
+tpos font_info::print(unsigned ch, tpos px, tpos py, bool draw)
+{
+  spr_handle base, accent;
+  if(!glyph_get(ch, &base, &accent))
+    return(0);
+
+  tpos width = p_grf->sprite_get_width(base);
+  if(draw) {
+    p_grf->draw(base, px, py);
+    if(accent != FONT_NO_ACCENT) {
+      tpos ax = px + (width - p_grf->sprite_get_width(accent)) / 2;
+      p_grf->draw(accent, ax, py - ACCENT_LIFT);
+    }
+  }
+  return(width);
 }
 // -------------------------------------------------------
 //   the font_info interface
@@ -894,6 +940,10 @@ void font::print(char *p_string, RECT *p_res, int lines)
         break;
       case MENU_CENTER:
         px = (width_screen - width_string) / 2;
+        // A line wider than the screen (some English ending texts) starts
+        // at the left edge and is cut on the right
+        if(px < 0)
+          px = 0;
         break;
       case MENU_RIGHT:
         px -= width_string;
@@ -909,10 +959,12 @@ void font::print(char *p_string, RECT *p_res, int lines)
       //bprintf("after print - [%d %d] -> [%d %d]",p_res->x,p_res->y,p_res->w,p_res->h);
     }
   
-    while(*p_tmp) {
-      px += p_font->print(*p_tmp,px,py,!try_run);
-      p_tmp++;
+    const char *p_char = p_tmp;
+    unsigned ch;
+    while((ch = utf8_next(&p_char))) {
+      px += p_font->print(ch,px,py,!try_run);
     }
+    p_tmp += strlen(p_tmp);
  
     if(p_nl) {
       new_line();

@@ -117,7 +117,7 @@ void game_gui::level_set_select(int level_set)
 {
   bool ret = p_ber->levelset_load(level_set);
   if(!ret) {
-    berror("Unable to load levelset %d\n",level_set);
+    berror(_("Unable to load levelset %d"),level_set);
     return;
   }
   profile.level_set_set(level_set);
@@ -175,12 +175,12 @@ void game_gui::menu_main(MENU_STATE state, size_ptr data, size_ptr data1)
       
         p_grf->draw(MENU_SPRIT_LOGO,(GAME_RESOLUTION_X-width)/2, LOGO_START);
 
-        static char *new_game = _("play");
-        static char *profiles = _("change profile");
-        static char *settings = _("settings");
-        static char *help = _("help");
-        static char *editor = _("editor");
-        static char *quit = _("quit");
+        char *new_game = _("play");
+        char *profiles = _("change profile");
+        char *settings = _("settings");
+        char *help = _("help");
+        char *editor = _("editor");
+        char *quit = _("quit");
 
         p_font->select(FONT_DEFAULT);
 
@@ -258,13 +258,13 @@ void game_gui::menu_new_game(MENU_STATE state, size_ptr data, size_ptr data1)
         p_font->start_set(0, MENU_Y_START - 50);
         p_font->print(_("Choose your level map:"));
       
-        static char *training      = _("training");
-        static char *easy          = _("easy");
-        static char *intermediate  = _("intermediate");
-        static char *advanced      = _("advanced");
-        static char *impossible    = _("impossible");
-        static char *user_levels   = _("user levels");
-        static char *back          = _("back");
+        char *training      = _("training");
+        char *easy          = _("easy");
+        char *intermediate  = _("intermediate");
+        char *advanced      = _("advanced");
+        char *impossible    = _("impossible");
+        char *user_levels   = _("user levels");
+        char *back          = _("back");
       
         menu_item_set_pos(MENU_X_START, MENU_Y_START);
         
@@ -337,7 +337,7 @@ void game_gui::menu_profiles(MENU_STATE state, size_ptr data, size_ptr data1)
         #define MENU_Y_START (INSERT_START+70)
         #define MENU_Y_DIFF  35
 
-        static char *create = _("create");
+        char *create = _("create");
 
         menu_item_start();
         menu_item_draw(MENU_X_START, MENU_Y_START, create, MENU_LEFT, FALSE, 
@@ -372,7 +372,7 @@ void game_gui::menu_profiles(MENU_STATE state, size_ptr data, size_ptr data1)
         }
 
         #define MENU_BACK_Y_START (GAME_RESOLUTION_Y - 40)
-        static char *back = _("back");
+        char *back = _("back");
         menu_item_draw(MENU_X_START, MENU_BACK_Y_START, back, MENU_LEFT, FALSE, LEVEL_EVENT(GI_MENU_BACK_POP));
       
         p_grf->redraw_add(0, 0, GAME_RESOLUTION_X, GAME_RESOLUTION_Y);
@@ -483,11 +483,11 @@ void game_gui::menu_help(MENU_STATE state, size_ptr data, size_ptr data1)
 
         bool from_game = (bool)data;
 
-        static char *hint    = _("level hint");
-        static char *keys    = _("game controls");
-        static char *rules   = _("game rulez");
-        static char *credits = _("authors");
-        static char *back    = _("back");
+        char *hint    = _("level hint");
+        char *keys    = _("game controls");
+        char *rules   = _("game rulez");
+        char *credits = _("authors");
+        char *back    = _("back");
 
         menu_item_set_pos(MENU_X_START, MENU_Y_START);
         menu_item_set_diff(MENU_X_DIFF, MENU_Y_DIFF);
@@ -553,18 +553,21 @@ void game_gui::menu_settings(MENU_STATE state, size_ptr data, size_ptr data1)
       
         bool from_game = (bool)data;
       
-        static char *fulscreen = _("fulscreen");
-        static char *integer = _("integer scaling");
-        static char *photos = _("menu photos");
+        char *fulscreen = _("fulscreen");
+        char *integer = _("integer scaling");
+        char *photos = _("menu photos");
         static char  filter[100];
+        // The DOS settings menu: "Zvuky" and "Hudba" (sound, music) with
+        // their volumes
+        char *sound = _("sound");
+        char *music = _("music");
+        static char  language[100];
 
         const RENDER_SETTINGS &render = p_grf->video_get()->settings_get();
         snprintf(filter, sizeof(filter), _("graphics filter: %s"),
                  asset_scaler_name(asset_scaler_effective(render.asset_scaler)));
-/*      
-        static char *sound = _("sound");
-        static char *music = _("music");
-*/
+        snprintf(language, sizeof(language), _("language: %s"), lang_name(lang_get()));
+
         menu_item_set_pos(MENU_X_START, MENU_Y_START);
         menu_item_set_diff(MENU_X_DIFF, MENU_Y_DIFF);
 
@@ -581,17 +584,40 @@ void game_gui::menu_settings(MENU_STATE state, size_ptr data, size_ptr data1)
         // Clicking cycles the filters
         menu_item_draw(filter, MENU_LEFT, FALSE,
                        LEVEL_EVENT(GC_MENU_SETTINGS_FILTER_NEXT, from_game));
-/*
-        menu_item_draw_checkbox(sound, MENU_LEFT, p_ber->sound.sound_on, 1,
+        menu_item_draw_checkbox(sound, MENU_LEFT, audio.sound_enabled(), 3, 0,
                                 LEVEL_EVENT(GC_MENU_SETTINGS_SOUND_SWITCH));
-        menu_item_draw_checkbox(music, MENU_LEFT, p_ber->sound.music_on, 2,
+        menu_item_draw_checkbox(music, MENU_LEFT, audio.music_enabled(), 4, 0,
                                 LEVEL_EVENT(GC_MENU_SETTINGS_MUSIC_SWITCH));
-*/
-        static char *back = _("back");
-                
+        // Clicking switches to the next language
+        menu_item_draw(language, MENU_LEFT, FALSE,
+                       LEVEL_EVENT(GC_MENU_SETTINGS_LANGUAGE_NEXT, from_game));
+
+        // Volumes: "-  86 %  +" next to the check boxes
+        #define VOLUME_X       (GAME_RESOLUTION_X/2 + 80)
+        #define VOLUME_VALUE_X (VOLUME_X + 30)
+        #define VOLUME_PLUS_X  (VOLUME_X + 130)
+        #define VOLUME_Y(line) (MENU_Y_START + (line)*MENU_Y_DIFF - 1)
+        #define VOLUME_STEP    10
+
+        p_font->select(FONT_DEFAULT);
+        p_font->alignment_set(MENU_LEFT);
+        p_font->print(NULL, VOLUME_VALUE_X, VOLUME_Y(4), "%d %%", audio.sound_volume());
+        p_font->print(NULL, VOLUME_VALUE_X, VOLUME_Y(5), "%d %%", audio.music_volume());
+
+        menu_item_draw_text(VOLUME_X, VOLUME_Y(4), (char *)"-", MENU_LEFT, 0,
+                            LEVEL_EVENT(GC_MENU_SETTINGS_SOUND_VOLUME, -VOLUME_STEP, from_game));
+        menu_item_draw_text(VOLUME_PLUS_X, VOLUME_Y(4), (char *)"+", MENU_LEFT, 0,
+                            LEVEL_EVENT(GC_MENU_SETTINGS_SOUND_VOLUME, VOLUME_STEP, from_game));
+        menu_item_draw_text(VOLUME_X, VOLUME_Y(5), (char *)"-", MENU_LEFT, 0,
+                            LEVEL_EVENT(GC_MENU_SETTINGS_MUSIC_VOLUME, -VOLUME_STEP, from_game));
+        menu_item_draw_text(VOLUME_PLUS_X, VOLUME_Y(5), (char *)"+", MENU_LEFT, 0,
+                            LEVEL_EVENT(GC_MENU_SETTINGS_MUSIC_VOLUME, VOLUME_STEP, from_game));
+
+        char *back = _("back");
+
         #define MENU_X_START_BACK (GAME_RESOLUTION_X/2 - 50)
-        #define MENU_Y_START_BACK (GAME_RESOLUTION_Y - 80)
-        
+        #define MENU_Y_START_BACK (GAME_RESOLUTION_Y - 40)
+
         menu_item_set_pos(MENU_X_START_BACK, MENU_Y_START_BACK);
         menu_item_draw(back, MENU_LEFT, FALSE, LEVEL_EVENT(from_game ? GC_RESTORE_LEVEL : GI_MENU_BACK_POP));
 
@@ -639,6 +665,56 @@ void game_gui::menu_settings_background(void)
 {
   berusky_config::menu_background_photo = !berusky_config::menu_background_photo;
   ini_write_string(INI_FILE, INI_MENU_BACKGROUND, berusky_config::menu_background_photo ? "photo" : "black");
+}
+
+void game_gui::menu_settings_sound(void)
+{
+  audio.sound_enable(!audio.sound_enabled());
+  audio.settings_save(INI_FILE);
+}
+
+void game_gui::menu_settings_music(void)
+{
+  audio.music_enable(!audio.music_enabled());
+  audio.settings_save(INI_FILE);
+}
+
+// Volume steps of 10 %, from any value to the next multiple of 10
+static int volume_step(int volume, int change)
+{
+  if(change > 0)
+    volume = (volume / change + 1) * change;
+  else if(change < 0)
+    volume = ((volume - change - 1) / -change - 1) * -change;
+  return(volume < 0 ? 0 : (volume > 100 ? 100 : volume));
+}
+
+void game_gui::menu_settings_sound_volume(int change)
+{
+  audio.sound_volume_set(volume_step(audio.sound_volume(), change));
+  audio.settings_save(INI_FILE);
+  // The DOS sound slider played this sound at the new volume
+  audio.sound(SOUND_SWITCH, SOUND_TICKS_SECOND, SOUND_PRIORITY_SWITCH);
+}
+
+void game_gui::menu_settings_music_volume(int change)
+{
+  audio.music_volume_set(volume_step(audio.music_volume(), change));
+  audio.settings_save(INI_FILE);
+}
+
+void game_gui::menu_settings_language_next(void)
+{
+  LANGUAGE lang = (LANGUAGE)((lang_get() + 1) % LANGUAGE_NUM);
+  lang_set(lang);
+  lang_config_save(INI_FILE, lang);
+  window_set_title(GAME_TITLE);
+}
+
+bool game_gui::level_in_progress(void)
+{
+  GAME_STATE state = p_ber->status_get().game_state_get();
+  return(state == PLAYING || state == SUSPENDED);
 }
 
 /*
@@ -873,9 +949,9 @@ it is possible to break them anywise.\n"));
             break;
         }
 
-        static char *prev = _("previous");
-        static char *next = _("next");
-        static char *back = _("back");
+        char *prev = _("previous");
+        char *next = _("next");
+        char *back = _("back");
       
         #define MENU_X_START    (350 + (X_START/2))
         #define MENU_X_START_L  MENU_X_START
@@ -964,7 +1040,7 @@ which can be controlled by these keys:"));
         #define MENU_X_DIFF  90
         #define MENU_Y_DIFF  35
 
-        static char *back = _("back");
+        char *back = _("back");
       
         menu_item_start();
         menu_item_draw(MENU_X_START, MENU_Y_START+MENU_Y_DIFF, back, MENU_LEFT, FALSE, LEVEL_EVENT(GI_MENU_BACK_POP));
@@ -1048,7 +1124,7 @@ void game_gui::menu_help_credits(MENU_STATE state, size_ptr data, size_ptr data1
             #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17)
             #define MENU_Y_START   440
                         
-            static char *back_string = _("back");
+            char *back_string = _("back");
 
             menu_item_start();
             menu_item_draw(MENU_X_START_L, MENU_Y_START, back_string, MENU_LEFT, FALSE, LEVEL_EVENT(GC_MENU_START));
@@ -1126,7 +1202,7 @@ void game_gui::menu_level_hint(MENU_STATE state, size_ptr data, size_ptr data1)
         #define MENU_X_DIFF  90
         #define MENU_Y_DIFF  35
 
-        static char *back = _("back");
+        char *back = _("back");
 
         menu_item_start();
         menu_item_draw(MENU_X_START, MENU_Y_START+MENU_Y_DIFF, 
@@ -1367,10 +1443,10 @@ void game_gui::menu_level_run_path_draw(int level_set, int level_act, int level_
   // Levels are drawn as menu
   menu_item_start();
 
-  static char *play_string = _("play level");
-  static char *level_hint  = _("level hint");
-  static char *select_string = _("select last");
-  static char *back_string = _("back");
+  char *play_string = _("play level");
+  char *level_hint  = _("level hint");
+  char *select_string = _("select last");
+  char *back_string = _("back");
 
   switch(level_set) {
     case 0:
@@ -1962,7 +2038,10 @@ void game_gui::menu_level_name_print(void)
 
 char * game_gui::level_hint_load(int set, int level)
 {  
-  FHANDLE f = file_open(p_dir->gamedata_get(), LEVEL_HINTS_FILE, "r");
+  char    hints_file[MAX_FILENAME];
+  FHANDLE f = file_open(p_dir->gamedata_get(),
+                        lang_data_file(p_dir->gamedata_get(), LEVEL_HINTS_FILE, hints_file, sizeof(hints_file)),
+                        "r");
 
   char start_mark[1000];
   snprintf(start_mark,1000,MARK_START,set+1,level+1);
@@ -2010,7 +2089,10 @@ char * game_gui::level_end_text_load(int set)
 
   #define END_BUFFER_LENGHT 40000
   static char end_buffer[END_BUFFER_LENGHT];
-  file_load_text(p_dir->gamedata_get(),file,end_buffer,END_BUFFER_LENGHT);
+  char   lang_file[MAX_FILENAME];
+  file_load_text(p_dir->gamedata_get(),
+                 lang_data_file(p_dir->gamedata_get(), file, lang_file, sizeof(lang_file)),
+                 end_buffer,END_BUFFER_LENGHT);
 
   return(end_buffer);
 }
@@ -2023,7 +2105,10 @@ char * game_gui::credit_text_load(void)
   // Load the whole file    
   #define END_BUFFER_LENGHT 40000
   static char cr_buffer[END_BUFFER_LENGHT];
-  file_load_text(p_dir->gamedata_get(), CREDITS_FILE, cr_buffer, END_BUFFER_LENGHT);
+  char   lang_file[MAX_FILENAME];
+  file_load_text(p_dir->gamedata_get(),
+                 lang_data_file(p_dir->gamedata_get(), CREDITS_FILE, lang_file, sizeof(lang_file)),
+                 cr_buffer, END_BUFFER_LENGHT);
 
   return(cr_buffer);
 }
@@ -2037,6 +2122,7 @@ bool game_gui::level_run(LEVEL_EVENT_QUEUE *p_queue, char *p_level)
   if(p_ber->level_load(p_level) && p_ber->level_play(p_queue, 0)) {
     menu_leave();
     input.keyset_set(&game_keys);
+    audio.music_level();
     return(TRUE);
   } else {
     menu_dialog_error(_("Unable to load level %s"),p_level);
@@ -2058,6 +2144,7 @@ bool game_gui::level_run(LEVEL_EVENT_QUEUE *p_queue)
   /* Run a menu if it fails */
   if(p_ber->levelset_load(set) && p_ber->level_play(p_queue, level)) {
     input.keyset_set(&game_keys);
+    audio.music_level();
     return(TRUE);
   } else {
     menu_dialog_error(_("Unable to load level %d from set %d"),level,set);
@@ -2167,8 +2254,8 @@ void game_gui::menu_level_end(MENU_STATE state, size_ptr data, size_ptr data1)
         #define MENU_X_DIFF     0
         #define MENU_Y_DIFF     30
         
-        static char *play_string = _("play next level");
-        static char *back_string = _("back to menu");
+        char *play_string = _("play next level");
+        char *back_string = _("back to menu");
       
         menu_item_start();
 
@@ -2242,7 +2329,7 @@ void game_gui::menu_level_end_custom(MENU_STATE state, size_ptr data, size_ptr d
         #define MENU_X_DIFF     0
         #define MENU_Y_DIFF     30
                 
-        static char *back_string = _("quit");
+        char *back_string = _("quit");
                     
         menu_item_start();
         menu_item_draw(MENU_X_START, MENU_Y_START+0*MENU_Y_DIFF, back_string, MENU_LEFT, FALSE, LEVEL_EVENT(GC_MENU_QUIT));
@@ -2335,7 +2422,7 @@ void game_gui::menu_levelset_end(MENU_STATE state, size_ptr data, size_ptr data1
             #define MENU_X_START_L (GAME_RESOLUTION_X/2 - 17)
             #define MENU_Y_START   440
 
-            static char *back_string = _("back");
+            char *back_string = _("back");
 
             menu_item_start();
             menu_item_draw(MENU_X_START_L, MENU_Y_START, back_string, MENU_LEFT, FALSE, LEVEL_EVENT(GC_MENU_START));
@@ -2393,17 +2480,17 @@ void game_gui::menu_in_game(MENU_STATE state, size_ptr data, size_ptr data1)
         #define MENU_X_DIFF  0
         #define MENU_Y_DIFF  35
 
-        static char *back    = _("return to game (ESC)");
-        static char *rest    = _("restart level (CTRL+R)");
+        char *back    = _("return to game (ESC)");
+        char *rest    = _("restart level (CTRL+R)");
       
-        static char *save    = _("save game (F2)");
-        static char *load    = _("load game (F3)");
+        char *save    = _("save game (F2)");
+        char *load    = _("load game (F3)");
       
-        static char *hint    = _("level hint (CTRL+F1)");
-        static char *help    = _("help (F1)");
+        char *hint    = _("level hint (CTRL+F1)");
+        char *help    = _("help (F1)");
         
-        static char *menu    = _("back to menu");
-        static char *quit    = _("quit (CTRL+X)");
+        char *menu    = _("back to menu");
+        char *quit    = _("quit (CTRL+X)");
       
         menu_item_set_pos(MENU_X_START, MENU_Y_START);
         menu_item_set_diff(MENU_X_DIFF, MENU_Y_DIFF);
@@ -2525,12 +2612,16 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
        * This is the firts event after start
        */
       case GC_MENU_START:
+        // hraj_hudbu_menu() - also after the credits, an episode end...
+        audio.music_menu();
         menu_main(MENU_ENTER);
-        break;      
+        break;
       case GC_MENU_NEW_GAME:
+        audio.music_menu();
         menu_new_game(MENU_ENTER);
-        break;      
+        break;
       case GC_MENU_PROFILES:
+        audio.music_menu();
         menu_profiles(MENU_ENTER);
         break;
       case GC_MENU_PROFILE_CREATE:
@@ -2540,6 +2631,8 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
         menu_profile_select(ev.param_size_get(PARAM_0), ev.param_size_get(PARAM_1));
         break;
       case GC_MENU_SETTINGS:
+        if(!level_in_progress())
+          audio.music_menu();
         menu_settings(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_SETTINGS_FULSCREEN_SWITCH:
@@ -2557,12 +2650,26 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
         menu_settings(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_SETTINGS_SOUND_SWITCH:
-        //p_ber->sound.sound_on = !p_ber->sound.sound_on;
+        menu_settings_sound();
         break;
       case GC_MENU_SETTINGS_MUSIC_SWITCH:
-        //p_ber->sound.music_on = !p_ber->sound.music_on;
+        menu_settings_music();
+        break;
+      case GC_MENU_SETTINGS_SOUND_VOLUME:
+        menu_settings_sound_volume(ev.param_int_get(PARAM_0));
+        menu_settings(MENU_ENTER, ev.param_int_get(PARAM_1));
+        break;
+      case GC_MENU_SETTINGS_MUSIC_VOLUME:
+        menu_settings_music_volume(ev.param_int_get(PARAM_0));
+        menu_settings(MENU_ENTER, ev.param_int_get(PARAM_1));
+        break;
+      case GC_MENU_SETTINGS_LANGUAGE_NEXT:
+        menu_settings_language_next();
+        menu_settings(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_HELP:
+        if(!level_in_progress())
+          audio.music_menu();
         menu_help(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_QUIT:        
@@ -2575,6 +2682,9 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
         menu_help_rules(MENU_ENTER, ev.param_int_get(PARAM_0), ev.param_int_get(PARAM_1));
         break;
       case GC_MENU_HELP_CREDIT:
+        // hraj_hudbu_credits() - not in a game (the level music goes on)
+        if(!level_in_progress())
+          audio.music_credits();
         menu_help_credits(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_LEVEL_HINT:
@@ -2614,16 +2724,26 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
         break;
      
       case GC_MENU_RUN_LEVEL:
+        // the level map - the level intro screen of the DOS game
+        audio.music_menu();
         menu_level_run_new(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       case GC_MENU_END_LEVEL:
+        // A solved level: the level-done sound, the menu music a bit later
+        // (the DOS game waited then). Given up: the menu music right away.
+        if(p_ber->level_status_get()->resolved())
+          audio.music_menu_after_level();
+        else
+          audio.music_menu();
         menu_level_end(MENU_ENTER);
         break;
       case GC_MENU_END_LEVEL_CUSTOM:
         menu_level_end_custom(MENU_ENTER);
         break;
       case GC_MENU_END_LEVEL_SET:
-        menu_levelset_end(MENU_ENTER);
+        // The end of an episode, with its own music
+        audio.music_outro(ev.param_int_get(PARAM_0));
+        menu_levelset_end(MENU_ENTER, ev.param_int_get(PARAM_0));
         break;
       
       case GC_MENU_IN_GAME:
@@ -2635,7 +2755,10 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
         break;
       
       case GC_RUN_EDITOR:
+        // The editor has no sound (neither had the DOS one)
+        audio.music_stop();
         run_editor();
+        audio.music_menu();
         break;
 
       case GI_MENU_BACK_POP:
@@ -2650,7 +2773,18 @@ bool game_gui::callback(LEVEL_EVENT_QUEUE *p_queue, int frame)
       case GI_CHECKBOX_SWITCH:
       case GI_HIGHLIGHT_EVENT:
       case GI_KEY_DOWN:
+      case SN_MENU_HIGHLIGHT:
         menu_services(p_queue, &tmp_queue, ev);
+        break;
+
+      // Sounds of the menus, N (the next track) in a level
+      case SN_PLAY_SAMPLE:
+      case SN_STOP_MUSIC:
+        audio.event_process(&ev);
+        break;
+      case SN_PLAY_MUSIC:
+        if(ev.param_int_get(PARAM_0) != MUSIC_LEVEL || level_in_progress())
+          audio.event_process(&ev);
         break;
             
       default:

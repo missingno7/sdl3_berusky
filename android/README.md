@@ -6,12 +6,17 @@ device yet.
 
 The game is the same code as the desktop build:
 
+* Sound and music (`../docs/AUDIO.md`): SDL3 audio streams, libxmp-lite is
+  built into `libmain.so` by the same CMake (downloaded like SDL). The native
+  library was cross-compiled for arm64-v8a (NDK 27); the APK with audio was
+  not run yet, and what happens to the audio in the background is left to
+  SDL (not checked).
 * `../CMakeLists.txt` builds `libmain.so` (`src/main.cpp` + `berusky_core`) and
   SDL3 / SDL3_image as shared libraries (downloaded by CMake). The editor is
   not built (`-DBERUSKY_ENABLE_EDITOR=OFF`).
-* `app/build.gradle` copies `../data` (Graphics, GameData, Levels, berusky.ini)
-  into the APK assets. The game reads assets through `SDL_IOFromFile()`; the
-  asset root is empty on Android (`src/platform.cpp`).
+* `app/build.gradle` copies `../data` (Graphics, GameData, Levels, Sound,
+  Music, berusky.ini) into the APK assets. The game reads assets through
+  `SDL_IOFromFile()`; the asset root is empty on Android (`src/platform.cpp`).
 * Writable data (config, profiles, user levels) is in the app storage
   (`SDL_GetPrefPath`).
 * Touch: on-screen controls while playing (`src/touch_controls.cpp`, on by default
@@ -42,4 +47,4 @@ cd android
   free space beside the 4:3 composition is narrower than the D-pad); their
   layout wasn't redesigned for the side areas yet.
 * Text input (profile names) needs `SDL_StartTextInput` / `SDL_EVENT_TEXT_INPUT`.
-* No app icon of its own (SDL's default), no audio (the game has none).
+* No app icon of its own (SDL's default).

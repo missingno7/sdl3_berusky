@@ -1,0 +1,28 @@
+Sound effects of Berusky (DOS, 1999) - 20 raw samples,
+16-bit signed little endian mono, played at 20050 Hz, not looped.
+Copied unchanged from the DOS release (original/game/SMP) by
+tools/import_dos_assets.py. The DOS release is under the GNU GPL
+(see COPYING). Samples 1, 9 and 19 were never used by the DOS game.
+Which sound plays when: docs/AUDIO.md
+
+file          bytes   sha256                                                            source
+smp_000.raw   32840  2fb208793a769cdce59683636485c611e187407294821ef04de4f783140cb927  game/SMP/SMP_000.RAW
+smp_001.raw   17530  14f4df9b899fa66dd6e36c405bd2c77e85078d3c31b492a7d611b5748711c469  game/SMP/SMP_001.RAW
+smp_002.raw   19646  5654686eef7bf285ff979103b0183d1fd933021f11e9e60a22ae7ae1ec11c6db  game/SMP/SMP_002.RAW
+smp_003.raw   32156  0788e63375e0e0c869ce010033a0394725a99c68e497be8f8083ad06befc20da  game/SMP/SMP_003.RAW
+smp_004.raw   46208  212a2c3237d4aa25b6529e613c059deed95eee0768318c9b2098dae9840b6f30  game/SMP/SMP_004.RAW
+smp_005.raw   24576  6f1c710c0c2cc993665fa5f7eccd22f37000e5a11e606095885dc799f8797259  game/SMP/SMP_005.RAW
+smp_006.raw   20992  f7eaa736fa722ad5e28cd9da1045563cf222ca25282776fcc871731a6dffdd3a  game/SMP/SMP_006.RAW
+smp_007.raw    3760  b756a39510082e74dabf186f001b03589622c0c4a3e8b19197bb171dc18f9cb8  game/SMP/SMP_007.RAW
+smp_008.raw   17662  298c584271f7d778e2e9801bd0712186947ee049519c4331f5f1056ae46527bf  game/SMP/SMP_008.RAW
+smp_009.raw    6426  8ad506b78d7a4d1c954ca2d1ba459f8727df3166b51b7d49389c0f99c531c7f2  game/SMP/SMP_009.RAW
+smp_010.raw   57472  4bd2a8d861c36bff527c8dcf9a503aba888ee269a77d380e28c223584126083d  game/SMP/SMP_010.RAW
+smp_011.raw   47102  a6b84a150e4d3a2535ad13871b9f178301582ec1ff1194038e282f361e89304d  game/SMP/SMP_011.RAW
+smp_012.raw   15844  f16a10f02154ddce8a14e8acc32f7fa7f16525ef1a3427ac887bdba53412c75a  game/SMP/SMP_012.RAW
+smp_013.raw   37392  8777c631c6e7bc98d6870f8e3b6d46a681dcc3b799b65663f3c7aed72d360ba5  game/SMP/SMP_013.RAW
+smp_014.raw   34176  870e009d4b76577d8f68ac05cc25cb504654975c8577aeff5b0876115b55dfe8  game/SMP/SMP_014.RAW
+smp_015.raw   56064  82d61db82532377cb5b63dc73fcba0e2c2cb0b95859ca46ebe35ec7d502cbcc4  game/SMP/SMP_015.RAW
+smp_016.raw   14554  2278b1df76f87346405c747a7514dbafe02152445a92e36eeeaa95ab26cd6e2c  game/SMP/SMP_016.RAW
+smp_017.raw  133694  2eca4eedbb5771e52a4836409102fa91f74d5f8e5c70d56261de480490f550c3  game/SMP/SMP_017.RAW
+smp_018.raw   10842  34c24f4c79399421ad63324820cca5cd5b30bda6bd2bc89bba4e1d8dd7566b72  game/SMP/SMP_018.RAW
+smp_019.raw   64754  b30c82418b0082af4b2683d7b2864cb8b83733a2116e92587d0cadf0914292bd  game/SMP/SMP_019.RAW

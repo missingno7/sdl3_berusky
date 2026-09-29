@@ -667,11 +667,11 @@ void editor_gui::selection_cursor_draw(bool draw)
 
 static char *side_menu[] = 
 { 
-  _("help (f1)"),
-  _("run level (f9)"),
-  _("undo (ctrl+u)"),
-  _("shade floor (ctrl+s)"),
-  _("change background (b)"),
+  N_("help (f1)"),
+  N_("run level (f9)"),
+  N_("undo (ctrl+u)"),
+  N_("shade floor (ctrl+s)"),
+  N_("change background (b)"),
 };
 
 void editor_gui::side_menu_create(void)
@@ -683,11 +683,11 @@ void editor_gui::side_menu_create(void)
   
   LLIST_ITEM *p_last = input.mevents_get()->list_get_last();
 
-  menu_item_draw(side_menu[0], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_HELP));
-  menu_item_draw(side_menu[1], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_RUN));
-  menu_item_draw(side_menu[2], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_UNDO));
-  menu_item_draw(side_menu[3], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_SHADER));
-  menu_item_draw(side_menu[4], MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_CHANGE_BACKGROUND));
+  menu_item_draw(_(side_menu[0]), MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_HELP));
+  menu_item_draw(_(side_menu[1]), MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_RUN));
+  menu_item_draw(_(side_menu[2]), MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_UNDO));
+  menu_item_draw(_(side_menu[3]), MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_SHADER));
+  menu_item_draw(_(side_menu[4]), MENU_LEFT, MENU_SAVE_BACK, LEVEL_EVENT(ED_LEVEL_CHANGE_BACKGROUND));
 
   p_side_event_first = p_last->list_next();
   side_event_num = llist_count(p_side_event_first);
@@ -708,11 +708,11 @@ void editor_gui::side_menu_draw(bool draw)
   menu_item_set_pos(SIDE_MENU_X, SIDE_MENU_Y+SIDE_MENU_Y_DIFF);
   menu_item_set_diff(SIDE_MENU_X_DIFF, SIDE_MENU_Y_DIFF);
 
-  menu_item_draw(side_menu[0], MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
-  menu_item_draw(side_menu[1], MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
-  menu_item_draw(side_menu[2], MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
-  menu_item_draw(side_menu[3], MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
-  menu_item_draw(side_menu[4], MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
+  menu_item_draw(_(side_menu[0]), MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
+  menu_item_draw(_(side_menu[1]), MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
+  menu_item_draw(_(side_menu[2]), MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
+  menu_item_draw(_(side_menu[3]), MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
+  menu_item_draw(_(side_menu[4]), MENU_LEFT, MENU_SAVE_BACK|MENU_DRAW_ONLY);
 }
 
 #define SIDE_STATUS_X     (GAME_RESOLUTION_X-400)
@@ -771,10 +771,10 @@ void editor_gui::layer_status_create(void)
 
   static char *layer_names[ALL_LEVEL_LAYERS] = 
   {   
-    _("Grid:"),
-    _("Floor:"),
-    _("Items:"),
-    _("Players:")
+    N_("Grid:"),
+    N_("Floor:"),
+    N_("Items:"),
+    N_("Players:")
   };
 
   static int layer_handle[] = 
@@ -792,7 +792,7 @@ void editor_gui::layer_status_create(void)
 
   int i;
   for(i = 0; i < ALL_LEVEL_LAYERS; i++) {
-    menu_item_draw_text(layer_names[i], MENU_LEFT, 0, 
+    menu_item_draw_text(_(layer_names[i]), MENU_LEFT, 0, 
                         LEVEL_EVENT(ED_LEVEL_LAYER,layer_handle[i],LAYER_CHANGE));
     menu_get_last_rect(config.coord+i);
   }
@@ -807,8 +807,8 @@ void editor_gui::layer_status_draw(bool draw)
   
   static char * layers_status[2] = 
   {
-    _("off"),
-    _("on")
+    N_("off"),
+    N_("on")
   };
 
   static int layer_handle[] = 
@@ -829,7 +829,7 @@ void editor_gui::layer_status_draw(bool draw)
                 config.coord[i].y,50,config.coord[i].h,0);
     p_font->print(&r,config.coord[i].x+config.coord[i].w,
                   config.coord[i].y, 
-                  layers_status[config.lc.get(layer_handle[i]) ? 1 : 0]);
+                  _(layers_status[config.lc.get(layer_handle[i]) ? 1 : 0]));
     r.w += 20;
     if(draw)
       p_grf->redraw_add(&r);
@@ -948,7 +948,7 @@ void editor_gui::level_new(bool force)
     input_start(&editor_gui::level_new_callback,NO_HANDLE,INPUT_BOOLEAN, _("erase all data?"));
   } else {
     undo_store();
-    console.print("new level");
+    console.print(_("new level"));
     level.level_new();
 
     // New levels go to the user levels directory - the current directory
@@ -1390,7 +1390,7 @@ void editor_gui::selection_pickup(void)
     item_handle base_item = editor_panel::item_base_get(item);
     int variant = level.cell_get_variation(x, y, layer);    
 
-    console.print("Picking up item %d variant %d", item, variant);
+    console.print(_("Picking up item %d variant %d"), item, variant);
 
     EDITOR_PANEL_SLOT *p_slot;  
     for(int i = 0; (p_slot = panel_items.slot_get(i)); i++) {
@@ -1515,7 +1515,7 @@ void editor_gui::editor_run_level(void)
 {
   #define TMP_LEVEL "berusky-editor-level.lv3"
 
-  console.print("Run level...");
+  console.print(_("Run level..."));
 
   char filename[MAX_FILENAME];
   return_path(p_dir->tmp_get(), TMP_LEVEL, filename, MAX_FILENAME);
@@ -1607,7 +1607,7 @@ void editor_gui::level_change_backgroud(void)
     
   level.level_background_set(back);
   
-  console.print("background %d (from %d)",back, max);
+  console.print(_("background %d (from %d)"),back, max);
 }
 
 void editor_gui::test_gui(void)
@@ -1757,8 +1757,16 @@ bool editor_gui::event_handler(void)
         
         case GI_MOUSE_EVENT:
           mouse_handler(&tmp_queue, ev);
-          break;          
-        
+          break;
+
+        // Menu sounds - the editor has no sound (neither had the DOS one),
+        // the events must not go round
+        case SN_MENU_HIGHLIGHT:
+        case SN_PLAY_SAMPLE:
+        case SN_PLAY_MUSIC:
+        case SN_STOP_MUSIC:
+          break;
+
         default:
           if(ev.valid()) {
             tmp_queue.add(ev);
@@ -1900,8 +1908,8 @@ void editor_gui::console_wait(MENU_STATE state, size_ptr data, size_ptr data1)
 //  An editor console code
 // ----------------------------------------------------------------------
 
-const char * editor_console::boolean_yes = _("y");
-const char * editor_console::boolean_no = _("n");
+const char * editor_console::boolean_yes = N_("y");
+const char * editor_console::boolean_no = N_("n");
 
 editor_console::editor_console(INPUT *p_input_, tpos sx, tpos sy, tpos dx, int lines_)
 {
@@ -1940,7 +1948,7 @@ void editor_console::input_start(INPUT_TYPE type, char *p_text)
 
   if(itype == INPUT_BOOLEAN) {
     sprintf(input_line_title+strlen(input_line_title)," (%s/%s) ",
-            boolean_yes,boolean_no);
+            _(boolean_yes),_(boolean_no));
   } 
   else if(itype == INPUT_STRING) {
     sprintf(input_line_title+strlen(input_line_title)," ");
@@ -1996,10 +2004,10 @@ void editor_console::input_add_char(char c, bool redraw)
   if(istate == INPUT_READY) {
     switch(itype) {
       case INPUT_BOOLEAN:
-        if(c == boolean_yes[0]) {
+        if(c == _(boolean_yes)[0]) {
           input_boolean = TRUE;
         }      
-        else if(c == boolean_no[0]) {
+        else if(c == _(boolean_no)[0]) {
           input_boolean = FALSE;
         }
         break;
@@ -2041,9 +2049,9 @@ void editor_console::input_redraw(void)
       if(input_boolean == CONSOLE_BOOLEAN_NO_INPUT)
         p_tmp = "_";
       else if(input_boolean)
-        p_tmp = boolean_yes;
+        p_tmp = _(boolean_yes);
       else
-        p_tmp = boolean_no;
+        p_tmp = _(boolean_no);
       
       p_font->print(NULL,ix_input,iy_input,p_tmp);
     } 

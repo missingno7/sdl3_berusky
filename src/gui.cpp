@@ -29,7 +29,8 @@
 #include "gui.h"
 
 gui_base::gui_base(void)
-: last_x(0), last_y(0), last_dx(0), last_dy(0), highlight_group_next(0)
+: last_x(0), last_y(0), last_dx(0), last_dy(0), highlight_group_next(0),
+  menu_item_next(0), menu_item_highlighted(-1)
 {
 }
 
@@ -103,6 +104,23 @@ void gui_base::menu_item_start(void)
 {
   // Clear all input events for menu
   input.mevent_clear();
+
+  menu_item_next = 0;
+  menu_item_highlighted = -1;
+}
+
+// The mouse is over a menu item
+LEVEL_EVENT gui_base::menu_highlight_event(int item)
+{
+  return(LEVEL_EVENT(SN_MENU_HIGHLIGHT, item));
+}
+
+// A menu item is chosen - the click of MENU.C
+void gui_base::menu_click_sound_add(RECT *p_rect, int state)
+{
+  input.mevent_add(MOUSE_EVENT(MOUSE_STATE(*p_rect, MASK_BUTTON_LEFT, (MOUSE_BUTTON_STATE)state),
+                   MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS,
+                   LEVEL_EVENT(SN_PLAY_SAMPLE, (int)SOUND_MENU_CLICK, SOUND_TICKS_MENU, SOUND_PRIORITY_MENU)));
 }
 
 /*
@@ -159,22 +177,27 @@ void gui_base::menu_item_draw_sprite(char *p_text, MENU_TYPE spr_align, int flag
           LEVEL_EVENT u_text_highlight = LEVEL_EVENT(GI_HIGHLIGHT_EVENT, highlight_group_next);
           u_text_highlight.depends_add(2);
       
-          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text));
+          int         item = menu_item_id_new();
+          LEVEL_EVENT highlight = menu_highlight_event(item);
+
+          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text, highlight));
           if(!highlight_group_next)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_spr, u_text));
           else
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, u_text_highlight, u_spr, u_text));
           if(flags&MENU_SAVE_BACK)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, LEVEL_EVENT(GI_MENU_BACK_PUSH)));
+          menu_click_sound_add(&r_arrow, BUTTON_DOWN);
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, click1, click2, click3));
     
-          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text));
+          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text, highlight));
           if(!highlight_group_next)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_spr, u_text));
           else
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, u_text_highlight, u_spr, u_text));
           if(flags&MENU_SAVE_BACK)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, LEVEL_EVENT(GI_MENU_BACK_PUSH)));
+          menu_click_sound_add(&r, BUTTON_DOWN);
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, click1, click2, click3));
           
           highlight_group_next = HIGHLIGHT_GROUP_NONE;
@@ -221,22 +244,27 @@ void gui_base::menu_item_draw_sprite(char *p_text, MENU_TYPE spr_align, int flag
           LEVEL_EVENT u_text_highlight = LEVEL_EVENT(GI_HIGHLIGHT_EVENT, highlight_group_next);
           u_text_highlight.depends_add(2);
   
-          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text));
+          int         item = menu_item_id_new();
+          LEVEL_EVENT highlight = menu_highlight_event(item);
+
+          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text, highlight));
           if(!highlight_group_next)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_spr, u_text));
           else
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, u_text_highlight, u_text));
           if(flags&MENU_SAVE_BACK)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, LEVEL_EVENT(GI_MENU_BACK_PUSH)));        
+          menu_click_sound_add(&r_arrow, BUTTON_DOWN);
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_arrow, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, click1, click2, click3));
   
-          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text));
+          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_spr, s_text, highlight));
           if(!highlight_group_next)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_spr, u_text));
           else
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, u_text_highlight, u_text));
           if(flags&MENU_SAVE_BACK)
             input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, LEVEL_EVENT(GI_MENU_BACK_PUSH)));        
+          menu_click_sound_add(&r, BUTTON_DOWN);
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, click1, click2, click3));
   
           highlight_group_next = HIGHLIGHT_GROUP_NONE;
@@ -286,7 +314,8 @@ void gui_base::menu_item_draw_text(char *p_text, MENU_TYPE align, int flags,
     u_text_highlight.depends_add(1);
   
     // event - release the saved highlighted event (if any)
-    input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_text));
+    input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_text,
+                                 menu_highlight_event(menu_item_id_new())));
     if(!highlight_group_next)
       input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_text));
     else
@@ -300,8 +329,9 @@ void gui_base::menu_item_draw_text(char *p_text, MENU_TYPE align, int flags,
                        LEVEL_EVENT(GI_MENU_BACK_PUSH)));
     }
     
-    input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT), 
-                     MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, 
+    menu_click_sound_add(&r, BUTTON_DOWN);
+    input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT),
+                     MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS,
                      click1, click2, click3));
     
     highlight_group_next = HIGHLIGHT_GROUP_NONE;
@@ -402,12 +432,15 @@ void gui_base::menu_item_draw_checkbox(char *p_text, MENU_TYPE spr_align, bool c
           RECT r_box = {last_x, last_y, 20, 20};
   
           // highlight the text when mouse is over
-          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_box), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_text));
+          LEVEL_EVENT highlight = menu_highlight_event(menu_item_id_new());
+          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_box), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_text, highlight));
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_box), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_text));
-          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_text));
+          input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN,  s_text, highlight));
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r), MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_OUT, u_text));
         
           // if user clicked, activate the check-box and wait for mouse button release
+          menu_click_sound_add(&r_box, BUTTON_UP);
+          menu_click_sound_add(&r, BUTTON_UP);
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r_box, MASK_BUTTON_LEFT, BUTTON_UP),
                           MEVENT_ACTIVATE_ONCE|MEVENT_MOUSE_IN|MEVENT_MOUSE_BUTTONS, checkbox_draw));
           input.mevent_add(MOUSE_EVENT(MOUSE_STATE(r, MASK_BUTTON_LEFT, BUTTON_UP),
@@ -484,6 +517,16 @@ void gui_base::menu_services(LEVEL_EVENT_QUEUE *p_read_queue, LEVEL_EVENT_QUEUE 
         }
         highlight_group[group].event_num = highlight_events;
         highlight_group[group].active = TRUE;
+      }
+      break;
+    case SN_MENU_HIGHLIGHT:
+      {
+        // format: [SN_MENU_HIGHLIGHT, item]
+        int item = ev.param_int_get(PARAM_0);
+        if(item != menu_item_highlighted) {
+          menu_item_highlighted = item;
+          audio.sound(SOUND_MENU_MOVE, SOUND_TICKS_MENU, SOUND_PRIORITY_MENU);
+        }
       }
       break;
     case GI_KEY_DOWN:

@@ -16,13 +16,7 @@ AC_HEADER_STDC
 AC_PROG_CPP
 AC_PROG_CXX
 
-GETTEXT_PACKAGE=berusky
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Package name for gettext])
-
-dnl Languages which your application supports
-ALL_LINGUAS=""
-AM_GLIB_GNU_GETTEXT
+dnl Texts: src/lang.cpp (built-in tables, no gettext)
 
 AM_PROG_LIBTOOL
 
@@ -96,7 +90,6 @@ AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}")
 
 AC_OUTPUT([
 Makefile
-po/Makefile.in
 src/Makefile
 data/Makefile
 ])

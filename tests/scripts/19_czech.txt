@@ -1,0 +1,62 @@
+# Czech texts (language cs): main menu, settings, help pages (controls,
+# rules), difficulty, level map + hint, a level with its panel, the in-game
+# menu and the level end screen
+# env: BERUSKY_LANGUAGE=cs
+wait 100
+shot cs_main.bmp
+click 320 275
+wait 10
+shot cs_settings.bmp
+click 330 455
+wait 15
+click 320 310
+wait 15
+shot cs_help_menu.bmp
+click 300 250
+wait 15
+shot cs_controls.bmp
+click 300 440
+wait 15
+click 300 285
+wait 15
+shot cs_rules_1.bmp
+click 560 415
+wait 15
+shot cs_rules_2.bmp
+click 560 415
+wait 15
+shot cs_rules_3.bmp
+click 560 415
+wait 15
+shot cs_rules_4.bmp
+click 430 445
+wait 15
+click 300 355
+wait 15
+click 320 205
+wait 15
+shot cs_difficulty.bmp
+click 330 225
+wait 15
+shot cs_level_map.bmp
+click 355 385
+wait 15
+shot cs_hint.bmp
+click 300 440
+wait 15
+click 355 355
+wait 60
+key right
+wait 20
+key up
+wait 20
+shot cs_level.bmp
+key esc
+wait 15
+shot cs_ingame_menu.bmp
+key esc
+wait 15
+key e shift
+wait 60
+shot cs_level_end.bmp
+quit

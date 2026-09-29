@@ -1,0 +1,4 @@
+# Music (FastTracker II modules) and sound effects (raw PCM) of the DOS
+# original - never touch their bytes
+*.xm   binary
+*.raw  binary

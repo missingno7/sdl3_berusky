@@ -307,7 +307,7 @@ changer(&level,p_dir)
   
   // Load user levels from user-levels, cwd and w/o path
   if(p_status->user_get()) {
-    bprintf(_("User defined level %s..."),p_name); 
+    bprintf("User defined level %s...",p_name); 
   
     // User levels directory first, then the name as it was given
     // (a path from the command line: "berusky -u level.lv3")
@@ -316,7 +316,7 @@ changer(&level,p_dir)
     load = level.level_load(p_name, p_paths, sizeof(p_paths)/sizeof(p_paths[0]));
   }
   else {
-    bprintf(_("Game level %s..."),p_name);
+    bprintf("Game level %s...",p_name);
   
     const char *p_paths[] = { p_dir->levels_get() };
   
@@ -324,7 +324,7 @@ changer(&level,p_dir)
   }
     
   if(!load) {
-    bprintf(_("Unable to load level %s"),p_name);
+    bprintf("Unable to load level %s",p_name);
   } else {
     level.level_populate();
     add_level_events(p_queue);

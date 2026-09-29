@@ -133,13 +133,13 @@ public:
     assert(item_valid(item));
     assert(item < (int)(sizeof(item_desc_name) / sizeof(item_desc_name[0])));
   
-    return(item_desc_name[item]);
+    return(_(item_desc_name[item]));
   }
 
   char * item_get_rotation(int rot)
   {    
     assert(rot < (int)(sizeof(item_desc_rotation) / sizeof(item_desc_rotation[0])));
-    return(item_desc_rotation[rot]);
+    return(_(item_desc_rotation[rot]));
   }
 
   bool item_player(int item)

@@ -46,6 +46,11 @@
   /var/games/berusky/berusky.ini. You can switch fulscreen/windows mode, 
   number of colors and game directories there.
 
+  SDL3 port: berusky.ini is in the user data directory (see PORTING_SDL3.md).
+  language = en | cs | auto        - English or the Czech texts of the DOS game
+  sound = yes | no, music = yes | no, sound_volume / music_volume = 0-100
+  (also in the settings menu; see docs/AUDIO.md and docs/LOCALIZATION.md)
+
 3. Game run
 
   berusky                - runs main game
@@ -98,7 +103,7 @@
   4            - Choose the fourth bug
   5            - Choose the fifth bug
 
-  N            - change the music (not implemented yet)
+  N            - change the music
   D            - start recording a demo (not implemented yet)
   CTRL+X       - quit quickly
 

@@ -52,7 +52,6 @@ typedef class game_gui : public gui_base {
   DIR_LIST          *p_dir;
   BERUSKY           *p_ber;
 
-  BERUSKY_SOUND     sound;
   BERUSKY_PROFILE   profile;
 
 public:
@@ -105,6 +104,14 @@ public:
   void menu_settings_integer(void);
   void menu_settings_filter_next(void);
   void menu_settings_background(void);
+  void menu_settings_sound(void);
+  void menu_settings_music(void);
+  void menu_settings_sound_volume(int change);
+  void menu_settings_music_volume(int change);
+  void menu_settings_language_next(void);
+
+  // A level is played or paused (its music keeps playing in the menus)
+  bool level_in_progress(void);
   void menu_level_run_path_draw(int level_set, int level_act, int level_num, int level_last);
   int  menu_level_run_path_draw_line(const char *p_path, int level_act, int level_num, int level_last, int level_set, int sx, int sy);
   void menu_level_draw_level(int lev, int level_act, int level_num, int level_last, int level_set, int x, int y);

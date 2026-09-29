@@ -47,13 +47,21 @@ typedef class game_logic {
   int  exit_animate(LEVEL_EVENT *p_stack, tpos px, tpos py, tpos layer, int extra_events);
   bool exit_find(bool start, tpos *p_px, tpos *p_py);
 
+  // Sounds of the DOS game (audio.h) - an SN_PLAY_SAMPLE event in the stack
+  int  sound(LEVEL_EVENT *p_stack, SOUND_ID sound, int length, int priority);
+  int  step_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move);
+  int  push_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move);
+  int  unlock_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move);
+  int  passage_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move);
+  int  door_close_sound(LEVEL_EVENT *p_stack, tpos x, tpos y);
+
 public:
 
   game_logic(LEVEL_GAME *p_game_level, LEVEL_STATUS *p_level_status) 
   : p_level(p_game_level), p_status(p_level_status) {};
   
   void player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in);
-  void player_switch(LEVEL_EVENT *p_in);
+  void player_switch(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in);
   
   // Process event and return events for level-changer  
   void events_process(LEVEL_EVENT_QUEUE *p_queue);  

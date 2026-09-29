@@ -21,9 +21,11 @@ option(BERUSKY_ENABLE_EDITOR "Build the level editor" ON)
 option(BERUSKY_ENABLE_ASSERTS "Keep assert() in release builds (the game relies on them for sanity checks)" ON)
 option(BERUSKY_FETCH_SDL "Download and build SDL3 / SDL3_image when they are not installed" ON)
 option(BERUSKY_STATIC_SDL "Link the downloaded SDL3 / SDL3_image statically" ON)
+option(BERUSKY_FETCH_LIBXMP "Download and build libxmp-lite (music) when it is not installed" ON)
 
 set(BERUSKY_SDL3_TAG "release-3.4.16" CACHE STRING "SDL3 version to download")
 set(BERUSKY_SDL3_IMAGE_TAG "release-3.4.6" CACHE STRING "SDL3_image version to download")
+set(BERUSKY_LIBXMP_TAG "libxmp-4.7.3" CACHE STRING "libxmp version to download")
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
@@ -57,6 +59,9 @@ set(BERUSKY_CORE_SOURCES
   src/level_active.cpp
   src/level_changer.cpp
   src/level_game.cpp
+  src/lang.cpp
+  src/lang_cs.cpp
+  src/audio.cpp
   src/profile.cpp
   src/utils.cpp
 
@@ -69,6 +74,7 @@ set(BERUSKY_CORE_SOURCES
   src/render_layout.cpp
   src/image_asset.cpp
   src/scene.cpp
+  src/audio_sdl.cpp
 )
 
 if(BERUSKY_ENABLE_EDITOR)
@@ -78,6 +84,7 @@ endif()
 add_library(berusky_core STATIC ${BERUSKY_CORE_SOURCES})
 target_include_directories(berusky_core PUBLIC src)
 target_link_libraries(berusky_core PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
+target_link_libraries(berusky_core PRIVATE berusky_xmp)
 
 target_compile_definitions(berusky_core PUBLIC BERUSKY_VERSION_STRING="${PROJECT_VERSION}")
 if(BERUSKY_ENABLE_EDITOR)
@@ -127,6 +134,21 @@ if(NOT ANDROID)
   add_executable(berusky_layout_test tests/layout_test.cpp)
   target_link_libraries(berusky_layout_test PRIVATE berusky_core)
   add_test(NAME render_layout COMMAND berusky_layout_test)
+
+  # Languages, Czech texts and data files, audio settings, the audio layer
+  add_executable(berusky_audio_lang_test tests/audio_lang_test.cpp)
+  target_link_libraries(berusky_audio_lang_test PRIVATE berusky_core)
+  target_compile_definitions(berusky_audio_lang_test PRIVATE
+    BERUSKY_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/data"
+    BERUSKY_TEST_TMP="${CMAKE_CURRENT_BINARY_DIR}/audio_lang_test")
+  add_test(NAME audio_language COMMAND berusky_audio_lang_test)
+
+  # The Czech translation table against the texts of the sources
+  find_package(Python3 COMPONENTS Interpreter QUIET)
+  if(Python3_Interpreter_FOUND)
+    add_test(NAME translations
+             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_translations.py)
+  endif()
 endif()
 
 # ---------------------------------------------------------------------------

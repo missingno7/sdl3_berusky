@@ -3,7 +3,7 @@
 ## If you don't want it to overwrite it,
 ## 	Please disable it in the Anjuta project configuration
 
-SUBDIRS = po src data
+SUBDIRS = src data
 
 beruskydocdir = ${prefix}/doc/berusky
 beruskydoc_DATA = \

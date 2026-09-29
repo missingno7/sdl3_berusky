@@ -45,8 +45,8 @@ using namespace std;
 
 #include "portability.h"
 
-// Translations are not wired in (the original build never initialized gettext)
-#define _(string) (string)
+// Texts: _("english text") is translated to the selected language (lang.h)
+#include "lang.h"
 
 typedef struct berusky_config {
 
@@ -108,6 +108,7 @@ public:
 #include "graphics.h"
 
 #include "events.h"
+#include "audio.h"
 
 #include "llist.h"
 #include "input.h"
@@ -169,24 +170,6 @@ public:
   }
 
 } BERUSKY_STATE;
-
-typedef class berusky_sound {
-
-public:
-
-  int sound_on;
-  int sound_volume;
-  int music_on;
-  int music_volume;
-
-public:
-
-  berusky_sound(void)
-  {
-    memset(this,0,sizeof(*this));
-  }
-
-} BERUSKY_SOUND;
 
 typedef class berusky {
   

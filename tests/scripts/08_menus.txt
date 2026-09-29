@@ -35,7 +35,7 @@ wait 10
 shot settings_filter_pixelart.bmp
 window 640 480
 wait 5
-click 330 420
+click 330 455
 wait 15
 shot back_to_menu.bmp
 click 320 310

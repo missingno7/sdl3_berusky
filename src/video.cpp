@@ -17,6 +17,7 @@
 #include "video.h"
 #include "utils.h"
 #include "test_script.h"
+#include "lang.h"
 
 // Texture caches must forget regions of images that are released
 static scene_renderer *p_active_scene = NULL;
@@ -84,12 +85,12 @@ bool video_backend::create(int width, int height, bool fullscreen_, const RENDER
 
     p_window = SDL_CreateWindow("Berusky", width*window_scale, height*window_scale, flags);
     if(!p_window) {
-      berror("Unable to create the window: %s", SDL_GetError());
+      berror(_("Unable to create the window: %s"), SDL_GetError());
     }
 
     p_renderer = SDL_CreateRenderer(p_window, NULL);
     if(!p_renderer) {
-      berror("Unable to create the renderer: %s", SDL_GetError());
+      berror(_("Unable to create the renderer: %s"), SDL_GetError());
     }
     max_texture = (int)SDL_GetNumberProperty(SDL_GetRendererProperties(p_renderer),
                                              SDL_PROP_RENDERER_MAX_TEXTURE_SIZE_NUMBER, 0);

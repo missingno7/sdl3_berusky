@@ -229,6 +229,77 @@ int game_logic::exit_animate(LEVEL_EVENT *p_stack, tpos px, tpos py, tpos layer,
   return(p_stack - p_start);
 }
 
+/*
+ * Sounds - the hraj_sampl() calls of the DOS game (BERUSKY.C, see
+ * docs/AUDIO.md). They are events of the move: an event pushed before
+ * player_move() is chained to the end of the step (like the rest of those
+ * events), one pushed after it is done right away.
+ */
+int game_logic::sound(LEVEL_EVENT *p_stack, SOUND_ID sound, int length, int priority)
+{
+  push(LEVEL_EVENT(SN_PLAY_SAMPLE, (int)sound, length, priority));
+  return(1);
+}
+
+// posun_berusku(): the steps depend on the floor of the target cell
+int game_logic::step_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move)
+{
+  SOUND_ID steps;
+
+  if(p_level->cell_get_item(x, y, LAYER_FLOOR) == NO_ITEM)
+    steps = SOUND_STEPS_BACKGROUND;
+  else if(p_level->cell_get_variation(x, y, LAYER_FLOOR) < 5)
+    steps = SOUND_STEPS_MUD;
+  else
+    steps = SOUND_STEPS_MARBLE;
+
+  return(sound(p_stack, steps, fast_move ? SOUND_TICKS_STEP_FAST : SOUND_TICKS_STEP,
+               SOUND_PRIORITY_STEPS));
+}
+
+// posun_berusku_a_bednu(): pushing sounds together with the steps
+int game_logic::push_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move)
+{
+  int num = sound(p_stack, SOUND_PUSH, fast_move ? SOUND_TICKS_STEP_FAST : SOUND_TICKS_STEP,
+                  SOUND_PRIORITY_PUSH);
+  return(num + step_sound(p_stack+num, x, y, fast_move));
+}
+
+// A color door opened with a key: unlock, a classic door opens (its frame
+// becomes floor with variation 2/3 - the steps are the "mud" ones)
+int game_logic::unlock_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move)
+{
+  bool classic = (p_level->cell_get_variation(x, y, LAYER_ITEMS) == DOOR_VARIATION_CLASSIC);
+
+  int num = sound(p_stack, SOUND_UNLOCK, SOUND_TICKS_SECOND, SOUND_PRIORITY_UNLOCK);
+  if(classic) {
+    num += sound(p_stack+num, SOUND_DOOR_OPEN, SOUND_TICKS_SECOND, SOUND_PRIORITY_DOOR);
+    num += sound(p_stack+num, SOUND_STEPS_MUD, fast_move ? SOUND_TICKS_STEP_FAST : SOUND_TICKS_STEP,
+                 SOUND_PRIORITY_STEPS);
+  } else {
+    num += step_sound(p_stack+num, x, y, fast_move);
+  }
+  return(num);
+}
+
+// A bug enters its closed color passage: a classic one clicks
+int game_logic::passage_sound(LEVEL_EVENT *p_stack, tpos x, tpos y, bool fast_move)
+{
+  int num = 0;
+  if(p_level->cell_get_variation(x, y, LAYER_ITEMS) == DOOR_VARIATION_CLASSIC)
+    num += sound(p_stack, SOUND_DOOR_CLOSE, SOUND_TICKS_SECOND, SOUND_PRIORITY_DOOR);
+  return(num + step_sound(p_stack+num, x, y, fast_move));
+}
+
+// soucastny_pole(): a door closes behind the bug - classic doors click,
+// cyber doors flash
+int game_logic::door_close_sound(LEVEL_EVENT *p_stack, tpos x, tpos y)
+{
+  bool classic = (p_level->cell_get_variation(x, y, LAYER_ITEMS) == DOOR_VARIATION_CLASSIC);
+  return(sound(p_stack, classic ? SOUND_DOOR_CLOSE : SOUND_BLUE_FLASH,
+               SOUND_TICKS_SECOND, SOUND_PRIORITY_DOOR));
+}
+
 #define CHECK_MOVEMENT(nx,ny) (nx >= 0 && nx < LEVEL_CELLS_X && ny >= 0 && ny < LEVEL_CELLS_Y)
 
 void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in)
@@ -290,6 +361,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_ID_DOOR4_H_O:
     case P_ID_DOOR5_H_O:
       if(dx) {
+        event_num += door_close_sound(events+event_num, px, py);
         if(p_level->cell_get_variation(px, py, LAYER_ITEMS) == DOOR_VARIATION_CYBER) {
           event_num += anim_generate(events+event_num, ANIM_DOOR_ID_H, px, py);
         }
@@ -305,6 +377,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_ID_DOOR4_V_O:
     case P_ID_DOOR5_V_O:
       if(dy) {
+        event_num += door_close_sound(events+event_num, px, py);
         if(p_level->cell_get_variation(px, py, LAYER_ITEMS) == DOOR_VARIATION_CYBER) {
           event_num += anim_generate(events+event_num, ANIM_DOOR_ID_V, px, py);
         }
@@ -316,6 +389,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     // One-pass doors
     case P_DV_H_O:
       if(dx) {
+        event_num += door_close_sound(events+event_num, px, py);
         if(p_level->cell_get_variation(px, py, LAYER_ITEMS) == DOOR_VARIATION_CYBER) {
           event_num += anim_generate(events+event_num, ANIM_DOOR_DV_H, px, py);
         }
@@ -326,6 +400,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
         
     case P_DV_V_O:
       if(dy) {
+        event_num += door_close_sound(events+event_num, px, py);
         if(p_level->cell_get_variation(px, py, LAYER_ITEMS) == DOOR_VARIATION_CYBER) {
           event_num += anim_generate(events+event_num, ANIM_DOOR_DV_V, px, py);
         }
@@ -344,10 +419,11 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       
       if(itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
-    
+
     case P_BOX: // move player and box
       if(!CHECK_MOVEMENT(nnx,nny))
         break;
@@ -355,10 +431,11 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       if(itm_next == NO_ITEM && itm_next_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
         event_num += item_move(events+event_num,nx,ny,LAYER_ITEMS,dx,dy,fast_movement);
+        event_num += push_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
-    
+
     case P_BOX_LIGHT:
       if(!CHECK_MOVEMENT(nnnx,nnny))
         break;
@@ -367,6 +444,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       if(itm_next == NO_ITEM && itm_next_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
         event_num += item_move(events+event_num,nx,ny,LAYER_ITEMS,dx,dy,fast_movement);
+        event_num += push_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       // Move two light boxes
@@ -375,6 +453,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
         event_num += item_move(events+event_num,nx,ny,LAYER_ITEMS,dx,dy,fast_movement);
         event_num += item_move(events+event_num,nnx,nny,LAYER_ITEMS,dx,dy,fast_movement);
+        event_num += push_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }    
       break;
@@ -387,12 +466,16 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       if(itm_next == NO_ITEM && itm_next_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
         event_num += item_move(events+event_num,nx,ny,LAYER_ITEMS,dx,dy,fast_movement);
+        event_num += push_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       else if(itm_next == P_BOX || itm_next == P_BOX_LIGHT) { // blow tnt & box
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
         event_num += item_blast(events+event_num,nnx,nny,LAYER_ITEMS);
         event_num += item_erase(events+event_num,nx,ny,LAYER_ITEMS,TRUE);
+        // animuj_bednu()
+        event_num += sound(events+event_num,SOUND_EXPLOSION,SOUND_TICKS_EXPLOSION,SOUND_PRIORITY_PICKUP);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -400,14 +483,24 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_EXIT:
       if(p_level->state_keys_enough()) {
         p_status->bug_in_exit();
+        // the music stops, the level-done sound plays
+        p_queue->add(LEVEL_EVENT(SN_STOP_MUSIC));
+        p_queue->add(LEVEL_EVENT(SN_PLAY_SAMPLE, (int)SOUND_LEVEL_DONE,
+                                 SOUND_TICKS_LEVEL_DONE, SOUND_PRIORITY_PICKUP));
         p_queue->add(LEVEL_EVENT(GC_STOP_LEVEL, FALSE, TRUE));
       }
       break;
   
     case P_STONE:
       if(p_level->player_mattock_drop(player)) {
+        // the classic stone (variation 0) is the "iron" one
+        bool iron = (p_level->cell_get_variation(nx, ny, LAYER_ITEMS) == 0);
         event_num += player_move(events+event_num, player, px, py, dx, dy, fast_movement, event_num);
         event_num += item_erase(events+event_num, nx, ny, LAYER_ITEMS, TRUE, event_num);
+        event_num += sound(events+event_num, iron ? SOUND_IRON_STONE : SOUND_BLUE_STONE,
+                           SOUND_TICKS_STONE,
+                           iron ? SOUND_PRIORITY_IRON_STONE : SOUND_PRIORITY_DOOR);
+        event_num += step_sound(events+event_num, nx, ny, fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -420,7 +513,12 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       
         /* Manage player movement */
         event_num += item_erase(events+event_num, nx, ny, LAYER_ITEMS, TRUE);
+        // the fifth key: the exit opens with a sound when the step ends
+        if(p_level->state_keys_enough())
+          event_num += sound(events+event_num, SOUND_EXIT_OPEN, SOUND_TICKS_SECOND, SOUND_PRIORITY_DOOR);
         event_num += player_move(events+event_num, player, px, py, dx, dy, fast_movement, event_num);
+        event_num += sound(events+event_num, SOUND_PICKUP, SOUND_TICKS_SECOND, SOUND_PRIORITY_PICKUP);
+        event_num += step_sound(events+event_num, nx, ny, fast_movement);
         player_moved = TRUE;
       
         /* Anim exit(s) if player has the propper amount of keys */
@@ -449,6 +547,8 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       if(p_level->player_mattock_add(player)) {
         event_num += item_erase(events+event_num, nx, ny, LAYER_ITEMS, TRUE);
         event_num += player_move(events+event_num, player, px, py, dx, dy, fast_movement, event_num);
+        event_num += sound(events+event_num, SOUND_PICKUP, SOUND_TICKS_SECOND, SOUND_PRIORITY_PICKUP);
+        event_num += step_sound(events+event_num, nx, ny, fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -462,6 +562,8 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
       if(player == (itm - P_KEY1) && p_level->player_key_add(player)) {
         event_num += item_erase(events+event_num, nx, ny, LAYER_ITEMS, TRUE);
         event_num += player_move(events+event_num, player, px, py, dx, dy, fast_movement, event_num);
+        event_num += sound(events+event_num, SOUND_PICKUP, SOUND_TICKS_SECOND, SOUND_PRIORITY_PICKUP);
+        event_num += step_sound(events+event_num, nx, ny, fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -475,6 +577,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DOOR5_H_O:
       if(dx && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -488,6 +591,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DOOR5_V_O:
       if(dy && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -500,7 +604,8 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DOOR4_H_Z:
     case P_DOOR5_H_Z:    
       if(player == (itm - P_DOOR1_H_Z) && dx && p_level->player_key_drop(player)) {
-        event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);        
+        event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += unlock_sound(events+event_num,nx,ny,fast_movement);
         if(p_level->cell_get_variation(nx, ny, LAYER_ITEMS) == DOOR_VARIATION_CLASSIC) {
           event_num += item_variation_set(events+event_num, nx, ny, LAYER_FLOOR, FLOOR_CLASSIC_UP, TRUE);
           event_num += item_set(events+event_num, nx, ny, LAYER_FLOOR, P_GROUND, FALSE);
@@ -524,7 +629,8 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DOOR4_V_Z:
     case P_DOOR5_V_Z:
       if(player == (itm - P_DOOR1_V_Z) && dy && p_level->player_key_drop(player)) {
-        event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);        
+        event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += unlock_sound(events+event_num,nx,ny,fast_movement);
         if(p_level->cell_get_variation(nx, ny, LAYER_ITEMS) == DOOR_VARIATION_CLASSIC) {
           event_num += item_variation_set(events+event_num, nx, ny, LAYER_FLOOR, FLOOR_CLASSIC_LEFT, TRUE);
           event_num += item_set(events+event_num, nx, ny, LAYER_FLOOR, P_GROUND, FALSE);
@@ -546,8 +652,9 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_ID_DOOR3_H_Z:
     case P_ID_DOOR4_H_Z:
     case P_ID_DOOR5_H_Z:
-      if(player == (itm-P_ID_DOOR1_H_Z) && dx) {      
+      if(player == (itm-P_ID_DOOR1_H_Z) && dx) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += passage_sound(events+event_num,nx,ny,fast_movement);
         event_num += item_set(events+event_num,nx,ny,LAYER_ITEMS,P_ID_DOOR1_H_O+(itm-P_ID_DOOR1_H_Z),TRUE,TRUE);
         player_moved = TRUE;
       }    
@@ -561,6 +668,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_ID_DOOR5_H_O:
       if(player == (itm - P_ID_DOOR1_H_O) && dx && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -572,6 +680,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_ID_DOOR5_V_Z:
       if(player == (itm - P_ID_DOOR1_V_Z) && dy && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += passage_sound(events+event_num,nx,ny,fast_movement);
         event_num += item_set(events+event_num,nx,ny,LAYER_ITEMS,P_ID_DOOR1_V_O+(itm-P_ID_DOOR1_V_Z),TRUE,TRUE);
         player_moved = TRUE;
       }
@@ -584,6 +693,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_ID_DOOR5_V_O:
       if(player == (itm-P_ID_DOOR1_V_O) && dy && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -592,14 +702,16 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DV_H_O:
       if(dx && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
-        player_moved = TRUE;    
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
+        player_moved = TRUE;
       }
       break;
         
     case P_DV_V_O:
       if(dy && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
-        player_moved = TRUE;    
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
+        player_moved = TRUE;
       }
       break;
       
@@ -612,6 +724,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DV_H:
       if(dx && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -619,6 +732,7 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
     case P_DV_V:
       if(dy && itm_player == NO_ITEM) {
         event_num += player_move(events+event_num,player,px,py,dx,dy,fast_movement,event_num);
+        event_num += step_sound(events+event_num,nx,ny,fast_movement);
         player_moved = TRUE;
       }
       break;
@@ -648,9 +762,11 @@ void game_logic::player_move_check(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in
   {LEVEL_EVENT(PLAYER_SWITCH,  3, 0), K_4, 0,0,0},
   {LEVEL_EVENT(PLAYER_SWITCH,  4, 0), K_5, 0,0,0},
 */
-void game_logic::player_switch(LEVEL_EVENT *p_in)
+void game_logic::player_switch(LEVEL_EVENT_QUEUE *p_queue, LEVEL_EVENT *p_in)
 {
-  p_level->player_switch(p_in->param_int_get(PARAM_0));
+  // prepni(): a click when another bug gets selected
+  if(p_level->player_switch(p_in->param_int_get(PARAM_0)))
+    p_queue->add(LEVEL_EVENT(SN_PLAY_SAMPLE, (int)SOUND_SWITCH, SOUND_TICKS_SECOND, SOUND_PRIORITY_SWITCH));
 }
 
 // Process event and return events for level-changer
@@ -661,7 +777,7 @@ void game_logic::events_process(LEVEL_EVENT_QUEUE *p_queue)
     if(ev.action_get() == GL_PLAYER_MOVE || ev.action_get() == GL_PLAYER_MOVE_FAST) {
       player_move_check(p_queue, &ev);
     } else if(ev.action_get() == GL_PLAYER_SWITCH) {
-      player_switch(&ev);
+      player_switch(p_queue, &ev);
     } else {
       p_queue->add(ev);
     }

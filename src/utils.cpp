@@ -166,6 +166,8 @@ void dir_list::load(const char *p_ini)
   #define INI_LEVEL       "level_data"
   #define INI_GAME        "game_data"
   #define INI_GRAPHICS    "graphics_data"
+  #define INI_SOUND_DIR   "sound_data"
+  #define INI_MUSIC_DIR   "music_data"
   #define INI_LEVEL_USER  "level_data_user"
   #define INI_BINARY      "game_binary"
   #define INI_TMP         "tmp_data"
@@ -184,6 +186,12 @@ void dir_list::load(const char *p_ini)
   snprintf(def, sizeof(def), "%sGraphics", p_root);
   dir_config_read(p_ini, INI_GRAPHICS, graphics, sizeof(graphics), def);
 
+  snprintf(def, sizeof(def), "%sSound", p_root);
+  dir_config_read(p_ini, INI_SOUND_DIR, sound, sizeof(sound), def);
+
+  snprintf(def, sizeof(def), "%sMusic", p_root);
+  dir_config_read(p_ini, INI_MUSIC_DIR, music, sizeof(music), def);
+
   // Writable data - user directory
   dir_config_read(p_ini, INI_LEVEL_USER, levels_user, sizeof(levels_user), user_dir_levels());
   dir_config_read(p_ini, INI_TMP, tmp, sizeof(tmp), user_file_get("Tmp"));
@@ -195,6 +203,8 @@ void dir_list::load(const char *p_ini)
   bprintf("level_data: %s",levels);
   bprintf("game_data: %s",gamedata);
   bprintf("graphics_data: %s",graphics);
+  bprintf("sound_data: %s",sound);
+  bprintf("music_data: %s",music);
   bprintf("level_data_user: %s",levels_user);
   bprintf("tmp_data: %s",tmp);
   bprintf("game_binary: %s",game_binary);
@@ -356,7 +366,7 @@ FHANDLE file_open(const char * p_dir, const char * p_file, const char *p_mode, b
   }
 
   if(!p_f && safe) {
-    berror("Unable to open %s!\nError: %s", filename, SDL_GetError());
+    berror(_("Unable to open %s!\nError: %s"), filename, SDL_GetError());
   }
 
   return(FHANDLE(p_f));
@@ -707,8 +717,8 @@ bool graphics_game_load(DIR_LIST *p_dir)
 
   p_grf->graphics_dir_set(p_dir->graphics_get());
 
-  bprintf(_("Graphics dir '%s'"),p_dir->graphics_get());
-  bprintf(_("Loading game graphics..."));
+  bprintf("Graphics dir '%s'",p_dir->graphics_get());
+  bprintf("Loading game graphics...");
 
   sprite::color_key_set(COLOR_KEY_GAME);
 
@@ -778,7 +788,7 @@ bool graphics_game_load(DIR_LIST *p_dir)
   if(!i) {
     berror(_("Unable to load data, exiting..."));    
   }
-  bprintf(_("%d sprites loaded..."), i);
+  bprintf("%d sprites loaded...", i);
 
   return(i > 0);
 }
@@ -817,8 +827,8 @@ bool graphics_menu_load(DIR_LIST *p_dir)
   
   p_grf->graphics_dir_set(p_dir->graphics_get());
 
-  bprintf(_("Graphics dir '%s'"),p_dir->graphics_get());
-  bprintf(_("Loading menu graphics..."));
+  bprintf("Graphics dir '%s'",p_dir->graphics_get());
+  bprintf("Loading menu graphics...");
 
   sprite::color_key_set(COLOR_KEY_BLACK);
   i   = p_grf->sprite_insert("menu1.spr", MENU_SPRIT_ROCK);
@@ -857,13 +867,13 @@ bool graphics_menu_load(DIR_LIST *p_dir)
   int j;
   for(j = 0; j < FONT_NUM; j++) {
     if(!p_font->load(j, FIRST_FONT + j*FONT_STEP, FONT_SPRITES))
-      bprintf(_("Unable to load font %d!"),j);
+      bprintf("Unable to load font %d!",j);
   }
 
   if(!i) {
     berror(_("Unable to load data, exiting..."));    
   }
-  bprintf(_("%d sprites loaded..."), i);
+  bprintf("%d sprites loaded...", i);
 
   return((bool)i);
 }
@@ -882,8 +892,8 @@ void graphics_menu_free(void)
 
 int  background_num(DIR_LIST *p_dir)
 {
-  bprintf(_("Graphics dir '%s'"),p_dir->graphics_get());
-  bprintf(_("Checking backgrounds..."));
+  bprintf("Graphics dir '%s'",p_dir->graphics_get());
+  bprintf("Checking backgrounds...");
 
   int j;
 
@@ -894,7 +904,7 @@ int  background_num(DIR_LIST *p_dir)
       break;
   }  
 
-  bprintf(_("%d backgrounds..."), j);
+  bprintf("%d backgrounds...", j);
 
   return(j);
 }
@@ -1042,9 +1052,9 @@ void user_directory_create(void)
 
   const char *p_ini = user_file_get(INI_FILE_NAME);
 
-  bprintfnl(_("Checking %s..."), p_ini);
+  bprintfnl("Checking %s...", p_ini);
   if(!file_exists(NULL, p_ini)) {
-    bprintfnl(_("missing, creating it..."));
+    bprintfnl("missing, creating it...");
 
     // Prefer the template shipped with the game data
     bool ret = file_copy(INI_FILE_NAME, platform_asset_root()[0] ? platform_asset_root() : NULL,
@@ -1053,13 +1063,13 @@ void user_directory_create(void)
       ret = file_save(NULL, p_ini, (void *)default_config, (t_off)strlen(default_config), "wb");
     }
     if(ret) {
-      bprintf(_("ok"));
+      bprintf("ok");
     } else {
       print_errno(TRUE);
-      bprintf(_("failed"));
+      bprintf("failed");
     }
   } else {
-    bprintf(_("ok"));
+    bprintf("ok");
   }
   bprintf(" ");
 }

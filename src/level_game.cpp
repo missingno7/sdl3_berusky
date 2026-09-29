@@ -153,7 +153,7 @@ bool level_generic::level_load(const char * p_file)
 
 bool level_generic::level_load(const char *p_file, const char **p_dirs, int dirs)
 {
-  bprintf(_("level_generic::level_load %s..."),p_file);
+  bprintf("level_generic::level_load %s...",p_file);
 
   int i;
   for(i = 0; i < dirs; i++) {
@@ -162,11 +162,11 @@ bool level_generic::level_load(const char *p_file, const char **p_dirs, int dirs
     return_path(p_dirs[i], p_file, file, MAX_FILENAME);
   
     if(level_exists(file)) {
-      bprintf(_("Checking %s...OK"),file);      
+      bprintf("Checking %s...OK",file);      
       return(level_load(file));
     }
     else {
-      bprintf(_("Checking %s...not found"),file);      
+      bprintf("Checking %s...not found",file);      
     }
   }
 
@@ -541,7 +541,7 @@ void level_game::low_panel_draw_steps(bool redraw)
   p_font->alignment_set(MENU_RIGHT);
   p_font->select(FONT_DEFAULT);
 
-  p_font->print(NULL,LOW_PANEL_STP_X_TEXT,LOW_PANEL_STP_Y,"steps: %d",p_status->steps_get());
+  p_font->print(NULL,LOW_PANEL_STP_X_TEXT,LOW_PANEL_STP_Y,_("steps: %d"),p_status->steps_get());
 
   if(redraw)
     p_grf->redraw_add(LOW_PANEL_STP_X,LOW_PANEL_STP_Y,LOW_PANEL_STP_DX,LOW_PANEL_STP_DY);

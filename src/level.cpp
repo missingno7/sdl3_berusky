@@ -29,108 +29,108 @@
 
 char * item_repository::item_desc_name[MAX_ITEM_NAMES] = 
 { 
-  _("Floor"),
+  N_("Floor"),
 
-  _("Player 1"),
-  _("Player 2"),
-  _("Player 3"),
-  _("Player 4"),
-  _("Player 5"),
+  N_("Player 1"),
+  N_("Player 2"),
+  N_("Player 3"),
+  N_("Player 4"),
+  N_("Player 5"),
 
-  _("Box"),
-  _("Explosive"),
-  _("Wall"),
-  _("Exit"),
-  _("Stone"),
-  _("Key (to exit)"),
-  _("Pickax"),
-
-  // ---
-  _("Color Key (for player 1)"),
-  _("Color Key (for player 2)"),
-  _("Color Key (for player 3)"),
-  _("Color Key (for player 4)"),
-  _("Color Key (for player 5)"),
+  N_("Box"),
+  N_("Explosive"),
+  N_("Wall"),
+  N_("Exit"),
+  N_("Stone"),
+  N_("Key (to exit)"),
+  N_("Pickax"),
 
   // ---
-  _("Color door (for player 1)"),
-  _("Color door (for player 2)"),
-  _("Color door (for player 3)"),
-  _("Color door (for player 4)"),
-  _("Color door (for player 5)"),
+  N_("Color Key (for player 1)"),
+  N_("Color Key (for player 2)"),
+  N_("Color Key (for player 3)"),
+  N_("Color Key (for player 4)"),
+  N_("Color Key (for player 5)"),
 
-  _("Color door (for player 1)"),
-  _("Color door (for player 2)"),
-  _("Color door (for player 3)"),
-  _("Color door (for player 4)"),
-  _("Color door (for player 5)"),
+  // ---
+  N_("Color door (for player 1)"),
+  N_("Color door (for player 2)"),
+  N_("Color door (for player 3)"),
+  N_("Color door (for player 4)"),
+  N_("Color door (for player 5)"),
 
-  _("Color door (for player 1)"),
-  _("Color door (for player 2)"),
-  _("Color door (for player 3)"),
-  _("Color door (for player 4)"),
-  _("Color door (for player 5)"),
+  N_("Color door (for player 1)"),
+  N_("Color door (for player 2)"),
+  N_("Color door (for player 3)"),
+  N_("Color door (for player 4)"),
+  N_("Color door (for player 5)"),
 
-  _("Color door (for player 1)"),
-  _("Color door (for player 2)"),
-  _("Color door (for player 3)"),
-  _("Color door (for player 4)"),
-  _("Color door (for player 5)"),
+  N_("Color door (for player 1)"),
+  N_("Color door (for player 2)"),
+  N_("Color door (for player 3)"),
+  N_("Color door (for player 4)"),
+  N_("Color door (for player 5)"),
+
+  N_("Color door (for player 1)"),
+  N_("Color door (for player 2)"),
+  N_("Color door (for player 3)"),
+  N_("Color door (for player 4)"),
+  N_("Color door (for player 5)"),
   
   // ---
-  _("Color gate-way (for player 1)"),
-  _("Color gate-way (for player 2)"),
-  _("Color gate-way (for player 3)"),
-  _("Color gate-way (for player 4)"),
-  _("Color gate-way (for player 5)"),
+  N_("Color gate-way (for player 1)"),
+  N_("Color gate-way (for player 2)"),
+  N_("Color gate-way (for player 3)"),
+  N_("Color gate-way (for player 4)"),
+  N_("Color gate-way (for player 5)"),
 
-  _("Color gate-way (for player 1)"),
-  _("Color gate-way (for player 2)"),
-  _("Color gate-way (for player 3)"),
-  _("Color gate-way (for player 4)"),
-  _("Color gate-way (for player 5)"),
+  N_("Color gate-way (for player 1)"),
+  N_("Color gate-way (for player 2)"),
+  N_("Color gate-way (for player 3)"),
+  N_("Color gate-way (for player 4)"),
+  N_("Color gate-way (for player 5)"),
 
-  _("Color gate-way (for player 1)"),
-  _("Color gate-way (for player 2)"),
-  _("Color gate-way (for player 3)"),
-  _("Color gate-way (for player 4)"),
-  _("Color gate-way (for player 5)"),
+  N_("Color gate-way (for player 1)"),
+  N_("Color gate-way (for player 2)"),
+  N_("Color gate-way (for player 3)"),
+  N_("Color gate-way (for player 4)"),
+  N_("Color gate-way (for player 5)"),
 
-  _("Color gate-way (for player 1)"),
-  _("Color gate-way (for player 2)"),
-  _("Color gate-way (for player 3)"),
-  _("Color gate-way (for player 4)"),
-  _("Color gate-way (for player 5)"),
+  N_("Color gate-way (for player 1)"),
+  N_("Color gate-way (for player 2)"),
+  N_("Color gate-way (for player 3)"),
+  N_("Color gate-way (for player 4)"),
+  N_("Color gate-way (for player 5)"),
 
   // ---
-  _("One-pass door"),
-  _("One-pass door"),
-  _("One-pass door"),
-  _("One-pass door"),
+  N_("One-pass door"),
+  N_("One-pass door"),
+  N_("One-pass door"),
+  N_("One-pass door"),
 
-  _("One-pass door"),
-  _("One-pass door"),
+  N_("One-pass door"),
+  N_("One-pass door"),
 
   // --
-  _("Jamb (Wall)"),
-  _("Jamb (Wall)"),
-  _("Jamb (Wall)"),
-  _("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
   
-  _("Jamb (Wall)"),
-  _("Jamb (Wall)"),
-  _("Jamb (Wall)"),
-  _("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
+  N_("Jamb (Wall)"),
   
-  _("Light box")
+  N_("Light box")
 };
 
 char * item_repository::item_desc_rotation[MAX_ITEM_ROTATIONS] = 
 { 
-  _("0 DG."),
-  _("90 DG."),
-  _("180 DG."),
-  _("270 DG.")
+  N_("0 DG."),
+  N_("90 DG."),
+  N_("180 DG."),
+  N_("270 DG.")
 };
 
 void item_repository::create(int *p_indexes, int indexnum)

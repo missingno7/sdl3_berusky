@@ -10,7 +10,6 @@ Bugs:
 - What happens if user-levelset is finished?
 - Auto-shading? (for boxes - and when moves)
 - Windows version
-- Sound & Music
 
 Editor:
 - power pill
@@ -29,8 +28,6 @@ New Items:
 Game:
 
   TODO (in CZ):
-
-  - hudba a zvuky
 
   - parser - setridit to podle pocatecnich pismen at to nemusim prohledavat cele
   - prohledavani klavesovych eventu - take setridit
@@ -73,7 +70,6 @@ Game:
   
   - vypnout aplikaci kdyz je deaktivovana (na pozadi, bez focusu)
 
-  - preklad textu hint/end texty
 
 Editor:
 

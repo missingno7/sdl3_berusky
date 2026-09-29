@@ -39,6 +39,8 @@
  *                          times, log the average time (performance)
  *   window <w> <h>         resize the window
  *   fullscreen <0|1>       switch fullscreen
+ *   audiolog <file.txt>    save the log of the audio layer: which sounds and
+ *                          music tracks were requested at which game tick
  *   quit                   quit the game
  *
  * Key names: a-z, 0-9, up, down, left, right, tab, enter, esc, space, bksp, f1-f12

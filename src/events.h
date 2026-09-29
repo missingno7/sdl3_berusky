@@ -245,6 +245,11 @@ typedef enum {
   GC_MENU_SETTINGS_FILTER_NEXT,
   GC_MENU_SETTINGS_SOUND_SWITCH,
   GC_MENU_SETTINGS_MUSIC_SWITCH,
+  // format: [GC_MENU_SETTINGS_SOUND_VOLUME / MUSIC_VOLUME, change, from_game]
+  GC_MENU_SETTINGS_SOUND_VOLUME,
+  GC_MENU_SETTINGS_MUSIC_VOLUME,
+  // format: [GC_MENU_SETTINGS_LANGUAGE_NEXT, from_game]
+  GC_MENU_SETTINGS_LANGUAGE_NEXT,
   GC_MENU_LEVEL_HINT,
   GC_MENU_HELP,
   GC_MENU_HELP_KEYS,
@@ -262,15 +267,25 @@ typedef enum {
 
 
   // ------------------------------------------------------------------------
-  // Sound engine events
-  
-  // Play sample
-  // format: [SN_PLAY_SAMPLE, sample_handle]
+  // Sound engine events - done by the audio layer (audio.h). The game logic
+  // puts them into the level's event stream, so a sound can also be
+  // chained to the end of an animation like any other event.
+
+  // Play a sound effect
+  // format: [SN_PLAY_SAMPLE, sound (SOUND_ID), length in ticks, priority]
   SN_PLAY_SAMPLE,
-  
-  // Play music
-  // format: [SN_PLAY_MUSIC, track_handle]
+
+  // Music of a situation
+  // format: [SN_PLAY_MUSIC, context (MUSIC_CONTEXT)] - MUSIC_LEVEL = next level track
   SN_PLAY_MUSIC,
+
+  // Stop the music
+  // format: [SN_STOP_MUSIC]
+  SN_STOP_MUSIC,
+
+  // A menu item got highlighted (the menu sound plays when it's another item)
+  // format: [SN_MENU_HIGHLIGHT, item]
+  SN_MENU_HIGHLIGHT,
 
   // ------------------------------------------------------------------------
   // Editor events

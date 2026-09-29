@@ -157,10 +157,18 @@ void level_changer::events_process(LEVEL_EVENT_QUEUE *p_queue)
           }
           break;
         
+        // Sounds and music of the level (the logic makes them, some of
+        // them come at the end of an animation)
+        case SN_PLAY_SAMPLE:
+        case SN_PLAY_MUSIC:
+        case SN_STOP_MUSIC:
+          audio.event_process(&ev);
+          break;
+
         default:
           p_queue->add(ev);
           break;
-      }    
+      }
     }
   
     // commit all changes to queue

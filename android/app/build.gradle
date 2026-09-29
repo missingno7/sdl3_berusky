@@ -46,12 +46,13 @@ android {
     }
 }
 
-// The game data (Graphics, GameData, Levels + the config template) is
-// packaged as APK assets. The game reads it with SDL_IOFromFile()
+// The game data (Graphics, GameData, Levels, Sound, Music + the config
+// template) is packaged as APK assets. The game reads it with SDL_IOFromFile()
 // (see src/platform.cpp - the asset root is empty on Android).
 tasks.register('copyGameData', Copy) {
     from('../../data') {
-        include 'Graphics/**', 'GameData/**', 'Levels/**', 'berusky.ini'
+        include 'Graphics/**', 'GameData/**', 'Levels/**', 'Sound/**', 'Music/**', 'berusky.ini'
+        exclude '**/SOURCE.txt'
     }
     into 'src/main/assets'
 }

@@ -4,9 +4,9 @@ Progress document: what was inspected, what was migrated, what is left.
 
 ## 1. Build and run
 
-Requirements: a C++14 compiler and CMake >= 3.16. SDL3 and SDL3_image are used
-when installed; otherwise CMake downloads and builds them
-(`BERUSKY_FETCH_SDL=ON`, needs `git`).
+Requirements: a C++14 compiler and CMake >= 3.16. SDL3, SDL3_image and
+libxmp-lite (music) are used when installed; otherwise CMake downloads and
+builds them (`BERUSKY_FETCH_SDL=ON`, `BERUSKY_FETCH_LIBXMP=ON`, needs `git`).
 
 ```
 cmake -S . -B build -G Ninja
@@ -20,7 +20,7 @@ CMake options: `BERUSKY_ENABLE_EDITOR` (ON), `BERUSKY_ENABLE_ASSERTS` (ON – th
 code base uses `assert()` for sanity checks, release builds keep them),
 `BERUSKY_FETCH_SDL`, `BERUSKY_STATIC_SDL`.
 
-Game data (`Graphics`, `GameData`, `Levels`) is found automatically:
+Game data (`Graphics`, `GameData`, `Levels`, `Sound`, `Music`) is found automatically:
 `$BERUSKY_DATA`, `<exe>/data`, `<exe>/../data`, `<exe>/../../data`,
 `<exe>/../share/berusky`, and finally the `data/` directory of the source tree
 the executable was built from. Everything can be overridden in the config file.
@@ -84,6 +84,14 @@ game / core code (unchanged game logic, animation, levels, menus, sprite store)
 * **Timing** – unchanged: fixed 30 Hz game tick (`GAME_FPS`), the same
   catch-up loop as before. Presentation is decoupled from the tick in
   `video.*`, so a higher refresh rate with interpolation can be added later.
+* **Audio** – the sound effects and music of the DOS original, see
+  **`docs/AUDIO.md`**: `audio.*` (sound ids, music situations, voices, on the
+  game tick) behind `SN_` events; `audio_sdl.cpp` (SDL3 audio streams +
+  libxmp for the FastTracker modules) is the only file with SDL audio.
+* **Languages** – English / Czech (the DOS texts), see
+  **`docs/LOCALIZATION.md`**: `_()` looks texts up in `lang_cs.cpp`, long
+  texts are `GameData/cs/` files, the font draws Czech letters as letter +
+  accent glyph.
 
 ## 3. Migration status
 
@@ -106,6 +114,8 @@ game / core code (unchanged game logic, animation, levels, menus, sprite store)
 | MSVC and MinGW GCC builds | both build, both produce identical pixels in all regression scenarios |
 | Android project skeleton (`android/`) | written from the SDL3 template, **never built** (no SDK/NDK here) |
 | Android touch controls | same code as desktop touch, **untested on a device** |
+| Sound effects + music (from the DOS original) | done, SDL3 audio streams + libxmp-lite, see `docs/AUDIO.md` |
+| Czech texts (from the DOS original), language setting | done, see `docs/LOCALIZATION.md` |
 
 ## 4. Remaining SDL 1.2 APIs
 
@@ -125,8 +135,8 @@ the SDL3 keycode translation table (`input_sdl.cpp`).
   original, so it types lower case ASCII only. On-screen keyboards on Android
   need `SDL_StartTextInput` / `SDL_EVENT_TEXT_INPUT` support.
 * Windows builds still use the console subsystem (log goes to the console).
-* The original build never initialized gettext, so `_()` is the identity;
-  the `po/` translations are not used.
+* Texts: gettext is not used (it never was); `_()` is the built-in table of
+  `lang.cpp` (`docs/LOCALIZATION.md`), the empty `po/` was removed.
 * The autotools files (`configure.in`, `Makefile.am`, ...) are still in the tree
   but describe the old SDL 1.2/GTK build and no longer work.
 
@@ -159,10 +169,12 @@ the SDL3 keycode translation table (`input_sdl.cpp`).
 * User levels default to the user data directory; the editor saves bare file
   names there.
 * Config file is only read from the user data directory.
-* Sound: the original code base has **no** audio engine. The settings menu
-  has sound/music check boxes but their handlers are commented out, and the
-  level format has an unused `music` byte. Nothing was changed or added; audio is
-  an unfinished feature that is independent of this port.
+* Sound and music are back (the 1.x code base had none): the samples and
+  modules of the DOS original with its behavior, see `docs/AUDIO.md`. The
+  DOS intro scene (and so its music) doesn't exist in 1.x.
+* Czech: the texts of the DOS game, `docs/LOCALIZATION.md`.
+* The end of an episode showed the training ending for every level set
+  (the set wasn't passed to the screen) - fixed.
 * The default `berusky.ini` template no longer contains the old
   `/usr/share/berusky` paths.
 * Two latent bugs of the original were fixed because they break 64-bit or make
@@ -195,6 +207,12 @@ A pixel comparison with the original still has to be done on a machine with
 the old libraries: run the old binary and the port on the same level and
 compare the framebuffers.
 
+Scripts also compare the audio log (`audiolog`, `tests/scripts/20_audio.txt`)
+and run in Czech (`# env: BERUSKY_LANGUAGE=cs`, `19_czech.txt`). The unit
+tests (`ctest`): render layout, languages + audio layer, the translation
+table.
+
 Environment variables used by these hooks and by the portable mode:
 `BERUSKY_TEST_SCRIPT`, `BERUSKY_TEST_OUT`, `BERUSKY_USER_DIR`,
-`BERUSKY_TOUCH_CONTROLS`, `BERUSKY_DATA`.
+`BERUSKY_TOUCH_CONTROLS`, `BERUSKY_DATA`, `BERUSKY_LANGUAGE`,
+`BERUSKY_NO_AUDIO`, `BERUSKY_TEST_AUDIO` (test scripts are silent unless set).

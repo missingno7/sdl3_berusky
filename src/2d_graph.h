@@ -774,9 +774,16 @@ public:
 
 #define FONT_NUM                  3
 
+// font_info::glyph_get() - a character without an accent
+#define FONT_NO_ACCENT            (-1)
+
 typedef class font_lookup_table {
 
   int position[256];
+
+  // The accent glyphs (caron, acute, ring) of the DOS font - the three
+  // successive '^' lines of the .tab file, -1 when the font has none
+  int accent[ACCENT_NUM];
 
 public:
   bool load(char *p_file);
@@ -784,6 +791,10 @@ public:
   {
     assert(c >= 0 && c < 256);
     return(position[c]);
+  }
+  int  accent_lookup(ACCENT a)
+  {
+    return(a > ACCENT_NONE && a < ACCENT_NUM ? accent[a] : -1);
   }
 
 } FONT_LOOKUP_TABLE;
@@ -819,40 +830,62 @@ public:
   bool load(int font_index, int first, int num);
   void free(void);
 
+  // Sprite of a character (UTF-8 code point) and of its accent (Czech
+  // letters are a base letter + an accent glyph, like in the DOS game).
+  // Returns FALSE for characters that aren't drawn (\r).
+  bool glyph_get(unsigned ch, spr_handle *p_base, spr_handle *p_accent);
+
+  int  width_get(unsigned ch)
+  {
+    spr_handle base, accent;
+    return(glyph_get(ch, &base, &accent) ? p_grf->sprite_get_width(base) : 0);
+  }
+
   int  width_get(char c)
   {
-    return(p_grf->sprite_get_width(font_sprite_first+ftable.lookup(c)));
+    return(width_get((unsigned)(unsigned char)c));
   }
 
   int  width_get(char *p_string)
-  { 
-    tpos width = 0;  
-  
-    while(*p_string) {
-      width += width_get(*p_string++);
+  {
+    tpos width = 0;
+    const char *p = p_string;
+    unsigned ch;
+
+    while((ch = utf8_next(&p))) {
+      width += width_get(ch);
     }
-  
+
     return(width);
+  }
+
+  int  height_get(unsigned ch)
+  {
+    spr_handle base, accent;
+    if(!glyph_get(ch, &base, &accent))
+      glyph_get('A', &base, &accent);
+    return(p_grf->sprite_get_height(base));
   }
 
   int  height_get(char c = 'A')
   {
-    return(p_grf->sprite_get_height(font_sprite_first+ftable.lookup(c)));
+    return(height_get((unsigned)(unsigned char)c));
   }
 
   int  height_get(char *p_string)
   {
-    return(height_get(p_string[0]));
+    const char *p = p_string;
+    return(height_get(utf8_next(&p)));
   }
 
   int  height_get_new_line(char c)
   {
-    return(p_grf->sprite_get_height(font_sprite_first+ftable.lookup(c))+extra_height);
+    return(height_get(c)+extra_height);
   }
-    
+
   int  height_get_new_line(char *p_string)
   {
-    return(height_get_new_line(p_string[0]));
+    return(height_get(p_string)+extra_height);
   }
 
   void height_set_new_line(int height = -1)
@@ -868,13 +901,8 @@ public:
     return extra_height;
   }
 
-  tpos print(int c, tpos px, tpos py, bool draw = TRUE)
-  {  
-    spr_handle spr = font_sprite_first+ftable.lookup(c);
-    if(draw)
-      p_grf->draw(spr, px, py);
-    return(p_grf->sprite_get_width(spr));
-  }
+  // Draws one character (UTF-8 code point), returns its width
+  tpos print(unsigned ch, tpos px, tpos py, bool draw = TRUE);
 
   tpos screen_width_get(void)
   {

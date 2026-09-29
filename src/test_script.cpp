@@ -103,6 +103,23 @@ static void layout_screenshot(const char *p_file)
     bprintf("Test script: saved %s", path);
 }
 
+// What the audio layer was asked to play (sound ids, music tracks, game
+// ticks) - the audio regression test without a sound device
+static void audio_log_save(const char *p_file)
+{
+  char path[MAX_FILENAME];
+  out_path(p_file, path, sizeof(path));
+
+  const std::string &log = audio.log_get();
+  SDL_IOStream *p_io = SDL_IOFromFile(path, "wb");
+  if(!p_io || SDL_WriteIO(p_io, log.data(), log.size()) != log.size())
+    bprintf("Test script: unable to save %s", path);
+  else
+    bprintf("Test script: saved %s", path);
+  if(p_io)
+    SDL_CloseIO(p_io);
+}
+
 static void settings_set(const char *p_key, const char *p_value)
 {
   if(!p_grf)
@@ -321,6 +338,9 @@ bool test_script_poll(class input *p_input_)
     }
     else if(!SDL_strcasecmp(cmd, "layoutshot")) {
       layout_screenshot(arg1);
+    }
+    else if(!SDL_strcasecmp(cmd, "audiolog")) {
+      audio_log_save(arg1);
     }
     else if(!SDL_strcasecmp(cmd, "bench")) {
       if(p_grf) {

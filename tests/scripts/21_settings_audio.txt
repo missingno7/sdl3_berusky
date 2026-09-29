@@ -1,0 +1,34 @@
+# Settings: the sound / music check boxes, their volumes and the language
+# (English -> Czech -> English); the audio log shows what the menus played
+wait 100
+click 320 275
+wait 10
+click 200 330
+wait 10
+click 200 365
+wait 10
+shot settings_audio_off.bmp
+click 200 330
+wait 10
+click 200 365
+wait 10
+click 404 329
+wait 10
+click 536 329
+wait 10
+click 404 364
+wait 10
+shot settings_volumes.bmp
+click 200 400
+wait 10
+shot settings_czech.bmp
+click 330 455
+wait 15
+shot menu_czech.bmp
+click 320 275
+wait 10
+click 200 400
+wait 10
+shot settings_english.bmp
+audiolog audio.txt
+quit

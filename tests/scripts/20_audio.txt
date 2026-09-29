@@ -1,0 +1,74 @@
+# args: -u tests/levels/audio_events.lv3
+# The sounds and music of a level (tests/levels/audio_events.lv3, see
+# tests/tools/make_audio_level.py): every step does one thing that had a
+# sound in the DOS game. The audio log is compared, the pictures too.
+wait 60
+key tab
+wait 10
+key tab
+wait 10
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+shot audio_stones.bmp
+key n
+wait 10
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+key right
+wait 20
+shot audio_doors.bmp
+key right shift
+wait 20
+key right
+wait 20
+key down
+wait 30
+key down
+wait 90
+shot audio_end.bmp
+audiolog audio.txt
+quit
