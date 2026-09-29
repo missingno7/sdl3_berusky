@@ -1,0 +1,2 @@
+// Windows resources of berusky.exe (CMakeLists.txt makes berusky.rc)
+IDI_BERUSKY ICON "@BERUSKY_ICON@"

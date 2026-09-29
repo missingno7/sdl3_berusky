@@ -39,8 +39,24 @@ the first CMake configure (SDL is downloaded).
 
 ```
 cd android
-./gradlew assembleDebug
+./gradlew assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleRelease      # app/build/outputs/apk/release/app-release.apk
 ```
+
+The release APK is signed when `android/keystore.properties` exists (it is
+not in git):
+
+```
+storeFile=C:/Users/<you>/.android/berusky-release.jks
+storePassword=...
+keyAlias=berusky
+keyPassword=...
+```
+
+Keep a backup of the keystore and its passwords: an installed app can only be
+updated by an APK signed with the same key. A debug build and a release build
+have different keys, so one can't be installed over the other (uninstall
+first - that deletes the profiles and the settings).
 
 ## Known open points
 

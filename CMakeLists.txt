@@ -22,6 +22,7 @@ option(BERUSKY_ENABLE_ASSERTS "Keep assert() in release builds (the game relies 
 option(BERUSKY_FETCH_SDL "Download and build SDL3 / SDL3_image when they are not installed" ON)
 option(BERUSKY_STATIC_SDL "Link the downloaded SDL3 / SDL3_image statically" ON)
 option(BERUSKY_FETCH_LIBXMP "Download and build libxmp-lite (music) when it is not installed" ON)
+option(BERUSKY_WINDOWS_GUI "Windows: a GUI application without a console window (the log is only seen when redirected)" OFF)
 
 set(BERUSKY_SDL3_TAG "release-3.4.16" CACHE STRING "SDL3 version to download")
 set(BERUSKY_SDL3_IMAGE_TAG "release-3.4.6" CACHE STRING "SDL3_image version to download")
@@ -124,6 +125,16 @@ if(ANDROID)
 else()
   add_executable(berusky src/main.cpp)
   target_link_libraries(berusky PRIVATE berusky_core)
+
+  if(WIN32)
+    # The game's icon in the executable
+    set(BERUSKY_ICON "${CMAKE_CURRENT_SOURCE_DIR}/data/Windows/berusky.ico")
+    configure_file(src/berusky.rc.in "${CMAKE_CURRENT_BINARY_DIR}/berusky.rc" @ONLY)
+    target_sources(berusky PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/berusky.rc")
+    if(BERUSKY_WINDOWS_GUI)
+      set_target_properties(berusky PROPERTIES WIN32_EXECUTABLE TRUE)
+    endif()
+  endif()
 endif()
 
 # ---------------------------------------------------------------------------

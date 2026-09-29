@@ -3,3 +3,5 @@ app/.cxx/
 build/
 .gradle/
 local.properties
+keystore.properties
+*.jks

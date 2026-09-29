@@ -18,7 +18,18 @@ build/berusky -e [level.lv3]     # level editor
 
 CMake options: `BERUSKY_ENABLE_EDITOR` (ON), `BERUSKY_ENABLE_ASSERTS` (ON – the
 code base uses `assert()` for sanity checks, release builds keep them),
-`BERUSKY_FETCH_SDL`, `BERUSKY_STATIC_SDL`.
+`BERUSKY_FETCH_SDL`, `BERUSKY_STATIC_SDL`, `BERUSKY_WINDOWS_GUI` (OFF – a
+Windows GUI application without a console window).
+
+Release packages:
+
+* Windows: `python tools/package_windows.py --name <suffix>` from a "x64
+  Native Tools Command Prompt for VS" builds `build-release/` (Release, GUI
+  application, static C/C++ runtime and SDL - only Windows' own DLLs are
+  needed) and makes `dist/berusky-<version>-<suffix>-windows-x64.zip`
+  (`berusky.exe`, `data/`, `COPYING`, `README.txt`).
+* Android: `./gradlew assembleRelease` in `android/`, signed when
+  `android/keystore.properties` exists (see `android/README.md`).
 
 Game data (`Graphics`, `GameData`, `Levels`, `Sound`, `Music`) is found automatically:
 `$BERUSKY_DATA`, `<exe>/data`, `<exe>/../data`, `<exe>/../../data`,
